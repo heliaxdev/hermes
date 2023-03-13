@@ -1952,7 +1952,7 @@ dependencies = [
  "env_logger 0.10.0",
  "erased-serde",
  "flex-error",
- "ibc-proto 0.24.1",
+ "ibc-proto 0.26.0",
  "ics23",
  "itertools",
  "modelator",

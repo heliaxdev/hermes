@@ -1,13 +1,13 @@
 use core::str::FromStr;
 use itertools::Itertools;
 use serde_derive::{Deserialize, Serialize};
-use tendermint::abci;
+use tendermint_proto::abci;
 
 use super::error::Error;
 use crate::applications::transfer::coin::RawCoin;
 use crate::core::ics04_channel::packet::Sequence;
 use crate::core::ics24_host::identifier::{ChannelId, PortId};
-use crate::events::IbcEventType;
+use crate::events::{IbcEventType, ModuleEventAttribute};
 use crate::prelude::*;
 
 #[derive(Debug, Clone, Serialize, Deserialize, Eq, PartialEq)]
@@ -36,16 +36,17 @@ fn find_value<'a>(key: &str, entries: &'a [abci::EventAttribute]) -> Result<&'a 
 impl From<IncentivizedPacket> for abci::Event {
     fn from(event: IncentivizedPacket) -> Self {
         let attributes = vec![
-            ("port_id", event.port_id.as_str()).into(),
-            ("channel_id", event.channel_id.as_str()).into(),
-            ("packet_sequence", &event.sequence.to_string()).into(),
-            ("recv_fee", &event.total_recv_fee.iter().join(",")).into(),
-            ("ack_fee", &event.total_ack_fee.iter().join(",")).into(),
-            ("timeout_fee", &event.total_timeout_fee.iter().join(",")).into(),
+            ModuleEventAttribute::from(("port_id", event.port_id)).into(),
+            ModuleEventAttribute::from(("channel_id", event.channel_id)).into(),
+            ModuleEventAttribute::from(("packet_sequence", &event.sequence)).into(),
+            ModuleEventAttribute::from(("recv_fee", &event.total_recv_fee.iter().join(","))).into(),
+            ModuleEventAttribute::from(("ack_fee", &event.total_ack_fee.iter().join(","))).into(),
+            ModuleEventAttribute::from(("timeout_fee", &event.total_timeout_fee.iter().join(",")))
+                .into(),
         ];
 
         Self {
-            kind: IbcEventType::IncentivizedPacket.as_str().to_owned(),
+            r#type: IbcEventType::IncentivizedPacket.as_str().to_owned(),
             attributes,
         }
     }

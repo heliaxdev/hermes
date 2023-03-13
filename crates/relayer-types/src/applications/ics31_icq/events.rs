@@ -7,7 +7,8 @@ use super::error::Error;
 use core::str::FromStr;
 use serde::{Deserialize, Serialize};
 use std::collections::BTreeMap;
-use tendermint::{abci, block::Height};
+use tendermint::block::Height;
+use tendermint_proto::abci;
 const EVENT_TYPE_PREFIX: &str = "query_request";
 
 #[derive(Serialize, Deserialize, Clone, Debug, PartialEq, Eq)]
@@ -57,7 +58,7 @@ impl From<CrossChainQueryPacket> for abci::Event {
         ];
 
         abci::Event {
-            kind: String::from("message"),
+            r#type: String::from("message"),
             attributes,
         }
     }

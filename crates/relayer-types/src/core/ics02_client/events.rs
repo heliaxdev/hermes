@@ -2,13 +2,13 @@
 
 use core::fmt::{Display, Error as FmtError, Formatter};
 use serde_derive::{Deserialize, Serialize};
-use tendermint::abci;
+use tendermint_proto::abci;
 
 use super::header::Header;
 use crate::core::ics02_client::client_type::ClientType;
 use crate::core::ics02_client::height::Height;
 use crate::core::ics24_host::identifier::ClientId;
-use crate::events::{IbcEvent, IbcEventType};
+use crate::events::{IbcEvent, IbcEventType, ModuleEventAttribute};
 use crate::prelude::*;
 
 /// The content of the `key` field for the attribute containing the client identifier.
@@ -84,13 +84,13 @@ impl Display for Attributes {
 /// Convert attributes to Tendermint ABCI tags
 impl From<Attributes> for Vec<abci::EventAttribute> {
     fn from(attrs: Attributes) -> Self {
-        let client_id = (CLIENT_ID_ATTRIBUTE_KEY, attrs.client_id.as_str()).into();
-        let client_type = (CLIENT_TYPE_ATTRIBUTE_KEY, attrs.client_type.as_str()).into();
-        let consensus_height = (
-            CONSENSUS_HEIGHT_ATTRIBUTE_KEY,
-            attrs.consensus_height.to_string(),
-        )
-            .into();
+        let client_id =
+            ModuleEventAttribute::from((CLIENT_ID_ATTRIBUTE_KEY, attrs.client_id)).into();
+        let client_type =
+            ModuleEventAttribute::from((CLIENT_TYPE_ATTRIBUTE_KEY, attrs.client_type)).into();
+        let consensus_height =
+            ModuleEventAttribute::from((CONSENSUS_HEIGHT_ATTRIBUTE_KEY, attrs.consensus_height))
+                .into();
         vec![client_id, client_type, consensus_height]
     }
 }
@@ -126,7 +126,7 @@ impl From<CreateClient> for IbcEvent {
 impl From<CreateClient> for abci::Event {
     fn from(v: CreateClient) -> Self {
         Self {
-            kind: IbcEventType::CreateClient.as_str().to_owned(),
+            r#type: IbcEventType::CreateClient.as_str().to_owned(),
             attributes: v.0.into(),
         }
     }
@@ -183,11 +183,12 @@ impl From<UpdateClient> for abci::Event {
     fn from(v: UpdateClient) -> Self {
         let mut attributes: Vec<_> = v.common.into();
         if let Some(h) = v.header {
-            let header = (HEADER_ATTRIBUTE_KEY, h.encode_to_hex_string()).into();
+            let header =
+                ModuleEventAttribute::from((HEADER_ATTRIBUTE_KEY, h.encode_to_hex_string())).into();
             attributes.push(header);
         }
         Self {
-            kind: IbcEventType::UpdateClient.as_str().to_string(),
+            r#type: IbcEventType::UpdateClient.as_str().to_string(),
             attributes,
         }
     }
@@ -225,7 +226,7 @@ impl From<ClientMisbehaviour> for IbcEvent {
 impl From<ClientMisbehaviour> for abci::Event {
     fn from(v: ClientMisbehaviour) -> Self {
         Self {
-            kind: IbcEventType::ClientMisbehaviour.as_str().to_owned(),
+            r#type: IbcEventType::ClientMisbehaviour.as_str().to_owned(),
             attributes: v.0.into(),
         }
     }
@@ -256,7 +257,7 @@ impl From<Attributes> for UpgradeClient {
 impl From<UpgradeClient> for abci::Event {
     fn from(v: UpgradeClient) -> Self {
         Self {
-            kind: IbcEventType::UpgradeClient.as_str().to_owned(),
+            r#type: IbcEventType::UpgradeClient.as_str().to_owned(),
             attributes: v.0.into(),
         }
     }
