@@ -1,6 +1,7 @@
 use ibc_relayer_types::applications::ics29_fee::msgs::register_payee::build_register_counterparty_payee_message;
 use ibc_relayer_types::core::ics24_host::identifier::{ChannelId, PortId};
 use ibc_relayer_types::signer::Signer;
+use tendermint::Hash as TxHash;
 
 use crate::chain::cosmos::query::account::get_or_fetch_account;
 use crate::chain::cosmos::query::fee::query_counterparty_payee;
@@ -52,11 +53,12 @@ pub async fn maybe_register_counterparty_payee(
             )
             .await?;
 
+            let tx_hash = TxHash::try_from(response.hash.as_bytes().to_vec()).unwrap();
             wait_tx_succeed(
                 &tx_config.rpc_client,
                 &tx_config.rpc_address,
                 &tx_config.rpc_timeout,
-                &response.hash,
+                &tx_hash,
             )
             .await?;
 

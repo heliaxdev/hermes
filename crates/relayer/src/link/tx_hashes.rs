@@ -10,7 +10,12 @@ pub struct TxHashes(pub Vec<TxHash>);
 
 impl From<AsyncReply> for TxHashes {
     fn from(r: AsyncReply) -> Self {
-        Self(r.responses.into_iter().map(|e| e.hash).collect())
+        Self(
+            r.responses
+                .into_iter()
+                .map(|e| TxHash::try_from(e.hash.as_bytes().to_vec()).unwrap())
+                .collect(),
+        )
     }
 }
 

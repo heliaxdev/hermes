@@ -17,6 +17,7 @@ use crate::{
     chain::handle::ChainHandle,
     link::{operational_data::OperationalData, relay_sender::AsyncReply, RelaySummary, TxHashes},
 };
+use tendermint::Hash as TxHash;
 
 pub const TIMEOUT: Duration = Duration::from_secs(300);
 
@@ -112,7 +113,8 @@ impl<Chain: ChainHandle> PendingTxs<Chain> {
                 ));
                 error_events.push(error_event);
             } else {
-                tx_hashes.push(response.hash);
+                let tx_hash = TxHash::try_from(response.hash.as_bytes().to_vec()).unwrap();
+                tx_hashes.push(tx_hash);
             }
         }
 

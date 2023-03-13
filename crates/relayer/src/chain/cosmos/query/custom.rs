@@ -1,9 +1,11 @@
 use crate::chain::requests::CrossChainQueryRequest;
 use crate::error::Error;
+use core::str::FromStr;
 use hex;
 use ibc_relayer_types::applications::ics31_icq::{
     error::Error as CrossChainQueryError, response::CrossChainQueryResponse,
 };
+use tendermint::abci::Path;
 use tendermint_rpc::{Client, HttpClient};
 
 pub async fn cross_chain_query_via_rpc(
@@ -13,9 +15,15 @@ pub async fn cross_chain_query_via_rpc(
     let hex_decoded_request = hex::decode(cross_chain_query_request.request)
         .map_err(|_| Error::ics31(CrossChainQueryError::parse()))?;
 
+    let query_type = Path::from_str(&cross_chain_query_request.query_type).map_err(|_| {
+        Error::query(format!(
+            "invalid query_type: {}",
+            cross_chain_query_request.query_type
+        ))
+    })?;
     let response = client
         .abci_query(
-            Some(cross_chain_query_request.query_type),
+            Some(query_type),
             hex_decoded_request,
             Some(cross_chain_query_request.height),
             true,

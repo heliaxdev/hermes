@@ -165,7 +165,8 @@ pub fn build_and_send_ibc_upgrade_proposal(
         .send_messages_and_wait_check_tx(TrackedMsgs::new_single(any_msg, "upgrade"))
         .map_err(|e| UpgradeChainError::submit(dst_chain.id(), e))?;
 
-    Ok(responses[0].hash)
+    let tx_hash = TxHash::try_from(responses[0].hash.as_bytes().to_vec()).unwrap();
+    Ok(tx_hash)
 }
 
 enum Proposal {

@@ -72,7 +72,7 @@ define_error! {
         DeliverTx
             {
                 detail: SdkError,
-                tx: abci::response::DeliverTx,
+                tx: abci::responses::DeliverTx,
             }
             |e| { format!("DeliverTx Commit returns error: {0}. RawResult: {1:?}", e.detail, e.tx) },
 

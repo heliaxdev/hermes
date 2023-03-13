@@ -118,7 +118,12 @@ impl QueryContext for SimpleHermesRpcQuerier {
         let driver_handle = tokio::spawn(driver.run());
 
         let latest_consensus_params = match client.latest_consensus_params().await {
-            Ok(response) => response.consensus_params.block.max_bytes,
+            Ok(response) => match response.consensus_params.block {
+                Some(size) => size.max_bytes,
+                None => return Err(RegistryError::rpc_consensus_params_block_error(
+                    websocket_addr.to_string(),
+                ))
+            }
             Err(e) => {
                 return Err(RegistryError::rpc_consensus_params_error(
                     websocket_addr.to_string(),

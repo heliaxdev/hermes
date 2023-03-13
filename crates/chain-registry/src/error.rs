@@ -56,6 +56,10 @@ define_error! {
             [ TraceError<tendermint_rpc::Error> ]
             |e| { format_args!("Unable to fetch consensus params for RPC: {}", e.rpc) },
 
+        RpcConsensusParamsBlockError
+            { rpc: String }
+            |e| { format_args!("Unable to fetch consensus params for RPC: {}", e.rpc) },
+
         RpcStatusError
             { rpc: String }
             [ TraceError<tendermint_rpc::Error> ]

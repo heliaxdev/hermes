@@ -236,7 +236,7 @@ fn update_client_from_tx_search_response(
         .tx_result
         .events
         .into_iter()
-        .filter(|event| event.kind == request.event_id.as_str())
+        .filter(|event| event.type_str == request.event_id.as_str())
         .flat_map(|event| ibc_event_try_from_abci_event(&event).ok())
         .flat_map(|event| match event {
             IbcEvent::UpdateClient(update) => Some(update),
@@ -299,7 +299,7 @@ pub fn filter_matching_event(
             && seqs.contains(&packet.sequence)
     }
 
-    if event.kind != request.event_id.as_str() {
+    if event.type_str != request.event_id.as_str() {
         return None;
     }
 

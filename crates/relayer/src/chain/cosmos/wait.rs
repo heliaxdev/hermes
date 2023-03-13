@@ -79,8 +79,8 @@ async fn update_tx_sync_result(
     tx_sync_result: &mut TxSyncResult,
 ) -> Result<(), Error> {
     if let TxStatus::Pending { message_count } = tx_sync_result.status {
-        let response =
-            query_tx_response(rpc_client, rpc_address, &tx_sync_result.response.hash).await?;
+        let tx_hash = TxHash::try_from(tx_sync_result.response.hash.as_bytes().to_vec()).unwrap();
+        let response = query_tx_response(rpc_client, rpc_address, &tx_hash).await?;
 
         if let Some(response) = response {
             tx_sync_result.status = TxStatus::ReceivedResponse;

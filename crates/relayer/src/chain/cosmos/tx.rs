@@ -1,6 +1,7 @@
 use ibc_proto::cosmos::tx::v1beta1::Fee;
 use ibc_proto::google::protobuf::Any;
 use ibc_relayer_types::events::IbcEvent;
+use tendermint::Hash as TxHash;
 use tendermint_rpc::endpoint::broadcast::tx_sync::Response;
 use tendermint_rpc::{Client, HttpClient, Url};
 
@@ -52,7 +53,7 @@ async fn broadcast_tx_sync(
     data: Vec<u8>,
 ) -> Result<Response, Error> {
     let response = rpc_client
-        .broadcast_tx_sync(data)
+        .broadcast_tx_sync(data.into())
         .await
         .map_err(|e| Error::rpc(rpc_address.clone(), e))?;
 
@@ -88,11 +89,12 @@ pub async fn simple_send_tx(
         return Err(Error::check_tx(response));
     }
 
+    let tx_hash = TxHash::try_from(response.hash.as_bytes().to_vec()).unwrap();
     let response = wait_tx_succeed(
         &config.rpc_client,
         &config.rpc_address,
         &config.rpc_timeout,
-        &response.hash,
+        &tx_hash,
     )
     .await?;
 

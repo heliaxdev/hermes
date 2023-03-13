@@ -231,7 +231,10 @@ impl CosmosSdkChain {
                 )
             })?;
 
-        let max_bound = result.consensus_params.block.max_bytes;
+        let (max_bound, consensus_max_gas) = match result.consensus_params.block {
+            Some(size) => (size.max_bytes, size.max_gas),
+            None => return Err(Error::empty_response_value()),
+        };
         let max_allowed = mul_ceil(max_bound, BLOCK_MAX_BYTES_MAX_FRACTION);
         let max_tx_size = BigInt::from(self.max_tx_size());
 
@@ -244,7 +247,6 @@ impl CosmosSdkChain {
         }
 
         // Check that the configured max gas is lower or equal to the consensus params max gas.
-        let consensus_max_gas = result.consensus_params.block.max_gas;
 
         // If the consensus max gas is < 0, we don't need to perform the check.
         if consensus_max_gas >= 0 {
@@ -258,7 +260,7 @@ impl CosmosSdkChain {
                 return Err(Error::config_validation_max_gas_too_high(
                     self.id().clone(),
                     max_gas,
-                    result.consensus_params.block.max_gas,
+                    consensus_max_gas.try_into().unwrap(),
                 ));
             }
         }

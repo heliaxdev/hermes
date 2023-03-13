@@ -9,10 +9,11 @@ members = [
     "crates/relayer-rest",
     "crates/telemetry",
     "crates/chain-registry",
-    "tools/integration-test",
-    "tools/test-framework",
-    "tools/check-guide",
-    "tools/query-events",
+    # skip integration tests since this is only for Namada E2E test
+    #"tools/integration-test",
+    #"tools/test-framework",
+    #"tools/check-guide",
+    #"tools/query-events",
 ]
 
 [patch.crates-io]

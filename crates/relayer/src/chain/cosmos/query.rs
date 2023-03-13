@@ -1,3 +1,4 @@
+use core::str::FromStr;
 use http::uri::Uri;
 use ibc_proto::cosmos::base::tendermint::v1beta1::service_client::ServiceClient;
 use ibc_proto::cosmos::base::tendermint::v1beta1::GetNodeInfoRequest;
@@ -6,6 +7,7 @@ use ibc_relayer_types::core::ics23_commitment::merkle::{
     convert_tm_to_ics_merkle_proof, MerkleProof,
 };
 use ibc_relayer_types::core::ics24_host::identifier::ChainId;
+use tendermint::abci::Path;
 use tendermint::block::Height;
 use tendermint_rpc::query::Query;
 use tendermint_rpc::{Client, HttpClient, Url};
@@ -87,6 +89,8 @@ pub async fn abci_query(
     } else {
         Some(height)
     };
+    let path =
+        Path::from_str(&path).map_err(|_| Error::query(format!("invalid path: {}", path)))?;
 
     // Use the Tendermint-rs RPC client to do the query.
     let response = rpc_client

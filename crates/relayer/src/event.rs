@@ -23,6 +23,7 @@ use ibc_relayer_types::{
 };
 use serde::Serialize;
 use tendermint::abci::Event as AbciEvent;
+use tendermint_proto::abci::{Event as AbciProtoEvent, EventAttribute};
 
 use crate::light_client::decode_header;
 
@@ -61,7 +62,7 @@ impl Display for IbcEventWithHeight {
 /// defined in this crate. Hence, we are forced to make an ad-hoc function for
 /// it.
 pub fn ibc_event_try_from_abci_event(abci_event: &AbciEvent) -> Result<IbcEvent, IbcEventError> {
-    match abci_event.kind.parse() {
+    match abci_event.type_str.parse() {
         Ok(IbcEventType::CreateClient) => Ok(IbcEvent::CreateClient(
             create_client_try_from_abci_event(abci_event).map_err(IbcEventError::client)?,
         )),
@@ -122,15 +123,22 @@ pub fn ibc_event_try_from_abci_event(abci_event: &AbciEvent) -> Result<IbcEvent,
         Ok(IbcEventType::Timeout) => Ok(IbcEvent::TimeoutPacket(
             timeout_packet_try_from_abci_event(abci_event).map_err(IbcEventError::channel)?,
         )),
-        Ok(IbcEventType::IncentivizedPacket) => Ok(IbcEvent::IncentivizedPacket(
-            IncentivizedPacket::try_from(&abci_event.attributes[..]).map_err(IbcEventError::fee)?,
-        )),
-        Ok(IbcEventType::CrossChainQuery) => Ok(IbcEvent::CrossChainQueryPacket(
-            CrossChainQueryPacket::try_from(&abci_event.attributes[..])
-                .map_err(IbcEventError::cross_chain_query)?,
-        )),
+        Ok(IbcEventType::IncentivizedPacket) => {
+            let proto_event = into_proto_event(abci_event);
+            Ok(IbcEvent::IncentivizedPacket(
+                IncentivizedPacket::try_from(&proto_event.attributes[..])
+                    .map_err(IbcEventError::fee)?,
+            ))
+        }
+        Ok(IbcEventType::CrossChainQuery) => {
+            let proto_event = into_proto_event(abci_event);
+            Ok(IbcEvent::CrossChainQueryPacket(
+                CrossChainQueryPacket::try_from(&proto_event.attributes[..])
+                    .map_err(IbcEventError::cross_chain_query)?,
+            ))
+        }
         _ => Err(IbcEventError::unsupported_abci_event(
-            abci_event.kind.clone(),
+            abci_event.type_str.clone(),
         )),
     }
 }
@@ -255,7 +263,7 @@ pub fn send_packet_try_from_abci_event(
             debug_assert_eq!(write_ack.len(), 0);
             channel_events::SendPacket { packet }
         })
-        .map_err(|_| ChannelError::abci_conversion_failed(abci_event.kind.clone()))
+        .map_err(|_| ChannelError::abci_conversion_failed(abci_event.type_str.clone()))
 }
 
 pub fn write_acknowledgement_try_from_abci_event(
@@ -266,7 +274,7 @@ pub fn write_acknowledgement_try_from_abci_event(
             packet,
             ack: write_ack,
         })
-        .map_err(|_| ChannelError::abci_conversion_failed(abci_event.kind.clone()))
+        .map_err(|_| ChannelError::abci_conversion_failed(abci_event.type_str.clone()))
 }
 
 pub fn acknowledge_packet_try_from_abci_event(
@@ -278,7 +286,7 @@ pub fn acknowledge_packet_try_from_abci_event(
             debug_assert_eq!(write_ack.len(), 0);
             channel_events::AcknowledgePacket { packet }
         })
-        .map_err(|_| ChannelError::abci_conversion_failed(abci_event.kind.clone()))
+        .map_err(|_| ChannelError::abci_conversion_failed(abci_event.type_str.clone()))
 }
 
 pub fn timeout_packet_try_from_abci_event(
@@ -290,15 +298,15 @@ pub fn timeout_packet_try_from_abci_event(
             debug_assert_eq!(write_ack.len(), 0);
             channel_events::TimeoutPacket { packet }
         })
-        .map_err(|_| ChannelError::abci_conversion_failed(abci_event.kind.clone()))
+        .map_err(|_| ChannelError::abci_conversion_failed(abci_event.type_str.clone()))
 }
 
 fn client_extract_attributes_from_tx(event: &AbciEvent) -> Result<ClientAttributes, ClientError> {
     let mut attr = ClientAttributes::default();
 
     for tag in &event.attributes {
-        let key = tag.key.as_str();
-        let value = tag.value.as_str();
+        let key = tag.key.as_ref();
+        let value = tag.value.as_ref();
         match key {
             client_events::CLIENT_ID_ATTRIBUTE_KEY => {
                 attr.client_id = value
@@ -324,9 +332,9 @@ fn client_extract_attributes_from_tx(event: &AbciEvent) -> Result<ClientAttribut
 
 pub fn extract_header_from_tx(event: &AbciEvent) -> Result<Box<dyn Header>, ClientError> {
     for tag in &event.attributes {
-        if tag.key == HEADER_ATTRIBUTE_KEY {
+        if tag.key.as_ref() == HEADER_ATTRIBUTE_KEY {
             let header_bytes =
-                hex::decode(&tag.value).map_err(|_| ClientError::malformed_header())?;
+                hex::decode(tag.value.as_ref()).map_err(|_| ClientError::malformed_header())?;
             return decode_header(&header_bytes);
         }
     }
@@ -339,8 +347,8 @@ fn connection_extract_attributes_from_tx(
     let mut attr = ConnectionAttributes::default();
 
     for tag in &event.attributes {
-        let key = tag.key.as_str();
-        let value = tag.value.as_str();
+        let key = tag.key.as_ref();
+        let value = tag.value.as_ref();
         match key {
             connection_events::CONN_ID_ATTRIBUTE_KEY => {
                 attr.connection_id = value.parse().ok();
@@ -368,8 +376,8 @@ fn channel_extract_attributes_from_tx(
     let mut attr = ChannelAttributes::default();
 
     for tag in &event.attributes {
-        let key = tag.key.as_str();
-        let value = tag.value.as_str();
+        let key = tag.key.as_ref();
+        let value = tag.value.as_ref();
         match key {
             channel_events::PORT_ID_ATTRIBUTE_KEY => {
                 attr.port_id = value.parse().map_err(ChannelError::identifier)?
@@ -399,8 +407,8 @@ fn extract_packet_and_write_ack_from_tx(
     let mut packet = Packet::default();
     let mut write_ack: Vec<u8> = Vec::new();
     for tag in &event.attributes {
-        let key = tag.key.as_str();
-        let value = tag.value.as_str();
+        let key = tag.key.as_ref();
+        let value = tag.value.as_ref();
         match key {
             channel_events::PKT_SRC_PORT_ATTRIBUTE_KEY => {
                 packet.source_port = value.parse().map_err(ChannelError::identifier)?;
@@ -453,6 +461,24 @@ pub fn parse_timeout_height(s: &str) -> Result<TimeoutHeight, ChannelError> {
     }
 }
 
+/// Convert AbciEvent to to tendermint_proto::abci::event for EventAttributes
+pub fn into_proto_event(event: &AbciEvent) -> AbciProtoEvent {
+    let mut attributes = Vec::new();
+    for tag in &event.attributes {
+        let attr = EventAttribute {
+            key: tag.key.to_string(),
+            value: tag.key.to_string(),
+            index: true,
+        };
+        attributes.push(attr);
+    }
+
+    AbciProtoEvent {
+        r#type: event.type_str.clone(),
+        attributes,
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -464,6 +490,24 @@ mod tests {
     use ibc_relayer_types::core::ics02_client::header::downcast_header;
     use ibc_relayer_types::core::ics04_channel::packet::Sequence;
     use ibc_relayer_types::timestamp::Timestamp;
+    use tendermint::abci::tag::Tag;
+
+    /// Convert AbciEvent to to tendermint_proto::abci::event for EventAttributes
+    pub fn into_abci_event(event: &AbciProtoEvent) -> AbciEvent {
+        let mut attributes = Vec::new();
+        for attr in &event.attributes {
+            let attr = Tag {
+                key: attr.key.parse().unwrap(),
+                value: attr.value.parse().unwrap(),
+            };
+            attributes.push(attr);
+        }
+
+        AbciEvent {
+            type_str: event.r#type.clone(),
+            attributes,
+        }
+    }
 
     #[test]
     fn extract_header() {
@@ -487,13 +531,13 @@ mod tests {
         };
         let mut abci_events = vec![];
         let open_init = connection_events::OpenInit::from(attributes.clone());
-        abci_events.push(AbciEvent::from(open_init.clone()));
+        abci_events.push(into_abci_event(&open_init.clone().into()));
         let open_try = connection_events::OpenTry::from(attributes.clone());
-        abci_events.push(AbciEvent::from(open_try.clone()));
+        abci_events.push(into_abci_event(&open_try.clone().into()));
         let open_ack = connection_events::OpenAck::from(attributes.clone());
-        abci_events.push(AbciEvent::from(open_ack.clone()));
+        abci_events.push(into_abci_event(&open_ack.clone().into()));
         let open_confirm = connection_events::OpenConfirm::from(attributes);
-        abci_events.push(AbciEvent::from(open_confirm.clone()));
+        abci_events.push(into_abci_event(&open_confirm.clone().into()));
 
         for abci_event in abci_events {
             match ibc_event_try_from_abci_event(&abci_event).ok() {
@@ -520,17 +564,17 @@ mod tests {
         };
         let mut abci_events = vec![];
         let open_init = channel_events::OpenInit::try_from(attributes.clone()).unwrap();
-        abci_events.push(AbciEvent::from(open_init.clone()));
+        abci_events.push(into_abci_event(&open_init.clone().into()));
         let open_try = channel_events::OpenTry::try_from(attributes.clone()).unwrap();
-        abci_events.push(AbciEvent::from(open_try.clone()));
+        abci_events.push(into_abci_event(&open_try.clone().into()));
         let open_ack = channel_events::OpenAck::try_from(attributes.clone()).unwrap();
-        abci_events.push(AbciEvent::from(open_ack.clone()));
+        abci_events.push(into_abci_event(&open_ack.clone().into()));
         let open_confirm = channel_events::OpenConfirm::try_from(attributes.clone()).unwrap();
-        abci_events.push(AbciEvent::from(open_confirm.clone()));
+        abci_events.push(into_abci_event(&open_confirm.clone().into()));
         let close_init = channel_events::CloseInit::try_from(attributes.clone()).unwrap();
-        abci_events.push(AbciEvent::from(close_init.clone()));
+        abci_events.push(into_abci_event(&close_init.clone().into()));
         let close_confirm = channel_events::CloseConfirm::try_from(attributes).unwrap();
-        abci_events.push(AbciEvent::from(close_confirm.clone()));
+        abci_events.push(into_abci_event(&close_confirm.clone().into()));
 
         for abci_event in abci_events {
             match ibc_event_try_from_abci_event(&abci_event).ok() {
@@ -576,18 +620,18 @@ mod tests {
         let send_packet = channel_events::SendPacket {
             packet: packet.clone(),
         };
-        abci_events.push(AbciEvent::try_from(send_packet.clone()).unwrap());
+        abci_events.push(into_abci_event(&send_packet.clone().try_into().unwrap()));
         let write_ack = channel_events::WriteAcknowledgement {
             packet: packet.clone(),
             ack: "test_ack".as_bytes().to_vec(),
         };
-        abci_events.push(AbciEvent::try_from(write_ack.clone()).unwrap());
+        abci_events.push(into_abci_event(&write_ack.clone().try_into().unwrap()));
         let ack_packet = channel_events::AcknowledgePacket {
             packet: packet.clone(),
         };
-        abci_events.push(AbciEvent::try_from(ack_packet.clone()).unwrap());
+        abci_events.push(into_abci_event(&ack_packet.clone().try_into().unwrap()));
         let timeout_packet = channel_events::TimeoutPacket { packet };
-        abci_events.push(AbciEvent::try_from(timeout_packet.clone()).unwrap());
+        abci_events.push(into_abci_event(&timeout_packet.clone().try_into().unwrap()));
 
         for abci_event in abci_events {
             match ibc_event_try_from_abci_event(&abci_event).ok() {
