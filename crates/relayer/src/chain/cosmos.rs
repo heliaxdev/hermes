@@ -1897,7 +1897,7 @@ fn sort_events_by_sequence(events: &mut [IbcEventWithHeight]) {
 
 /// Initialize the light client for the given chain using the given HTTP client
 /// to fetch the node identifier to be used as peer id in the light client.
-async fn init_light_client(
+pub async fn init_light_client(
     rpc_client: &HttpClient,
     config: &ChainConfig,
 ) -> Result<TmLightClient, Error> {

@@ -6,6 +6,12 @@ use flex_error::{define_error, DisplayOnly, TraceError};
 use http::uri::InvalidUri;
 use humantime::format_duration;
 use ibc_proto::protobuf::Error as TendermintProtoError;
+use namada::ledger::queries::tm::Error as NamadaQueryError;
+use namada::tendermint::Error as AbciPlusTmError;
+use namada::tendermint::Error as NamadaTendermintError;
+use namada::tendermint_proto::Error as AbciPlusTmProtoError;
+use namada::tendermint_rpc::Error as TendermintAbciPlusRpcError;
+use namada::types::token::Amount;
 use prost::{DecodeError, EncodeError};
 use regex::Regex;
 use tendermint::abci;
@@ -36,6 +42,7 @@ use ibc_relayer_types::{
     proofs::ProofError,
     relayer::ics18_relayer::error as relayer_error,
 };
+use namada::ibc::core::ics23_commitment::error as abciplus_commitment_error;
 
 use crate::chain::cosmos::version;
 use crate::chain::cosmos::BLOCK_MAX_BYTES_MAX_FRACTION;
@@ -568,6 +575,66 @@ define_error! {
 
         QueriedProofNotFound
             |_| { "Requested proof with query but no proof was returned." },
+
+        NamadaWalletNotInitialized
+            |_| { "Namada wallet has not been initialized yet" },
+
+        NamadaKeyPairNotFound
+            [ TraceError<namada_apps::wallet::FindKeyError> ]
+            |_| { "The keypair was not found" },
+
+        NamadaAddressNotFound
+            { alias: String }
+            |e| { format!("The address was not found for {}", e.alias) },
+
+        NamadaTendermint
+            [ NamadaTendermintError ]
+            |_| { "Tendermint error" },
+
+        NamadaQuery
+            [ TraceError<NamadaQueryError> ]
+            |_| { "Namada ABCI query returned an error" },
+
+        NamadaTxFee
+            {
+                balance: Amount,
+                fee: Amount
+            }
+            |e|  { format!("The relayer doesn't have enough balance for Namada transaction fee: balance {}, fee {}", e.balance, e.fee) },
+
+        // for different tendermint-rs
+        AbciPlusRpc
+            { url: tendermint_rpc::Url }
+            [ TraceError<TendermintAbciPlusRpcError> ]
+            |e| { format!("RPC error to endpoint {}", e.url) },
+
+        AbciPlusInvalidHeight
+            [ AbciPlusTmError ]
+            |_| { "invalid height" },
+
+        AbciPlusIcs23
+            [ TraceError<abciplus_commitment_error::CommitmentError> ]
+            |_| { "ICS 23 error" },
+
+        AbciPlusHealthCheckJsonRpc
+            {
+                chain_id: ChainId,
+                address: String,
+                endpoint: String,
+            }
+            [ DisplayOnly<TendermintAbciPlusRpcError> ]
+            |e| {
+                format!("health check failed for endpoint {0} on the JSON-RPC interface of chain {1}:{2}",
+                    e.endpoint, e.chain_id, e.address)
+            },
+
+        AbciPlusDecode
+            [ AbciPlusTmProtoError ]
+            |_| { "error decoding protobuf" },
+
+        BorshDecode
+            [ TraceError<std::io::Error> ]
+            |_| { "error decoding borsh" },
     }
 }
 

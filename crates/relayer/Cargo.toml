@@ -25,6 +25,9 @@ ibc-proto         = { version = "0.24.1" }
 ibc-telemetry     = { version = "0.22.0", path = "../telemetry", optional = true }
 ibc-relayer-types = { version = "0.22.0", path = "../relayer-types", features = ["mocks"] }
 
+borsh = "0.9.0"
+namada_apps = { git = "https://github.com/anoma/namada", rev = "ebf10fc2b7b83d60bde294bdf0c12457533eeb97" }
+namada = { git = "https://github.com/anoma/namada", rev ="ebf10fc2b7b83d60bde294bdf0c12457533eeb97", default-features = false, features = ["abciplus", "ibc-mocks"] }
 subtle-encoding = "0.5"
 humantime-serde = "1.1.1"
 serde = "1.0"
@@ -80,6 +83,10 @@ features = ["num-bigint", "serde"]
 [dependencies.tendermint]
 version = "0.28.0"
 features = ["secp256k1"]
+
+[dependencies.tendermint-proto]
+version = "0.28.0"
+default-features = false
 
 [dependencies.tendermint-rpc]
 version = "0.28.0"

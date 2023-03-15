@@ -218,7 +218,7 @@ pub async fn query_packets_from_block(
 // for client Y at consensus height H'. This is the reason the code iterates all event fields in the
 // returned Tx to retrieve the relevant ones.
 // Returns `None` if no matching event was found.
-fn update_client_from_tx_search_response(
+pub fn update_client_from_tx_search_response(
     chain_id: &ChainId,
     request: &QueryClientEventRequest,
     response: TxResponse,

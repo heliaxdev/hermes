@@ -16,10 +16,24 @@ members = [
 ]
 
 [patch.crates-io]
-# tendermint              = { git = "https://github.com/informalsystems/tendermint-rs", branch = "v0.23.x" }
-# tendermint-rpc          = { git = "https://github.com/informalsystems/tendermint-rs", branch = "v0.23.x" }
-# tendermint-proto        = { git = "https://github.com/informalsystems/tendermint-rs", branch = "v0.23.x" }
-# tendermint-light-client = { git = "https://github.com/informalsystems/tendermint-rs", branch = "v0.23.x" }
-# tendermint-light-client-verifier = { git = "https://github.com/informalsystems/tendermint-rs", branch = "v0.23.x" }
-# tendermint-testgen      = { git = "https://github.com/informalsystems/tendermint-rs", branch = "v0.23.x" }
-# ibc-proto               = { git = "https://github.com/cosmos/ibc-proto-rs", branch = "main" }
+borsh = {git = "https://github.com/heliaxdev/borsh-rs.git", rev = "cd5223e5103c4f139e0c54cf8259b7ec5ec4073a"}
+borsh-derive = {git = "https://github.com/heliaxdev/borsh-rs.git", rev = "cd5223e5103c4f139e0c54cf8259b7ec5ec4073a"}
+borsh-derive-internal = {git = "https://github.com/heliaxdev/borsh-rs.git", rev = "cd5223e5103c4f139e0c54cf8259b7ec5ec4073a"}
+borsh-schema-derive-internal = {git = "https://github.com/heliaxdev/borsh-rs.git", rev = "cd5223e5103c4f139e0c54cf8259b7ec5ec4073a"}
+
+tendermint = {git = "https://github.com/heliaxdev/tendermint-rs.git", rev = "a2cd889ae706854e7bf476880a37408d75b4a8e1"}
+tendermint-config = {git = "https://github.com/heliaxdev/tendermint-rs.git", rev = "a2cd889ae706854e7bf476880a37408d75b4a8e1"}
+tendermint-proto = {git = "https://github.com/heliaxdev/tendermint-rs.git", rev = "a2cd889ae706854e7bf476880a37408d75b4a8e1"}
+tendermint-rpc = {git = "https://github.com/heliaxdev/tendermint-rs.git", rev = "a2cd889ae706854e7bf476880a37408d75b4a8e1"}
+tendermint-testgen = {git = "https://github.com/heliaxdev/tendermint-rs.git", rev = "a2cd889ae706854e7bf476880a37408d75b4a8e1"}
+tendermint-light-client-verifier = {git = "https://github.com/heliaxdev/tendermint-rs.git", rev = "a2cd889ae706854e7bf476880a37408d75b4a8e1"}
+
+# patched to a commit on the `eth-bridge-integration` branch of our fork
+ibc = {git = "https://github.com/heliaxdev/cosmos-ibc-rs.git", rev = "791c10b2c7c965d0c330a6a7aefcdd5ca806ecf9"}
+ibc-proto = {git = "https://github.com/heliaxdev/ibc-proto-rs.git", rev = "acc378e5e1865fbf559fa4e36e3c2b0dc1da51bb"}
+
+# patched to a commit on the `eth-bridge-integration` branch of our fork
+tower-abci = {git = "https://github.com/heliaxdev/tower-abci.git", rev = "3fb3b5c9d187d7009bc25c25813ddaab38216e73"}
+
+# patched to the yanked 1.2.0 until masp updates bitvec
+funty = { git = "https://github.com/bitvecto-rs/funty/", rev = "7ef0d890fbcd8b3def1635ac1a877fc298488446" }
