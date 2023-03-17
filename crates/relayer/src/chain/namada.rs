@@ -227,14 +227,6 @@ impl ChainEndpoint for NamadaChain {
         Ok(Signer::from_str(&address.to_string()).unwrap())
     }
 
-    fn get_key(&mut self) -> Result<Self::SigningKeyPair, Error> {
-        unreachable!("this chain should use its wallet")
-    }
-
-    fn add_key(&mut self, _key_name: &str, _key_pair: Self::SigningKeyPair) -> Result<(), Error> {
-        unreachable!("this chain should use its wallet")
-    }
-
     fn ibc_version(&self) -> Result<Option<semver::Version>, Error> {
         unimplemented!()
     }

@@ -2,7 +2,7 @@ use core::str::FromStr;
 
 use ibc_relayer_types::core::ics23_commitment::merkle::convert_tm_to_ics_merkle_proof;
 use ibc_relayer_types::core::ics23_commitment::merkle::MerkleProof;
-use ibc_relayer_types::events::IbcEvent;
+use ibc_relayer_types::events::{IbcEvent, IbcEventType};
 use ibc_relayer_types::Height as ICSHeight;
 use namada::ledger::queries::RPC;
 use namada::tendermint_rpc::query::Query as AbciPlusQuery;
@@ -31,10 +31,7 @@ impl NamadaChain {
             QueryHeight::Latest => None,
             QueryHeight::Specific(h) => Some(BlockHeight(h.revision_height())),
         };
-        let is_proven = match include_proof {
-            IncludeProof::Yes => true,
-            IncludeProof::No => false,
-        };
+        let is_proven = matches!(include_proof, IncludeProof::Yes);
         let response = self
             .rt
             .block_on(
@@ -109,6 +106,12 @@ impl NamadaChain {
             match ibc_event_try_from_abci_event(&event) {
                 Ok(e) => ibc_events.push(IbcEventWithHeight::new(e, height)),
                 Err(err) => {
+                    // skip AppModule and ReceivePacket event
+                    if event.kind == "app_module"
+                        || event.kind == IbcEventType::ReceivePacket.as_str()
+                    {
+                        continue;
+                    }
                     let success_code_tag = EventAttribute {
                         key: "code".to_string(),
                         value: "0".to_string(),
