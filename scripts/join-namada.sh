@@ -23,7 +23,7 @@ BASE_DIR_B=${IBC_RS_DIR}/data/namada-b/.namada
 
 HERMES_CONFIG_TEMPLATE="
 [global]
-log_level = 'debug'
+log_level = 'info'
 
 [mode]
 
@@ -55,17 +55,10 @@ type = 'namada'
 rpc_addr = 'http://127.0.0.1:26657'
 grpc_addr = 'http://127.0.0.1:9090'
 websocket_addr = 'ws://127.0.0.1:26657/websocket'
-rpc_timeout = '10s'
-account_prefix = 'cosmos'
+account_prefix = ''
 key_name = 'relayer'
 store_prefix = 'ibc'
-max_gas = 3000000
-max_msg_num = 30
-max_tx_size = 2097152
 gas_price = { price = 0.001, denom = 'stake' }
-clock_drift = '5s'
-trusting_period = '14days'
-trust_threshold = { numerator = '1', denominator = '3' }
 
 [[chains]]
 id = '_CHAIN_ID_B_'
@@ -73,17 +66,10 @@ type = 'namada'
 rpc_addr = 'http://127.0.0.1:27657'
 grpc_addr = 'http://127.0.0.1:9090'
 websocket_addr = 'ws://127.0.0.1:27657/websocket'
-rpc_timeout = '10s'
 account_prefix = 'cosmos'
 key_name = 'relayer'
 store_prefix = 'ibc'
-max_gas = 3000000
-max_msg_num = 30
-max_tx_size = 2097152
-gas_price = { price = 0.001, denom = 'stake' }
-clock_drift = '5s'
-trusting_period = '14days'
-trust_threshold = { numerator = '1', denominator = '3' }
+gas_price = { price = 0.001, denom = 'nam' }
 "
 
 # Make the base directories
