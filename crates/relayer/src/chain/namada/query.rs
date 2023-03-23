@@ -80,6 +80,9 @@ impl NamadaChain {
     }
 
     pub fn query_events(&self, query: Query) -> Result<Vec<IbcEventWithHeight>, Error> {
+        crate::time!("query_block: query block packet events");
+        crate::telemetry!(query, self.id(), "query_block");
+
         let query = AbciPlusQuery::from_str(&query.to_string()).unwrap();
         let blocks = &self
             .rt

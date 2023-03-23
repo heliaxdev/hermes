@@ -218,6 +218,8 @@ impl ChainEndpoint for NamadaChain {
     }
 
     fn get_signer(&self) -> Result<Signer, Error> {
+        crate::time!("get_signer");
+
         let wallet_path = Path::new(BASE_WALLET_DIR).join(self.config.id.to_string());
         let wallet = Wallet::load(&wallet_path).expect("wallet has not been initialized yet");
         let address = wallet
@@ -235,6 +237,8 @@ impl ChainEndpoint for NamadaChain {
         &mut self,
         tracked_msgs: TrackedMsgs,
     ) -> Result<Vec<IbcEventWithHeight>, Error> {
+        crate::time!("send_messages_and_wait_commit");
+
         let proto_msgs = tracked_msgs.messages();
         if proto_msgs.is_empty() {
             return Ok(vec![]);
@@ -278,6 +282,8 @@ impl ChainEndpoint for NamadaChain {
         &mut self,
         tracked_msgs: TrackedMsgs,
     ) -> Result<Vec<Response>, Error> {
+        crate::time!("send_messages_and_wait_check_tx");
+
         let proto_msgs = tracked_msgs.messages();
         if proto_msgs.is_empty() {
             return Ok(vec![]);
@@ -377,8 +383,9 @@ impl ChainEndpoint for NamadaChain {
         Ok(balances)
     }
 
-    // Query the denom trace with "ibc/{IbcToken}" which hash a hashed denom.
-    fn query_denom_trace(&self, denom: String) -> Result<DenomTrace, Error> {
+    // Query the denom trace with "{IbcToken}" which hash a hashed denom.
+    fn query_denom_trace(&self, hash: String) -> Result<DenomTrace, Error> {
+        let denom = format!("{}/{}", storage::MULTITOKEN_STORAGE_KEY, hash);
         let token_hash = match storage::token_hash_from_denom(&denom).map_err(|e| {
             Error::query(format!(
                 "Parsing the denom failed: denom {}, error {}",
@@ -415,10 +422,16 @@ impl ChainEndpoint for NamadaChain {
     }
 
     fn query_commitment_prefix(&self) -> Result<CommitmentPrefix, Error> {
+        crate::time!("query_commitment_prefix");
+        crate::telemetry!(query, self.id(), "query_commitment_prefix");
+
         CommitmentPrefix::try_from(b"ibc".to_vec()).map_err(Error::ics23)
     }
 
     fn query_application_status(&self) -> Result<ChainStatus, Error> {
+        crate::time!("query_application_status");
+        crate::telemetry!(query, self.id(), "query_application_status");
+
         let status = self
             .rt
             .block_on(self.rpc_client.status())
@@ -448,6 +461,9 @@ impl ChainEndpoint for NamadaChain {
         &self,
         _request: QueryClientStatesRequest,
     ) -> Result<Vec<IdentifiedAnyClientState>, Error> {
+        crate::time!("query_clients");
+        crate::telemetry!(query, self.id(), "query_clients");
+
         let prefix = storage::ibc_key("clients").expect("the path should be parsable");
         let mut states = vec![];
         for prefix_value in self.query_prefix(prefix)? {
@@ -469,6 +485,9 @@ impl ChainEndpoint for NamadaChain {
         request: QueryClientStateRequest,
         include_proof: IncludeProof,
     ) -> Result<(AnyClientState, Option<MerkleProof>), Error> {
+        crate::time!("query_client_state");
+        crate::telemetry!(query, self.id(), "query_client_state");
+
         let path = ClientStatePath(request.client_id);
         let key = storage::ibc_key(path.to_string()).expect("the path should be parsable");
         let (value, proof) = self.query(key, request.height, include_proof)?;
@@ -482,6 +501,9 @@ impl ChainEndpoint for NamadaChain {
         request: QueryConsensusStateRequest,
         include_proof: IncludeProof,
     ) -> Result<(AnyConsensusState, Option<MerkleProof>), Error> {
+        crate::time!("query_consensus_state");
+        crate::telemetry!(query, self.id(), "query_consensus_state");
+
         let path = ClientConsensusStatePath {
             client_id: request.client_id,
             epoch: request.consensus_height.revision_number(),
@@ -518,6 +540,9 @@ impl ChainEndpoint for NamadaChain {
         &self,
         _request: QueryUpgradedClientStateRequest,
     ) -> Result<(AnyClientState, MerkleProof), Error> {
+        crate::time!("query_upgraded_client_state");
+        crate::telemetry!(query, self.id(), "query_upgraded_client_state");
+
         unimplemented!()
     }
 
@@ -525,6 +550,9 @@ impl ChainEndpoint for NamadaChain {
         &self,
         _request: QueryUpgradedConsensusStateRequest,
     ) -> Result<(AnyConsensusState, MerkleProof), Error> {
+        crate::time!("query_upgraded_consensus_state");
+        crate::telemetry!(query, self.id(), "query_upgraded_consensus_state");
+
         unimplemented!()
     }
 
@@ -532,6 +560,9 @@ impl ChainEndpoint for NamadaChain {
         &self,
         _request: QueryConnectionsRequest,
     ) -> Result<Vec<IdentifiedConnectionEnd>, Error> {
+        crate::time!("query_connections");
+        crate::telemetry!(query, self.id(), "query_connections");
+
         let prefix = storage::ibc_key("connections").expect("the path should be parsable");
         let mut connections = vec![];
         for prefix_value in self.query_prefix(prefix)? {
@@ -556,6 +587,9 @@ impl ChainEndpoint for NamadaChain {
         &self,
         request: QueryClientConnectionsRequest,
     ) -> Result<Vec<ConnectionId>, Error> {
+        crate::time!("query_client_connections");
+        crate::telemetry!(query, self.id(), "query_client_connections");
+
         let query_request = QueryConnectionsRequest { pagination: None };
         let connections = self.query_connections(query_request)?;
         let ids = connections
@@ -571,6 +605,9 @@ impl ChainEndpoint for NamadaChain {
         request: QueryConnectionRequest,
         include_proof: IncludeProof,
     ) -> Result<(ConnectionEnd, Option<MerkleProof>), Error> {
+        crate::time!("query_connection");
+        crate::telemetry!(query, self.id(), "query_connection");
+
         let path = ConnectionsPath(request.connection_id);
         let key = storage::ibc_key(path.to_string()).expect("the path should be parsable");
         let (value, proof) = self.query(key, request.height, include_proof)?;
@@ -582,6 +619,9 @@ impl ChainEndpoint for NamadaChain {
         &self,
         request: QueryConnectionChannelsRequest,
     ) -> Result<Vec<IdentifiedChannelEnd>, Error> {
+        crate::time!("query_connection_channels");
+        crate::telemetry!(query, self.id(), "query_connection_channels");
+
         let hops = vec![request.connection_id];
         let query_request = QueryChannelsRequest { pagination: None };
         let channels = self
@@ -597,6 +637,9 @@ impl ChainEndpoint for NamadaChain {
         &self,
         _request: QueryChannelsRequest,
     ) -> Result<Vec<IdentifiedChannelEnd>, Error> {
+        crate::time!("query_channels");
+        crate::telemetry!(query, self.id(), "query_channels");
+
         let prefix = storage::ibc_key("channelEnds").expect("the path should be parsable");
         let mut channels = vec![];
         for prefix_value in self.query_prefix(prefix)? {
@@ -621,6 +664,9 @@ impl ChainEndpoint for NamadaChain {
         request: QueryChannelRequest,
         include_proof: IncludeProof,
     ) -> Result<(ChannelEnd, Option<MerkleProof>), Error> {
+        crate::time!("query_channel");
+        crate::telemetry!(query, self.id(), "query_channel");
+
         let path = ChannelEndsPath(request.port_id, request.channel_id);
         let key = storage::ibc_key(path.to_string()).expect("the path should be parsable");
         let (value, proof) = self.query(key, request.height, include_proof)?;
@@ -632,6 +678,9 @@ impl ChainEndpoint for NamadaChain {
         &self,
         request: QueryChannelClientStateRequest,
     ) -> Result<Option<IdentifiedAnyClientState>, Error> {
+        crate::time!("query_channel_client_state");
+        crate::telemetry!(query, self.id(), "query_channel_client_state");
+
         let request = QueryChannelRequest {
             port_id: request.port_id,
             channel_id: request.channel_id,
@@ -679,6 +728,9 @@ impl ChainEndpoint for NamadaChain {
         &self,
         request: QueryPacketCommitmentsRequest,
     ) -> Result<(Vec<Sequence>, ICSHeight), Error> {
+        crate::time!("query_packet_commitments");
+        crate::telemetry!(query, self.id(), "query_packet_commitments");
+
         let path = format!(
             "commitments/ports/{}/channels/{}/sequences",
             request.port_id, request.channel_id
@@ -717,6 +769,9 @@ impl ChainEndpoint for NamadaChain {
         &self,
         request: QueryUnreceivedPacketsRequest,
     ) -> Result<Vec<Sequence>, Error> {
+        crate::time!("query_unreceived_packets");
+        crate::telemetry!(query, self.id(), "query_unreceived_packets");
+
         let path = format!(
             "receipts/ports/{}/channels/{}/sequences",
             request.port_id, request.channel_id
@@ -757,6 +812,9 @@ impl ChainEndpoint for NamadaChain {
         &self,
         request: QueryPacketAcknowledgementsRequest,
     ) -> Result<(Vec<Sequence>, ICSHeight), Error> {
+        crate::time!("query_packet_acknowledgements");
+        crate::telemetry!(query, self.id(), "query_packet_acknowledgements");
+
         let path = format!(
             "acks/ports/{}/channels/{}/sequences",
             request.port_id, request.channel_id
@@ -782,6 +840,9 @@ impl ChainEndpoint for NamadaChain {
         &self,
         request: QueryUnreceivedAcksRequest,
     ) -> Result<Vec<Sequence>, Error> {
+        crate::time!("query_unreceived_acknowledgements");
+        crate::telemetry!(query, self.id(), "query_unreceived_acknowledgements");
+
         let path = format!(
             "commitments/ports/{}/channels/{}/sequences",
             request.port_id, request.channel_id
@@ -805,6 +866,9 @@ impl ChainEndpoint for NamadaChain {
         request: QueryNextSequenceReceiveRequest,
         include_proof: IncludeProof,
     ) -> Result<(Sequence, Option<MerkleProof>), Error> {
+        crate::time!("query_next_sequence_receive");
+        crate::telemetry!(query, self.id(), "query_next_sequence_receive");
+
         let path = SeqRecvsPath(request.port_id, request.channel_id);
         let key = storage::ibc_key(path.to_string()).expect("the path should be parsable");
         let (value, proof) = self.query(key, request.height, include_proof)?;
@@ -819,6 +883,9 @@ impl ChainEndpoint for NamadaChain {
     }
 
     fn query_txs(&self, request: QueryTxRequest) -> Result<Vec<IbcEventWithHeight>, Error> {
+        crate::time!("query_txs");
+        crate::telemetry!(query, self.id(), "query_txs");
+
         match request {
             QueryTxRequest::Client(request) => {
                 crate::time!("query_txs: single client update event");
@@ -979,6 +1046,8 @@ impl ChainEndpoint for NamadaChain {
         height: ICSHeight,
         settings: ClientSettings,
     ) -> Result<Self::ClientState, Error> {
+        crate::time!("build_client_state");
+
         let ClientSettings::Tendermint(settings) = settings;
         // TODO set unbonding_period
         let unbonding_period = Duration::new(1814400, 0);
@@ -1009,6 +1078,8 @@ impl ChainEndpoint for NamadaChain {
         &self,
         light_block: Self::LightBlock,
     ) -> Result<Self::ConsensusState, Error> {
+        crate::time!("build_consensus_state");
+
         Ok(TmConsensusState::from(light_block.signed_header.header))
     }
 
@@ -1018,6 +1089,8 @@ impl ChainEndpoint for NamadaChain {
         target_height: ICSHeight,
         client_state: &AnyClientState,
     ) -> Result<(Self::Header, Vec<Self::Header>), Error> {
+        crate::time!("build_header");
+
         // Get the light block at target_height from chain.
         let Verified { target, supporting } = self.light_client.header_and_minimal_set(
             trusted_height,
