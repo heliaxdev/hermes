@@ -82,6 +82,7 @@ pub struct NamadaChain {
     rpc_client: HttpClient,
     light_client: TmLightClient,
     rt: Arc<TokioRuntime>,
+    wallet: Wallet,
     keybase: KeyRing<Secp256k1KeyPair>,
     tx_monitor_cmd: Option<TxMonitorCmd>,
 }
@@ -152,6 +153,7 @@ impl ChainEndpoint for NamadaChain {
             rpc_client,
             light_client,
             rt,
+            wallet,
             keybase,
             tx_monitor_cmd: None,
         })
@@ -220,9 +222,8 @@ impl ChainEndpoint for NamadaChain {
     fn get_signer(&self) -> Result<Signer, Error> {
         crate::time!("get_signer");
 
-        let wallet_path = Path::new(BASE_WALLET_DIR).join(self.config.id.to_string());
-        let wallet = Wallet::load(&wallet_path).expect("wallet has not been initialized yet");
-        let address = wallet
+        let address = self
+            .wallet
             .find_address(&self.config.key_name)
             .ok_or_else(|| Error::namada_address_not_found(self.config.key_name.clone()))?;
 
@@ -319,9 +320,8 @@ impl ChainEndpoint for NamadaChain {
         let key_name = key_name.unwrap_or(&self.config.key_name);
         let denom = denom.unwrap_or(tx::FEE_TOKEN);
 
-        let wallet_path = Path::new(BASE_WALLET_DIR).join(self.config.id.to_string());
-        let wallet = Wallet::load(&wallet_path).expect("wallet has not been initialized yet");
-        let owner = wallet
+        let owner = self
+            .wallet
             .find_address(key_name)
             .ok_or_else(|| Error::namada_address_not_found(key_name.to_string()))?;
         let token = storage::token(denom).map_err(|e| {
@@ -353,9 +353,8 @@ impl ChainEndpoint for NamadaChain {
 
     fn query_all_balances(&self, key_name: Option<&str>) -> Result<Vec<Balance>, Error> {
         let key_name = key_name.unwrap_or(&self.config.key_name);
-        let wallet_path = Path::new(BASE_WALLET_DIR).join(self.config.id.to_string());
-        let wallet = Wallet::load(&wallet_path).expect("wallet has not been initialized yet");
-        let owner = wallet
+        let owner = self
+            .wallet
             .find_address(key_name)
             .ok_or_else(|| Error::namada_address_not_found(key_name.to_string()))?;
 

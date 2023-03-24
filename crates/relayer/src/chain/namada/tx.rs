@@ -1,6 +1,5 @@
 use core::str::FromStr;
 use core::time::Duration;
-use std::path::Path;
 use std::thread;
 use std::time::Instant;
 
@@ -12,7 +11,6 @@ use namada::tendermint_rpc::endpoint::broadcast::tx_sync::Response as AbciPlusRp
 use namada::tendermint_rpc::Client;
 use namada::types::token::Amount;
 use namada::types::transaction::{Fee, GasLimit, WrapperTx};
-use namada_apps::wallet::Wallet;
 use namada_apps::wasm_loader;
 use tendermint_rpc::endpoint::broadcast::tx_sync::Response;
 
@@ -23,7 +21,6 @@ use crate::chain::requests::{IncludeProof, QueryHeight, QueryTxHash, QueryTxRequ
 use crate::error::Error;
 
 use super::NamadaChain;
-use super::BASE_WALLET_DIR;
 
 pub const FEE_TOKEN: &str = "NAM";
 const WASM_DIR: &str = "namada_wasm";
@@ -40,14 +37,14 @@ impl NamadaChain {
         let tx = Tx::new(tx_code, Some(tx_data));
 
         // the wallet should exist because it's confirmed when the bootstrap
-        let wallet_path = Path::new(BASE_WALLET_DIR).join(self.config.id.to_string());
-        let mut wallet = Wallet::load(&wallet_path).expect("wallet has not been initialized yet");
-        let secret_key = wallet
+        let secret_key = self
+            .wallet
             .find_key(&self.config.key_name)
             .map_err(Error::namada_key_pair_not_found)?;
         let signed_tx = tx.sign(&secret_key);
 
-        let fee_token_addr = wallet
+        let fee_token_addr = self
+            .wallet
             .find_address(FEE_TOKEN)
             .ok_or_else(|| Error::namada_address_not_found(FEE_TOKEN.to_string()))?
             .clone();
