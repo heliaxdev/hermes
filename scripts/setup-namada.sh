@@ -13,16 +13,17 @@ then
   exit 1
 fi
 cd $(dirname $0)
-IBC_RS_DIR=${PWD%/scripts*}
+HERMES_DIR=${PWD%/scripts*}
 
 # edit for your environment
 NAMADAC="${NAMADA_DIR}/target/release/namadac"
 NAMADAN="${NAMADA_DIR}/target/release/namadan"
 NAMADAW="${NAMADA_DIR}/target/release/namadaw"
-GENESIS_PATH_A="${NAMADA_DIR}/genesis/e2e-tests-single-node.toml"
-GENESIS_PATH_B="${NAMADA_DIR}/genesis/e2e-tests-single-node-b.toml"
+BASE_GENESIS_PATH="${NAMADA_DIR}/genesis/e2e-tests-single-node.toml"
 CHECKSUM_PATH="${NAMADA_DIR}/wasm/checksums.json"
-DATA_DIR="${IBC_RS_DIR}/data"
+DATA_DIR="${HERMES_DIR}/data"
+GENESIS_PATH_A="${DATA_DIR}/e2e-tests-single-node-a.toml"
+GENESIS_PATH_B="${DATA_DIR}/e2e-tests-single-node-b.toml"
 
 NET_ADDR_A="127.0.0.1:27656"
 NET_ADDR_B="127.0.0.1:28656"
@@ -80,6 +81,20 @@ store_prefix = 'ibc'
 gas_price = { price = 0.001, denom = 'nam' }
 "
 
+function make_genesis() {
+  local suffix=$1
+
+  if [ "${suffix}" == "a" ]
+  then
+    sed "s/epochs_per_year = .*/epochs_per_year = 315360/g" \
+      ${BASE_GENESIS_PATH} > ${GENESIS_PATH_A}
+  else
+    sed -e "s/${NET_ADDR_A}/${NET_ADDR_B}/g" \
+      -e "s/epochs_per_year = .*/epochs_per_year = 315360/g" \
+      ${BASE_GENESIS_PATH} > ${GENESIS_PATH_B}
+  fi
+}
+
 function init_network() {
   local suffix=$1
   local genesis_path=$2
@@ -114,8 +129,8 @@ function init_relayer_acc() {
   local ledger_addr=$2
 
   local base_dir=${DATA_DIR}/namada-${suffix}/.namada
-  local wasm_dir=${IBC_RS_DIR}/namada_wasm
-  local wallet_dir=${IBC_RS_DIR}/namada_wallet/${chain_id}
+  local wasm_dir=${HERMES_DIR}/namada_wasm
+  local wallet_dir=${HERMES_DIR}/namada_wallet/${chain_id}
 
   ${NAMADAW} --base-dir ${base_dir} \
     key gen --alias relayer --unsafe-dont-encrypt
@@ -133,7 +148,10 @@ function init_relayer_acc() {
 
 # ==== main ====
 
+mkdir -p ${DATA_DIR}
+
 # for chain A
+make_genesis "a"
 chain_id_a=$(init_network "a" ${GENESIS_PATH_A})
 
 copy_wasm "a" ${chain_id_a}
@@ -147,7 +165,7 @@ sleep 5
 init_relayer_acc "a" ${chain_id_a} ${LEDGER_ADDR_A}
 
 # for chain B
-sed "s/${NET_ADDR_A}/${NET_ADDR_B}/g" ${GENESIS_PATH_A} > ${GENESIS_PATH_B}
+make_genesis "b"
 chain_id_b=$(init_network "b" ${GENESIS_PATH_B})
 
 copy_wasm "b" ${chain_id_b}
@@ -162,10 +180,10 @@ sleep 5
 init_relayer_acc "b" ${chain_id_b} ${LEDGER_ADDR_B}
 
 # for the relayer
-cd ${IBC_RS_DIR}
+cd ${HERMES_DIR}
 echo "${HERMES_CONFIG_TEMPLATE}" \
   | sed -e "s/_CHAIN_ID_A_/${chain_id_a}/g" -e "s/_CHAIN_ID_B_/${chain_id_b}/g" \
-  > ${IBC_RS_DIR}/config_for_namada.toml
+  > ${HERMES_DIR}/config_for_namada.toml
 
 echo "2 Namada chains are running"
-echo "You can use Hermes with ${IBC_RS_DIR}/config_for_namada.toml"
+echo "You can use Hermes with ${HERMES_DIR}/config_for_namada.toml"

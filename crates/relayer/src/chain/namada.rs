@@ -31,8 +31,12 @@ use ibc_relayer_types::events::IbcEvent;
 use ibc_relayer_types::signer::Signer;
 use ibc_relayer_types::Height as ICSHeight;
 use namada::ledger::ibc::storage;
+use namada::ledger::parameters::storage as param_storage;
+use namada::ledger::parameters::EpochDuration;
 use namada::ledger::storage::ics23_specs::ibc_proof_specs;
 use namada::ledger::storage::Sha256Hasher;
+use namada::proof_of_stake::parameters::PosParams;
+use namada::proof_of_stake::storage as pos_storage;
 use namada::tendermint::abci::Event as NamadaTmEvent;
 use namada::tendermint::block::Height as TmHeight;
 use namada::tendermint_rpc::endpoint::tx::Response as AbciPlusTxResponse;
@@ -108,6 +112,19 @@ impl NamadaChain {
         thread::spawn(move || event_monitor.run());
 
         Ok(monitor_tx)
+    }
+
+    fn get_unbonding_time(&self) -> Result<Duration, Error> {
+        let key = pos_storage::params_key();
+        let (value, _) = self.query(key, QueryHeight::Latest, IncludeProof::No)?;
+        let pos_params = PosParams::try_from_slice(&value[..]).map_err(Error::borsh_decode)?;
+
+        let key = param_storage::get_epoch_duration_storage_key();
+        let (value, _) = self.query(key, QueryHeight::Latest, IncludeProof::No)?;
+        let epoch_duration =
+            EpochDuration::try_from_slice(&value[..]).map_err(Error::borsh_decode)?;
+        let unbonding_period = pos_params.pipeline_len * epoch_duration.min_duration.0;
+        Ok(Duration::from_secs(unbonding_period))
     }
 }
 
@@ -1057,14 +1074,12 @@ impl ChainEndpoint for NamadaChain {
         crate::time!("build_client_state");
 
         let ClientSettings::Tendermint(settings) = settings;
-        // TODO set unbonding_period
-        let unbonding_period = Duration::new(1814400, 0);
+        let unbonding_period = self.get_unbonding_time()?;
         let trusting_period = settings.trusting_period.unwrap_or_else(|| {
             self.config
                 .trusting_period
                 .unwrap_or(2 * unbonding_period / 3)
         });
-        // TODO confirm parameters for Namada
         ClientState::new(
             self.id().clone(),
             settings.trust_threshold,
@@ -1073,7 +1088,7 @@ impl ChainEndpoint for NamadaChain {
             settings.max_clock_drift,
             height,
             self.config.proof_specs.clone().unwrap(),
-            vec!["upgrade".to_string(), "upgradedIBCState".to_string()],
+            vec![],
             AllowUpdate {
                 after_expiry: true,
                 after_misbehaviour: true,
