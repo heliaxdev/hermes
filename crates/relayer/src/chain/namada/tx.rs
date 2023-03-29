@@ -20,11 +20,9 @@ use crate::chain::endpoint::ChainEndpoint;
 use crate::chain::requests::{IncludeProof, QueryHeight, QueryTxHash, QueryTxRequest};
 use crate::error::Error;
 
-use super::NamadaChain;
+use super::{NamadaChain, WASM_DIR, WASM_FILE};
 
 pub const FEE_TOKEN: &str = "NAM";
-const WASM_DIR: &str = "namada_wasm";
-const WASM_FILE: &str = "tx_ibc.wasm";
 const DEFAULT_MAX_GAS: u64 = 100_000;
 const WAIT_BACKOFF: Duration = Duration::from_millis(300);
 

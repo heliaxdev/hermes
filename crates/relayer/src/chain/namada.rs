@@ -41,6 +41,7 @@ use namada::tendermint_rpc::{Client, HttpClient, Order, Url};
 use namada::types::storage::PrefixValue;
 use namada::types::token;
 use namada_apps::wallet::Wallet;
+use namada_apps::wasm_loader;
 use prost::Message;
 use tendermint::Time;
 use tendermint_light_client::types::LightBlock as TMLightBlock;
@@ -73,6 +74,8 @@ use crate::misbehaviour::MisbehaviourEvidence;
 use crate::chain::endpoint::{ChainEndpoint, ChainStatus, HealthCheck};
 
 const BASE_WALLET_DIR: &str = "namada_wallet";
+const WASM_DIR: &str = "namada_wasm";
+const WASM_FILE: &str = "tx_ibc.wasm";
 
 pub mod query;
 pub mod tx;
@@ -141,6 +144,12 @@ impl ChainEndpoint for NamadaChain {
         wallet
             .find_key(&config.key_name)
             .map_err(Error::namada_key_pair_not_found)?;
+
+        // check tx_ibc.wasm
+        if wasm_loader::read_wasm(WASM_DIR, WASM_FILE).is_err() {
+            // download if it doesn't exist
+            rt.block_on(wasm_loader::pre_fetch_wasm(WASM_DIR));
+        }
 
         // overwrite the proof spec
         let config = ChainConfig {
@@ -1058,7 +1067,7 @@ impl ChainEndpoint for NamadaChain {
         // TODO confirm parameters for Namada
         ClientState::new(
             self.id().clone(),
-            self.config.trust_threshold.into(),
+            settings.trust_threshold,
             trusting_period,
             unbonding_period,
             settings.max_clock_drift,

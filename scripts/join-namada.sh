@@ -12,14 +12,14 @@ then
 fi
 
 cd $(dirname $0)
-IBC_RS_DIR=${PWD%/scripts*}
+HERMES_DIR=${PWD%/scripts*}
 
 NAMADAC=${NAMADA_DIR}/target/release/namadac
 NAMADAN=${NAMADA_DIR}/target/release/namadan
 NAMADAW=${NAMADA_DIR}/target/release/namadaw
 
-BASE_DIR_A=${IBC_RS_DIR}/data/namada-a/.namada
-BASE_DIR_B=${IBC_RS_DIR}/data/namada-b/.namada
+BASE_DIR_A=${HERMES_DIR}/data/namada-a/.namada
+BASE_DIR_B=${HERMES_DIR}/data/namada-b/.namada
 
 HERMES_CONFIG_TEMPLATE="
 [global]
@@ -112,29 +112,31 @@ ${NAMADAN} --base-dir ${BASE_DIR_B} ledger run > ${BASE_DIR_B}/namada.log 2>&1 &
 ${NAMADAW} --base-dir ${BASE_DIR_A} key gen --alias relayer --unsafe-dont-encrypt
 ${NAMADAW} --base-dir ${BASE_DIR_B} key gen --alias relayer --unsafe-dont-encrypt
 
-# Copy wasm
-mkdir -p ${IBC_RS_DIR}/namada_wasm
-cp -f ${NAMADA_DIR}/wasm/checksums.json ${IBC_RS_DIR}/namada_wasm
-cp -f ${NAMADA_DIR}/wasm/tx_ibc.*.wasm ${IBC_RS_DIR}/namada_wasm
+# Prepare wasm checksums
+mkdir -p ${HERMES_DIR}/namada_wasm
+wasm=$(grep tx_ibc ${NAMADA_DIR}/wasm/checksums.json | sed s/,//g)
+echo "{
+${wasm}
+}" > ${HERMES_DIR}/namada_wasm/checksums.json
 
 # Copy wallets
-mkdir -p ${IBC_RS_DIR}/namada_wallet/${CHAIN_ID_A}
-mkdir -p ${IBC_RS_DIR}/namada_wallet/${CHAIN_ID_B}
-cp ${BASE_DIR_A}/${CHAIN_ID_A}/wallet.toml ${IBC_RS_DIR}/namada_wallet/${CHAIN_ID_A}
-cp ${BASE_DIR_B}/${CHAIN_ID_B}/wallet.toml ${IBC_RS_DIR}/namada_wallet/${CHAIN_ID_B}
+mkdir -p ${HERMES_DIR}/namada_wallet/${CHAIN_ID_A}
+mkdir -p ${HERMES_DIR}/namada_wallet/${CHAIN_ID_B}
+cp ${BASE_DIR_A}/${CHAIN_ID_A}/wallet.toml ${HERMES_DIR}/namada_wallet/${CHAIN_ID_A}
+cp ${BASE_DIR_B}/${CHAIN_ID_B}/wallet.toml ${HERMES_DIR}/namada_wallet/${CHAIN_ID_B}
 
 # Make Hermes config
 echo "${HERMES_CONFIG_TEMPLATE}" \
   | sed -e "s/_CHAIN_ID_A_/${CHAIN_ID_A}/g" -e "s/_CHAIN_ID_B_/${CHAIN_ID_B}/g" \
-  > ${IBC_RS_DIR}/config_for_namada.toml
+  > ${HERMES_DIR}/config_for_namada.toml
 
 echo "
-Namada data and logs are under ${IBC_RS_DIR}/data/namada-*/.namada"
+Namada data and logs are under ${HERMES_DIR}/data/namada-*/.namada"
 echo "After the sync, you can create a channel and start Hermes process
 "
 echo "Command to create a channel:
-hermes -c ${IBC_RS_DIR}/config_for_namada.toml create channel ${CHAIN_ID_A} --chain-b ${CHAIN_ID_B} --port-a transfer --port-b transfer --new-client-connection
+hermes -c ${HERMES_DIR}/config_for_namada.toml create channel ${CHAIN_ID_A} --chain-b ${CHAIN_ID_B} --port-a transfer --port-b transfer --new-client-connection
 "
 echo "Command to start Hermes to relay packets:
-hermes -c ${IBC_RS_DIR}/config_for_namada.toml start
+hermes -c ${HERMES_DIR}/config_for_namada.toml start
 "
