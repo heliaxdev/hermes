@@ -109,9 +109,10 @@ impl NamadaChain {
             match ibc_event_try_from_abci_event(&event) {
                 Ok(e) => ibc_events.push(IbcEventWithHeight::new(e, height)),
                 Err(err) => {
-                    // skip AppModule and ReceivePacket event
+                    // skip AppModule, ReceivePacket, and Message event
                     if event.kind == "app_module"
                         || event.kind == IbcEventType::ReceivePacket.as_str()
+                        || event.kind == "message"
                     {
                         continue;
                     }
