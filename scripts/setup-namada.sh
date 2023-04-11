@@ -86,11 +86,11 @@ function make_genesis() {
 
   if [ "${suffix}" == "a" ]
   then
-    sed "s/epochs_per_year = .*/epochs_per_year = 315360/g" \
+    sed "s/epochs_per_year = .*/epochs_per_year = 31536/g" \
       ${BASE_GENESIS_PATH} > ${GENESIS_PATH_A}
   else
     sed -e "s/${NET_ADDR_A}/${NET_ADDR_B}/g" \
-      -e "s/epochs_per_year = .*/epochs_per_year = 315360/g" \
+      -e "s/epochs_per_year = .*/epochs_per_year = 31536/g" \
       ${BASE_GENESIS_PATH} > ${GENESIS_PATH_B}
   fi
 }
