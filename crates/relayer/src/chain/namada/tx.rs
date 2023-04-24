@@ -9,9 +9,11 @@ use namada::ledger::parameters::storage as parameter_storage;
 use namada::proto::Tx;
 use namada::tendermint_rpc::endpoint::broadcast::tx_sync::Response as AbciPlusRpcResponse;
 use namada::tendermint_rpc::Client;
+use namada::types::chain::ChainId;
 use namada::types::token::Amount;
 use namada::types::transaction::{Fee, GasLimit, WrapperTx};
-use namada_apps::wasm_loader;
+use namada_apps::client::rpc::query_wasm_code_hash;
+use namada_apps::facade::tendermint_config::net::Address as TendermintAddress;
 use tendermint_rpc::endpoint::broadcast::tx_sync::Response;
 
 use crate::chain::cosmos;
@@ -20,19 +22,30 @@ use crate::chain::endpoint::ChainEndpoint;
 use crate::chain::requests::{IncludeProof, QueryHeight, QueryTxHash, QueryTxRequest};
 use crate::error::Error;
 
-use super::{NamadaChain, WASM_DIR, WASM_FILE};
+use super::NamadaChain;
 
 pub const FEE_TOKEN: &str = "NAM";
+const TX_IBC_WASM: &str = "tx_ibc.wasm";
 const DEFAULT_MAX_GAS: u64 = 100_000;
 const WAIT_BACKOFF: Duration = Duration::from_millis(300);
 
 impl NamadaChain {
     pub fn send_tx(&mut self, proto_msg: &Any) -> Result<Response, Error> {
-        let tx_code = wasm_loader::read_wasm(WASM_DIR, WASM_FILE).expect("Loading IBC wasm failed");
+        let rpc_addr = format!(
+            "{}:{}",
+            self.config.rpc_addr.host(),
+            self.config.rpc_addr.port()
+        );
+        let rpc_addr = TendermintAddress::from_str(&rpc_addr).expect("invalid RPC address");
+        let tx_code_hash = self
+            .rt
+            .block_on(query_wasm_code_hash(TX_IBC_WASM, rpc_addr))
+            .expect("invalid wasm path");
         let mut tx_data = vec![];
         prost::Message::encode(proto_msg, &mut tx_data)
             .map_err(|e| Error::protobuf_encode(String::from("Message"), e))?;
-        let tx = Tx::new(tx_code, Some(tx_data));
+        let chain_id = ChainId::from_str(self.config.id.as_str()).expect("invalid chain ID");
+        let tx = Tx::new(tx_code_hash.to_vec(), Some(tx_data), chain_id.clone(), None);
 
         // the wallet should exist because it's confirmed when the bootstrap
         let secret_key = self
@@ -69,7 +82,7 @@ impl NamadaChain {
         );
 
         let tx = wrapper_tx
-            .sign(&secret_key)
+            .sign(&secret_key, chain_id, None)
             .expect("Signing of the wrapper transaction should not fail");
         let tx_bytes = tx.to_bytes();
 

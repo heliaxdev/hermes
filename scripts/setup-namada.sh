@@ -129,18 +129,10 @@ function init_relayer_acc() {
   local ledger_addr=$2
 
   local base_dir=${DATA_DIR}/namada-${suffix}/.namada
-  local wasm_dir=${HERMES_DIR}/namada_wasm
   local wallet_dir=${HERMES_DIR}/namada_wallet/${chain_id}
 
   ${NAMADAW} --base-dir ${base_dir} \
     key gen --alias relayer --unsafe-dont-encrypt
-
-  if [ "${suffix}" == "a" ]
-  then
-    mkdir -p ${wasm_dir}
-    cp ${NAMADA_DIR}/wasm/checksums.json ${wasm_dir}
-    cp ${NAMADA_DIR}/wasm/tx_ibc*.wasm ${wasm_dir}
-  fi
 
   mkdir -p ${wallet_dir}
   cp ${base_dir}/${chain_id}/wallet.toml ${wallet_dir}
@@ -158,7 +150,7 @@ copy_wasm "a" ${chain_id_a}
 
 ${NAMADAN} --base-dir ${DATA_DIR}/namada-a/.namada/${chain_id_a}/setup/validator-0/.namada/ \
   --mode validator \
-  ledger run > ${DATA_DIR}/namada-a/namada.log 2>&1 &
+  ledger run --tx-index > ${DATA_DIR}/namada-a/namada.log 2>&1 &
 echo "Namada chain A's PID = $!"
 sleep 5
 
@@ -173,7 +165,7 @@ copy_wasm "b" ${chain_id_b}
 
 ${NAMADAN} --base-dir ${DATA_DIR}/namada-b/.namada/${chain_id_b}/setup/validator-0/.namada/ \
   --mode validator \
-  ledger run > ${DATA_DIR}/namada-b/namada.log 2>&1 &
+  ledger run --tx-index > ${DATA_DIR}/namada-b/namada.log 2>&1 &
 echo "Namada chain B's PID = $!"
 sleep 5
 

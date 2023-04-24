@@ -81,7 +81,7 @@ ${NAMADAC} --base-dir ${BASE_DIR_A} utils join-network --chain-id ${CHAIN_ID_A}
 ${NAMADAC} --base-dir ${BASE_DIR_B} utils join-network --chain-id ${CHAIN_ID_B}
 
 # Run ledger B temporarily for making tendermint config
-${NAMADAN} --base-dir ${BASE_DIR_B} ledger run > /dev/null 2>&1 &
+${NAMADAN} --base-dir ${BASE_DIR_B} ledger run --tx-index > /dev/null 2>&1 &
 pid=$!
 sleep 5
 kill ${pid}
@@ -111,13 +111,6 @@ ${NAMADAN} --base-dir ${BASE_DIR_B} ledger run > ${BASE_DIR_B}/namada.log 2>&1 &
 # Make each relayer account
 ${NAMADAW} --base-dir ${BASE_DIR_A} key gen --alias relayer --unsafe-dont-encrypt
 ${NAMADAW} --base-dir ${BASE_DIR_B} key gen --alias relayer --unsafe-dont-encrypt
-
-# Prepare wasm checksums
-mkdir -p ${HERMES_DIR}/namada_wasm
-wasm=$(grep tx_ibc ${NAMADA_DIR}/wasm/checksums.json | sed s/,//g)
-echo "{
-${wasm}
-}" > ${HERMES_DIR}/namada_wasm/checksums.json
 
 # Copy wallets
 mkdir -p ${HERMES_DIR}/namada_wallet/${CHAIN_ID_A}

@@ -44,8 +44,7 @@ use namada::tendermint_rpc::query::{EventType as AbciPlusEventType, Query as Abc
 use namada::tendermint_rpc::{Client, HttpClient, Order, Url};
 use namada::types::storage::PrefixValue;
 use namada::types::token;
-use namada_apps::wallet::Wallet;
-use namada_apps::wasm_loader;
+use namada_apps::wallet::{AddressVpType, Wallet};
 use prost::Message;
 use tendermint::Time;
 use tendermint_light_client::types::LightBlock as TMLightBlock;
@@ -78,8 +77,6 @@ use crate::misbehaviour::MisbehaviourEvidence;
 use crate::chain::endpoint::{ChainEndpoint, ChainStatus, HealthCheck};
 
 const BASE_WALLET_DIR: &str = "namada_wallet";
-const WASM_DIR: &str = "namada_wasm";
-const WASM_FILE: &str = "tx_ibc.wasm";
 
 pub mod query;
 pub mod tx;
@@ -161,12 +158,6 @@ impl ChainEndpoint for NamadaChain {
         wallet
             .find_key(&config.key_name)
             .map_err(Error::namada_key_pair_not_found)?;
-
-        // check tx_ibc.wasm
-        if wasm_loader::read_wasm(WASM_DIR, WASM_FILE).is_err() {
-            // download if it doesn't exist
-            rt.block_on(wasm_loader::pre_fetch_wasm(WASM_DIR));
-        }
 
         // overwrite the proof spec
         let config = ChainConfig {
@@ -385,7 +376,8 @@ impl ChainEndpoint for NamadaChain {
             .ok_or_else(|| Error::namada_address_not_found(key_name.to_string()))?;
 
         let mut balances = vec![];
-        for (token, _) in namada::types::address::tokens() {
+        let tokens = self.wallet.get_addresses_with_vp_type(AddressVpType::Token);
+        for token in tokens {
             let prefix = token::balance_prefix(&token);
             for PrefixValue { key, value } in self.query_prefix(prefix)? {
                 let denom = match token::is_any_multitoken_balance_key(&key) {
