@@ -128,7 +128,7 @@ Namada data and logs are under ${HERMES_DIR}/data/namada-*/.namada"
 echo "After the sync, you can create a channel and start Hermes process
 "
 echo "Command to create a channel:
-hermes -c ${HERMES_DIR}/config_for_namada.toml create channel ${CHAIN_ID_A} --chain-b ${CHAIN_ID_B} --port-a transfer --port-b transfer --new-client-connection
+hermes -c ${HERMES_DIR}/config_for_namada.toml create channel --a-chain ${CHAIN_ID_A} --b-chain ${CHAIN_ID_B} --a-port transfer --b-port transfer --new-client-connection --yes
 "
 echo "Command to start Hermes to relay packets:
 hermes -c ${HERMES_DIR}/config_for_namada.toml start

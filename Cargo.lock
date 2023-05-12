@@ -4492,8 +4492,8 @@ dependencies = [
 
 [[package]]
 name = "namada"
-version = "0.15.1"
-source = "git+https://github.com/anoma/namada?rev=50618bea3bd09e19fb3a3b2de127a3dbca561430#50618bea3bd09e19fb3a3b2de127a3dbca561430"
+version = "0.15.2"
+source = "git+https://github.com/anoma/namada#005b539765231115fb362a24de3e552fb75d3cbb"
 dependencies = [
  "async-trait",
  "bellman",
@@ -4537,8 +4537,8 @@ dependencies = [
 
 [[package]]
 name = "namada_apps"
-version = "0.15.1"
-source = "git+https://github.com/anoma/namada?rev=50618bea3bd09e19fb3a3b2de127a3dbca561430#50618bea3bd09e19fb3a3b2de127a3dbca561430"
+version = "0.15.2"
+source = "git+https://github.com/anoma/namada#005b539765231115fb362a24de3e552fb75d3cbb"
 dependencies = [
  "ark-serialize",
  "ark-std",
@@ -4557,6 +4557,7 @@ dependencies = [
  "config",
  "data-encoding",
  "derivative",
+ "directories",
  "ed25519-consensus",
  "eyre",
  "ferveo",
@@ -4616,8 +4617,8 @@ dependencies = [
 
 [[package]]
 name = "namada_core"
-version = "0.15.1"
-source = "git+https://github.com/anoma/namada?rev=50618bea3bd09e19fb3a3b2de127a3dbca561430#50618bea3bd09e19fb3a3b2de127a3dbca561430"
+version = "0.15.2"
+source = "git+https://github.com/anoma/namada#005b539765231115fb362a24de3e552fb75d3cbb"
 dependencies = [
  "ark-bls12-381",
  "ark-ec",
@@ -4661,8 +4662,8 @@ dependencies = [
 
 [[package]]
 name = "namada_macros"
-version = "0.15.1"
-source = "git+https://github.com/anoma/namada?rev=50618bea3bd09e19fb3a3b2de127a3dbca561430#50618bea3bd09e19fb3a3b2de127a3dbca561430"
+version = "0.15.2"
+source = "git+https://github.com/anoma/namada#005b539765231115fb362a24de3e552fb75d3cbb"
 dependencies = [
  "proc-macro2",
  "quote",
@@ -4671,8 +4672,8 @@ dependencies = [
 
 [[package]]
 name = "namada_proof_of_stake"
-version = "0.15.1"
-source = "git+https://github.com/anoma/namada?rev=50618bea3bd09e19fb3a3b2de127a3dbca561430#50618bea3bd09e19fb3a3b2de127a3dbca561430"
+version = "0.15.2"
+source = "git+https://github.com/anoma/namada#005b539765231115fb362a24de3e552fb75d3cbb"
 dependencies = [
  "borsh",
  "data-encoding",
