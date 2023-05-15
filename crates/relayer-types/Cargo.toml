@@ -27,7 +27,7 @@ mocks = ["tendermint-testgen", "clock", "std"]
 
 [dependencies]
 # Proto definitions for all IBC-related interfaces, e.g., connections or channels.
-ibc-proto = { git = "https://github.com/heliaxdev/ibc-proto-rs.git", rev = "acc378e5e1865fbf559fa4e36e3c2b0dc1da51bb", default-features = false }
+ibc-proto = { git = "https://github.com/heliaxdev/ibc-proto-rs.git", rev = "7e527b5b8c95d83351e93ceafc14ac853224283f", default-features = false }
 ics23 = { version = "=0.9.0", default-features = false, features = ["host-functions"] }
 time = { version = ">=0.3.0, <0.3.18", default-features = false }
 serde_derive = { version = "1.0.104", default-features = false }
@@ -48,29 +48,29 @@ num-rational = "0.4.1"
 
 [dependencies.tendermint]
 git = "https://github.com/heliaxdev/tendermint-rs.git"
-rev = "a2cd889ae706854e7bf476880a37408d75b4a8e1"
+rev = "4db3c5ea09fae4057008d22bf9e96bf541b55b35"
 default-features = false
 
 [dependencies.tendermint-proto]
 git = "https://github.com/heliaxdev/tendermint-rs.git"
-rev = "a2cd889ae706854e7bf476880a37408d75b4a8e1"
+rev = "4db3c5ea09fae4057008d22bf9e96bf541b55b35"
 default-features = false
 
 # Temporary, until this change makes it into a tendermint-rs release:
 # https://github.com/informalsystems/tendermint-rs/pull/1204
 [dependencies.tendermint-rpc]
 git = "https://github.com/heliaxdev/tendermint-rs.git"
-rev = "a2cd889ae706854e7bf476880a37408d75b4a8e1"
+rev = "4db3c5ea09fae4057008d22bf9e96bf541b55b35"
 default-features = false
 
 [dependencies.tendermint-light-client-verifier]
 git = "https://github.com/heliaxdev/tendermint-rs.git"
-rev = "a2cd889ae706854e7bf476880a37408d75b4a8e1"
+rev = "4db3c5ea09fae4057008d22bf9e96bf541b55b35"
 default-features = false
 
 [dependencies.tendermint-testgen]
 git = "https://github.com/heliaxdev/tendermint-rs.git"
-rev = "a2cd889ae706854e7bf476880a37408d75b4a8e1"
+rev = "4db3c5ea09fae4057008d22bf9e96bf541b55b35"
 optional = true
 default-features = false
 
@@ -80,5 +80,5 @@ tracing = { version = "0.1.36", default-features = false }
 tracing-subscriber = { version = "0.3.14", features = ["fmt", "env-filter", "json"]}
 test-log = { version = "0.2.10", features = ["trace"] }
 modelator = "0.4.2"
-tendermint-rpc = { git = "https://github.com/heliaxdev/tendermint-rs.git", rev = "a2cd889ae706854e7bf476880a37408d75b4a8e1", features = ["http-client", "websocket-client"] }
-tendermint-testgen = { git = "https://github.com/heliaxdev/tendermint-rs.git", rev = "a2cd889ae706854e7bf476880a37408d75b4a8e1" } # Needed for generating (synthetic) light blocks.
+tendermint-rpc = { git = "https://github.com/heliaxdev/tendermint-rs.git", rev = "4db3c5ea09fae4057008d22bf9e96bf541b55b35", features = ["http-client", "websocket-client"] }
+tendermint-testgen = { git = "https://github.com/heliaxdev/tendermint-rs.git", rev = "4db3c5ea09fae4057008d22bf9e96bf541b55b35" } # Needed for generating (synthetic) light blocks.

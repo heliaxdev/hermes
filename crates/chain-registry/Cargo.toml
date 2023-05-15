@@ -14,7 +14,7 @@ description  = """
 [dependencies]
 ibc-proto         = { version = "0.24.1" }
 ibc-relayer-types = { version = "0.22.0", path = "../relayer-types", features = ["std"] }
-tendermint-rpc    = { git = "https://github.com/heliaxdev/tendermint-rs.git", rev = "a2cd889ae706854e7bf476880a37408d75b4a8e1", features = ["http-client", "websocket-client"] }
+tendermint-rpc    = { git = "https://github.com/heliaxdev/tendermint-rs.git", rev = "4db3c5ea09fae4057008d22bf9e96bf541b55b35", features = ["http-client", "websocket-client"] }
 
 async-trait = "0.1.64"
 flex-error  = { version = "0.4.4", default-features = false }
