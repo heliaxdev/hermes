@@ -21,7 +21,7 @@ profiling = []
 telemetry = ["ibc-telemetry"]
 
 [dependencies]
-ibc-proto         = { git = "https://github.com/heliaxdev/ibc-proto-rs.git", rev = "7e527b5b8c95d83351e93ceafc14ac853224283f" }
+ibc-proto         = { git = "https://github.com/heliaxdev/ibc-proto-rs.git", rev = "19ad1cdfda14e95bd45fba0e0c710c086f71d0bc" }
 ibc-telemetry     = { version = "0.22.0", path = "../telemetry", optional = true }
 ibc-relayer-types = { version = "0.22.0", path = "../relayer-types", features = ["mocks"] }
 
@@ -79,28 +79,28 @@ features = ["num-bigint", "serde"]
 
 [dependencies.tendermint]
 git = "https://github.com/heliaxdev/tendermint-rs.git"
-rev = "4db3c5ea09fae4057008d22bf9e96bf541b55b35"
+rev = "02b256829e80f8cfecf3fa0d625c2a76c79cd043"
 features = ["secp256k1"]
 
 [dependencies.tendermint-proto]
 git = "https://github.com/heliaxdev/tendermint-rs.git"
-rev = "4db3c5ea09fae4057008d22bf9e96bf541b55b35"
+rev = "02b256829e80f8cfecf3fa0d625c2a76c79cd043"
 default-features = false
 
 [dependencies.tendermint-rpc]
 git = "https://github.com/heliaxdev/tendermint-rs.git"
-rev = "4db3c5ea09fae4057008d22bf9e96bf541b55b35"
+rev = "02b256829e80f8cfecf3fa0d625c2a76c79cd043"
 features = ["http-client", "websocket-client"]
 
 [dependencies.tendermint-light-client]
 git = "https://github.com/heliaxdev/tendermint-rs.git"
-rev = "4db3c5ea09fae4057008d22bf9e96bf541b55b35"
+rev = "02b256829e80f8cfecf3fa0d625c2a76c79cd043"
 default-features = false
 features = ["rpc-client", "secp256k1", "unstable"]
 
 [dependencies.tendermint-light-client-verifier]
 git = "https://github.com/heliaxdev/tendermint-rs.git"
-rev = "4db3c5ea09fae4057008d22bf9e96bf541b55b35"
+rev = "02b256829e80f8cfecf3fa0d625c2a76c79cd043"
 default-features = false
 
 [dev-dependencies]
@@ -111,4 +111,4 @@ tracing-subscriber = { version = "0.3.14", features = ["fmt", "env-filter", "jso
 test-log = { version = "0.2.10", features = ["trace"] }
 
 # Needed for generating (synthetic) light blocks.
-tendermint-testgen = { git = "https://github.com/heliaxdev/tendermint-rs.git", rev = "4db3c5ea09fae4057008d22bf9e96bf541b55b35" }
+tendermint-testgen = { git = "https://github.com/heliaxdev/tendermint-rs.git", rev = "02b256829e80f8cfecf3fa0d625c2a76c79cd043" }

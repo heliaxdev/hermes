@@ -27,5 +27,5 @@ serde = "1.0.149"
 
 [dependencies.tendermint]
 git = "https://github.com/heliaxdev/tendermint-rs.git"
-rev = "4db3c5ea09fae4057008d22bf9e96bf541b55b35"
+rev = "02b256829e80f8cfecf3fa0d625c2a76c79cd043"
 default-features = false

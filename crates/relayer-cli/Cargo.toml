@@ -59,17 +59,17 @@ tracing-subscriber       = { version = "0.3.14", features = ["fmt", "env-filter"
 
 [dependencies.tendermint]
 git = "https://github.com/heliaxdev/tendermint-rs.git"
-rev = "4db3c5ea09fae4057008d22bf9e96bf541b55b35"
+rev = "02b256829e80f8cfecf3fa0d625c2a76c79cd043"
 features = ["secp256k1"]
 
 [dependencies.tendermint-rpc]
 git = "https://github.com/heliaxdev/tendermint-rs.git"
-rev = "4db3c5ea09fae4057008d22bf9e96bf541b55b35"
+rev = "02b256829e80f8cfecf3fa0d625c2a76c79cd043"
 features = ["http-client", "websocket-client"]
 
 [dependencies.tendermint-light-client-verifier]
 git = "https://github.com/heliaxdev/tendermint-rs.git"
-rev = "4db3c5ea09fae4057008d22bf9e96bf541b55b35"
+rev = "02b256829e80f8cfecf3fa0d625c2a76c79cd043"
 
 [dependencies.abscissa_core]
 version = "=0.6.0"
