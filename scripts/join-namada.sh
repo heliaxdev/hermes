@@ -81,7 +81,7 @@ ${NAMADAC} --base-dir ${BASE_DIR_A} utils join-network --chain-id ${CHAIN_ID_A}
 ${NAMADAC} --base-dir ${BASE_DIR_B} utils join-network --chain-id ${CHAIN_ID_B}
 
 # Run ledger B temporarily for making tendermint config
-${NAMADAN} --base-dir ${BASE_DIR_B} ledger run --tx-index > /dev/null 2>&1 &
+${NAMADAN} --base-dir ${BASE_DIR_B} ledger run > /dev/null 2>&1 &
 pid=$!
 sleep 5
 kill ${pid}

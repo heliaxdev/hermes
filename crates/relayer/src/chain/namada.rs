@@ -35,28 +35,21 @@ use namada::ledger::parameters::storage as param_storage;
 use namada::ledger::parameters::EpochDuration;
 use namada::ledger::storage::ics23_specs::ibc_proof_specs;
 use namada::ledger::storage::Sha256Hasher;
+use namada::ledger::wallet::Wallet;
 use namada::proof_of_stake::parameters::PosParams;
 use namada::proof_of_stake::storage as pos_storage;
-use namada::tendermint::abci::Event as NamadaTmEvent;
 use namada::tendermint::block::Height as TmHeight;
-use namada::tendermint_rpc::endpoint::tx::Response as AbciPlusTxResponse;
-use namada::tendermint_rpc::query::{EventType as AbciPlusEventType, Query as AbciPlusQuery};
-use namada::tendermint_rpc::{Client, HttpClient, Order, Url};
+use namada::tendermint_rpc::{Client, HttpClient, Url};
 use namada::types::storage::PrefixValue;
 use namada::types::token;
-use namada_apps::wallet::{AddressVpType, Wallet};
-use prost::Message;
+use namada_apps::wallet::CliWalletUtils;
 use tendermint::Time;
 use tendermint_light_client::types::LightBlock as TMLightBlock;
-use tendermint_proto::Protobuf as TmProfobuf;
 use tendermint_rpc::endpoint::broadcast::tx_sync::Response;
-use tendermint_rpc::endpoint::tx::Response as TxResponse;
-use tendermint_rpc::query::Query;
 use tokio::runtime::Runtime as TokioRuntime;
 
 use crate::account::Balance;
 use crate::chain::client::ClientSettings;
-use crate::chain::cosmos;
 use crate::chain::cosmos::types::tx::{TxStatus, TxSyncResult};
 use crate::chain::handle::Subscription;
 use crate::chain::requests::*;
@@ -86,7 +79,7 @@ pub struct NamadaChain {
     rpc_client: HttpClient,
     light_client: TmLightClient,
     rt: Arc<TokioRuntime>,
-    wallet: Wallet,
+    wallet: Wallet<CliWalletUtils>,
     keybase: KeyRing<Secp256k1KeyPair>,
     tx_monitor_cmd: Option<TxMonitorCmd>,
 }
@@ -153,10 +146,10 @@ impl ChainEndpoint for NamadaChain {
 
         // check if the wallet has been set up for this relayer
         let wallet_path = Path::new(BASE_WALLET_DIR).join(config.id.to_string());
-        let mut wallet =
-            Wallet::load(&wallet_path).ok_or_else(Error::namada_wallet_not_initialized)?;
+        let mut wallet = namada_apps::wallet::load(&wallet_path)
+            .ok_or_else(Error::namada_wallet_not_initialized)?;
         wallet
-            .find_key(&config.key_name)
+            .find_key(&config.key_name, None)
             .map_err(Error::namada_key_pair_not_found)?;
 
         // overwrite the proof spec
@@ -191,23 +184,6 @@ impl ChainEndpoint for NamadaChain {
         })?;
 
         // TODO Namada health check
-
-        self.rt
-            .block_on(self.rpc_client.tx_search(
-                AbciPlusQuery::from(AbciPlusEventType::NewBlock),
-                false,
-                1,
-                1,
-                Order::Ascending,
-            ))
-            .map_err(|e| {
-                Error::abci_plus_health_check_json_rpc(
-                    self.config.id.clone(),
-                    self.config.rpc_addr.to_string(),
-                    "/tx_search".to_string(),
-                    e,
-                )
-            })?;
 
         // TODO version check
 
@@ -348,17 +324,7 @@ impl ChainEndpoint for NamadaChain {
             ))
         })?;
 
-        let balance_key = if denom.contains('/') {
-            let prefix = storage::ibc_token_prefix(denom).map_err(|e| {
-                Error::query(format!(
-                    "The denom for the balance query is invalid: denom {}, error {}",
-                    denom, e
-                ))
-            })?;
-            token::multitoken_balance_key(&prefix, owner)
-        } else {
-            token::balance_key(&token, owner)
-        };
+        let balance_key = token::balance_key(&token, owner);
         let (value, _) = self.query(balance_key, QueryHeight::Latest, IncludeProof::No)?;
         let amount = token::Amount::try_from_slice(&value[..]).map_err(Error::borsh_decode)?;
 
@@ -369,32 +335,28 @@ impl ChainEndpoint for NamadaChain {
     }
 
     fn query_all_balances(&self, key_name: Option<&str>) -> Result<Vec<Balance>, Error> {
+        use namada::types::address::{Address, InternalAddress};
+        use namada::types::storage::{Key, KeySeg};
+
         let key_name = key_name.unwrap_or(&self.config.key_name);
-        let owner = self
+        let key_owner = self
             .wallet
             .find_address(key_name)
             .ok_or_else(|| Error::namada_address_not_found(key_name.to_string()))?;
 
         let mut balances = vec![];
-        let tokens = self.wallet.get_addresses_with_vp_type(AddressVpType::Token);
-        for token in tokens {
-            let prefix = token::balance_prefix(&token);
-            for PrefixValue { key, value } in self.query_prefix(prefix)? {
-                let denom = match token::is_any_multitoken_balance_key(&key) {
-                    Some((sub_prefix, o)) if o == owner => format!("{}/{}", sub_prefix, token),
-                    Some(_) => continue,
-                    None => match token::is_any_token_balance_key(&key) {
-                        Some(o) if owner == o => token.to_string(),
-                        _ => continue,
-                    },
-                };
-                let amount =
-                    token::Amount::try_from_slice(&value[..]).map_err(Error::borsh_decode)?;
-                let balance = Balance {
-                    amount: amount.to_string(),
-                    denom,
-                };
-                balances.push(balance);
+        let prefix = Key::from(Address::Internal(InternalAddress::Multitoken).to_db_key());
+        for PrefixValue { key, value } in self.query_prefix(prefix)? {
+            if let Some((token, owner)) = token::is_any_token_balance_key(&key) {
+                if key_owner == owner {
+                    let amount =
+                        token::Amount::try_from_slice(&value[..]).map_err(Error::borsh_decode)?;
+                    let balance = Balance {
+                        amount: amount.to_string(),
+                        denom: token.to_string(),
+                    };
+                    balances.push(balance);
+                }
             }
         }
         Ok(balances)
@@ -402,27 +364,26 @@ impl ChainEndpoint for NamadaChain {
 
     // Query the denom trace with "{IbcToken}" which hash a hashed denom.
     fn query_denom_trace(&self, hash: String) -> Result<DenomTrace, Error> {
-        let denom = format!("{}/{}", storage::MULTITOKEN_STORAGE_KEY, hash);
-        let token_hash = match storage::token_hash_from_denom(&denom).map_err(|e| {
+        let token_hash = match storage::token_hash_from_denom(&hash).map_err(|e| {
             Error::query(format!(
                 "Parsing the denom failed: denom {}, error {}",
-                denom, e
+                hash, e
             ))
         })? {
             Some(h) => h,
             None => {
                 return Err(Error::query(format!(
                     "The denom doesn't have the IBC token hash: denom {}",
-                    denom
+                    hash
                 )))
             }
         };
         let key = storage::ibc_denom_key(token_hash);
         let (value, _) = self.query(key, QueryHeight::Latest, IncludeProof::No)?;
-        let denom = String::from_utf8(value).map_err(|e| {
+        let denom = String::try_from_slice(&value[..]).map_err(|e| {
             Error::query(format!(
                 "Decoding the original denom failed: denom {}, error {}",
-                denom, e
+                hash, e
             ))
         })?;
 
@@ -906,45 +867,12 @@ impl ChainEndpoint for NamadaChain {
         match request {
             QueryTxRequest::Client(request) => {
                 crate::time!("query_txs: single client update event");
-                let query =
-                    AbciPlusQuery::from_str(&cosmos::query::header_query(&request).to_string())
-                        .unwrap();
-                let mut response = self
-                    .rt
-                    .block_on(self.rpc_client.tx_search(
-                        query,
-                        false,
-                        1,
-                        1, // get only the first Tx matching the query
-                        Order::Ascending,
-                    ))
-                    .map_err(|e| Error::abci_plus_rpc(self.config.rpc_addr.clone(), e))?;
-
-                if response.txs.is_empty() {
-                    return Ok(vec![]);
-                }
-
-                // the response must include a single Tx as specified in the query.
-                assert!(
-                    response.txs.len() <= 1,
-                    "packet_from_tx_search_response: unexpected number of txs"
-                );
-
-                let tx = response.txs.remove(0);
-                match cosmos::query::tx::update_client_from_tx_search_response(
-                    self.id(),
-                    &request,
-                    into_tx_response(tx),
-                )? {
+                match self.query_update_event(&request)? {
                     Some(event) => Ok(vec![event]),
                     None => Ok(vec![]),
                 }
             }
-            QueryTxRequest::Transaction(tx) => {
-                let query = Query::default().and_eq("applied.hash", tx.0.to_string());
-                let events = self.query_events(query)?;
-                Ok(events)
-            }
+            QueryTxRequest::Transaction(tx) => self.query_tx_events(&tx.0.to_string()),
         }
     }
 
@@ -954,77 +882,7 @@ impl ChainEndpoint for NamadaChain {
     ) -> Result<Vec<IbcEventWithHeight>, Error> {
         crate::time!("query_packet_events");
         crate::telemetry!(query, self.id(), "query_packet_events");
-
-        let mut block_events: Vec<IbcEventWithHeight> = vec![];
-
-        for seq in &request.sequences {
-            let query =
-                AbciPlusQuery::from_str(&cosmos::query::packet_query(&request, *seq).to_string())
-                    .unwrap();
-            let response = self
-                .rt
-                .block_on(self.rpc_client.block_search(
-                    query,
-                    1,
-                    1, // there should only be a single match for this query
-                    Order::Ascending,
-                ))
-                .map_err(|e| Error::abci_plus_rpc(self.config.rpc_addr.clone(), e))?;
-
-            assert!(
-                response.blocks.len() <= 1,
-                "block_results: unexpected number of blocks"
-            );
-
-            if let Some(block) = response.blocks.first().map(|first| &first.block) {
-                let response_height =
-                    ICSHeight::new(self.id().version(), block.header.height.into()).unwrap();
-
-                if let QueryHeight::Specific(query_height) = request.height.get() {
-                    if response_height > query_height {
-                        continue;
-                    }
-                }
-
-                let response = self
-                    .rt
-                    .block_on(self.rpc_client.block_results(block.header.height))
-                    .map_err(|e| Error::abci_plus_rpc(self.config.rpc_addr.clone(), e))?;
-
-                block_events.append(
-                    &mut response
-                        .begin_block_events
-                        .unwrap_or_default()
-                        .into_iter()
-                        .filter_map(|ev| {
-                            cosmos::query::tx::filter_matching_event(
-                                into_event(ev),
-                                &request,
-                                &[*seq],
-                            )
-                        })
-                        .map(|ibc_event| IbcEventWithHeight::new(ibc_event, response_height))
-                        .collect(),
-                );
-
-                block_events.append(
-                    &mut response
-                        .end_block_events
-                        .unwrap_or_default()
-                        .into_iter()
-                        .filter_map(|ev| {
-                            cosmos::query::tx::filter_matching_event(
-                                into_event(ev),
-                                &request,
-                                &[*seq],
-                            )
-                        })
-                        .map(|ibc_event| IbcEventWithHeight::new(ibc_event, response_height))
-                        .collect(),
-                );
-            }
-        }
-        Ok(block_events)
+        self.query_packet_events_from_block(&request)
     }
 
     fn query_host_consensus_state(
@@ -1157,42 +1015,4 @@ async fn init_light_client(
     let light_client = TmLightClient::from_config(config, peer_id)?;
 
     Ok(light_client)
-}
-
-/// Convert a transaction response to one of the base Tendermint
-fn into_tx_response(resp: AbciPlusTxResponse) -> TxResponse {
-    TxResponse {
-        hash: tendermint::Hash::from_str(&resp.hash.to_string()).unwrap(),
-        height: u64::from(resp.height).try_into().unwrap(),
-        index: resp.index,
-        tx_result: tendermint::abci::response::DeliverTx {
-            code: u32::from(resp.tx_result.code).into(),
-            data: Vec::<u8>::from(resp.tx_result.data).into(),
-            log: resp.tx_result.log.to_string(),
-            // not used
-            info: "".to_string(),
-            gas_wanted: u64::from(resp.tx_result.gas_wanted) as i64,
-            gas_used: u64::from(resp.tx_result.gas_used) as i64,
-            events: resp.tx_result.events.into_iter().map(into_event).collect(),
-            // not used
-            codespace: "".to_string(),
-        },
-        tx: Vec::<u8>::from(resp.tx),
-        proof: resp.proof.map(|p| {
-            let encoded = p.encode_to_vec();
-            tendermint::tx::Proof::decode_vec(&encoded).unwrap()
-        }),
-    }
-}
-
-/// Convert a Tendermint event to one of the base Tendermint
-fn into_event(event: NamadaTmEvent) -> tendermint::abci::Event {
-    tendermint::abci::Event {
-        kind: event.type_str,
-        attributes: event
-            .attributes
-            .iter()
-            .map(|tag| (tag.key.as_ref(), tag.value.as_ref(), true).into())
-            .collect(),
-    }
 }

@@ -26,8 +26,8 @@ ibc-telemetry     = { version = "0.22.0", path = "../telemetry", optional = true
 ibc-relayer-types = { version = "0.22.0", path = "../relayer-types", features = ["mocks"] }
 
 borsh = "0.9.0"
-namada_apps = { git = "https://github.com/anoma/namada", version = "0.15.2" }
-namada = { git = "https://github.com/anoma/namada", version = "0.15.2", default-features = false, features = ["abciplus", "ibc-mocks"] }
+namada_apps = { git = "https://github.com/anoma/namada", rev = "a2429a41ad873d6341ed2a5cca2231442bc17587" }
+namada = { git = "https://github.com/anoma/namada", rev = "a2429a41ad873d6341ed2a5cca2231442bc17587", default-features = false, features = ["abciplus", "ibc-mocks"] }
 subtle-encoding = "0.5"
 humantime-serde = "1.1.1"
 serde = "1.0"

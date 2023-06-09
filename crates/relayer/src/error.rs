@@ -6,7 +6,7 @@ use flex_error::{define_error, DisplayOnly, TraceError};
 use http::uri::InvalidUri;
 use humantime::format_duration;
 use ibc_proto::protobuf::Error as TendermintProtoError;
-use namada::ledger::queries::tm::Error as NamadaQueryError;
+use namada::ledger::tx::Error as NamadaTxError;
 use namada::tendermint::Error as AbciPlusTmError;
 use namada::tendermint::Error as NamadaTendermintError;
 use namada::tendermint_proto::Error as AbciPlusTmProtoError;
@@ -580,7 +580,7 @@ define_error! {
             |_| { "Namada wallet has not been initialized yet" },
 
         NamadaKeyPairNotFound
-            [ TraceError<namada_apps::wallet::FindKeyError> ]
+            [ TraceError<namada::ledger::wallet::FindKeyError> ]
             |_| { "The keypair was not found" },
 
         NamadaAddressNotFound
@@ -592,8 +592,12 @@ define_error! {
             |_| { "Tendermint error" },
 
         NamadaQuery
-            [ TraceError<NamadaQueryError> ]
-            |_| { "Namada ABCI query returned an error" },
+            { description: String }
+            |e| { format!("Namada query failed: {}", e.description) },
+
+        NamadaTx
+            [ TraceError<NamadaTxError> ]
+            |_| { format!("Namada transaction request failed") },
 
         NamadaTxFee
             {

@@ -1,19 +1,23 @@
 use core::str::FromStr;
 use core::time::Duration;
+use std::path::PathBuf;
 use std::thread;
 use std::time::Instant;
 
 use borsh::BorshDeserialize;
 use ibc_proto::google::protobuf::Any;
+use namada::ledger::args::Tx as TxArgs;
 use namada::ledger::parameters::storage as parameter_storage;
-use namada::proto::Tx;
+use namada::ledger::rpc::TxBroadcastData;
+use namada::ledger::signing::{sign_tx, TxSigningKey};
+use namada::ledger::tx::broadcast_tx;
+use namada::ledger::tx::{TX_IBC_WASM, TX_REVEAL_PK};
+use namada::proto::{Code, Data, Tx};
 use namada::tendermint_rpc::endpoint::broadcast::tx_sync::Response as AbciPlusRpcResponse;
-use namada::tendermint_rpc::Client;
 use namada::types::chain::ChainId;
 use namada::types::token::Amount;
-use namada::types::transaction::{Fee, GasLimit, WrapperTx};
+use namada::types::transaction::{GasLimit, TxType};
 use namada_apps::client::rpc::query_wasm_code_hash;
-use namada_apps::facade::tendermint_config::net::Address as TendermintAddress;
 use tendermint_rpc::endpoint::broadcast::tx_sync::Response;
 
 use crate::chain::cosmos;
@@ -25,36 +29,27 @@ use crate::error::Error;
 use super::NamadaChain;
 
 pub const FEE_TOKEN: &str = "NAM";
-const TX_IBC_WASM: &str = "tx_ibc.wasm";
 const DEFAULT_MAX_GAS: u64 = 100_000;
 const WAIT_BACKOFF: Duration = Duration::from_millis(300);
 
 impl NamadaChain {
     pub fn send_tx(&mut self, proto_msg: &Any) -> Result<Response, Error> {
-        let rpc_addr = format!(
-            "{}:{}",
-            self.config.rpc_addr.host(),
-            self.config.rpc_addr.port()
-        );
-        let rpc_addr = TendermintAddress::from_str(&rpc_addr).expect("invalid RPC address");
         let tx_code_hash = self
             .rt
-            .block_on(query_wasm_code_hash(TX_IBC_WASM, rpc_addr))
+            .block_on(query_wasm_code_hash(&self.rpc_client, TX_IBC_WASM))
             .expect("invalid wasm path");
         let mut tx_data = vec![];
         prost::Message::encode(proto_msg, &mut tx_data)
             .map_err(|e| Error::protobuf_encode(String::from("Message"), e))?;
         let chain_id = ChainId::from_str(self.config.id.as_str()).expect("invalid chain ID");
-        let tx = Tx::new(tx_code_hash.to_vec(), Some(tx_data), chain_id.clone(), None);
 
-        // the wallet should exist because it's confirmed when the bootstrap
-        let secret_key = self
-            .wallet
-            .find_key(&self.config.key_name)
-            .map_err(Error::namada_key_pair_not_found)?;
-        let signed_tx = tx.sign(&secret_key);
+        let mut tx = Tx::new(TxType::Raw);
+        tx.header.chain_id = chain_id.clone();
+        tx.header.expiration = None;
+        tx.set_data(Data::new(tx_data));
+        tx.set_code(Code::from_hash(tx_code_hash));
 
-        let fee_token_addr = self
+        let fee_token = self
             .wallet
             .find_address(FEE_TOKEN)
             .ok_or_else(|| Error::namada_address_not_found(FEE_TOKEN.to_string()))?
@@ -67,31 +62,57 @@ impl NamadaChain {
 
         let gas_limit = GasLimit::from(self.config.max_gas.unwrap_or(DEFAULT_MAX_GAS));
 
-        let epoch = self.query_epoch()?;
-        let wrapper_tx = WrapperTx::new(
-            Fee {
-                amount: fee_amount,
-                token: fee_token_addr,
-            },
-            &secret_key,
-            epoch,
+        // the wallet should exist because it's confirmed when the bootstrap
+        let relayer_addr = self
+            .wallet
+            .find_address(&self.config.key_name)
+            .expect("The relayer doesn't exist in the wallet");
+        let signer = TxSigningKey::WalletAddress(relayer_addr.clone());
+
+        let tx_args = TxArgs {
+            dry_run: false,
+            dump_tx: false,
+            force: false,
+            broadcast_only: true,
+            ledger_address: (),
+            initialized_account_alias: None,
+            wallet_alias_force: false,
+            fee_amount,
+            fee_token,
             gas_limit,
-            signed_tx,
-            Default::default(),
-            None,
-        );
+            expiration: None,
+            chain_id: Some(chain_id),
+            signing_key: None,
+            signer: Some(relayer_addr.clone()),
+            tx_reveal_code_path: PathBuf::from(TX_REVEAL_PK),
+            password: None,
+        };
 
-        let tx = wrapper_tx
-            .sign(&secret_key, chain_id, None)
-            .expect("Signing of the wrapper transaction should not fail");
-        let tx_bytes = tx.to_bytes();
-
+        let broadcast_data = self
+            .rt
+            .block_on(sign_tx(
+                &self.rpc_client,
+                &mut self.wallet,
+                tx,
+                &tx_args,
+                signer,
+                false,
+            ))
+            .map_err(Error::namada_tx)?;
+        let decrypted_hash = match &broadcast_data {
+            TxBroadcastData::Wrapper {
+                tx: _,
+                wrapper_hash: _,
+                decrypted_hash,
+            } => decrypted_hash.clone(),
+            _ => unreachable!("the broadcast data should be TxBroadcastData"),
+        };
         let mut response = self
             .rt
-            .block_on(self.rpc_client.broadcast_tx_sync(tx_bytes.into()))
-            .map_err(|e| Error::abci_plus_rpc(self.config.rpc_addr.clone(), e))?;
+            .block_on(broadcast_tx(&self.rpc_client, &broadcast_data))
+            .map_err(Error::namada_tx)?;
         // overwrite the tx decrypted hash for the tx query
-        response.hash = wrapper_tx.tx_hash.into();
+        response.hash = decrypted_hash.parse().expect("invalid hash");
         Ok(into_response(response))
     }
 
