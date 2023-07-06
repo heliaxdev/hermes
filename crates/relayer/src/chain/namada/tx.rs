@@ -6,7 +6,7 @@ use std::time::Instant;
 
 use borsh::BorshDeserialize;
 use ibc_proto::google::protobuf::Any;
-use namada::ledger::args::Tx as TxArgs;
+use namada::ledger::args::{InputAmount, Tx as TxArgs};
 use namada::ledger::parameters::storage as parameter_storage;
 use namada::ledger::rpc::TxBroadcastData;
 use namada::ledger::signing::{sign_tx, TxSigningKey};
@@ -15,7 +15,7 @@ use namada::ledger::tx::{TX_IBC_WASM, TX_REVEAL_PK};
 use namada::proto::{Code, Data, Tx};
 use namada::tendermint_rpc::endpoint::broadcast::tx_sync::Response as AbciPlusRpcResponse;
 use namada::types::chain::ChainId;
-use namada::types::token::Amount;
+use namada::types::token::{Amount, DenominatedAmount};
 use namada::types::transaction::{GasLimit, TxType};
 use namada_apps::client::rpc::query_wasm_code_hash;
 use tendermint_rpc::endpoint::broadcast::tx_sync::Response;
@@ -59,8 +59,10 @@ impl NamadaChain {
         let wrapper_tx_fees_key = parameter_storage::get_wrapper_tx_fees_key();
         let (value, _) = self.query(wrapper_tx_fees_key, QueryHeight::Latest, IncludeProof::No)?;
         let fee_amount = Amount::try_from_slice(&value[..]).map_err(Error::borsh_decode)?;
+        let fee_amount = InputAmount::Unvalidated(DenominatedAmount::native(fee_amount));
 
-        let gas_limit = GasLimit::from(self.config.max_gas.unwrap_or(DEFAULT_MAX_GAS));
+        let gas_limit = Amount::native_whole(self.config.max_gas.unwrap_or(DEFAULT_MAX_GAS));
+        let gas_limit = GasLimit::from(gas_limit);
 
         // the wallet should exist because it's confirmed when the bootstrap
         let relayer_addr = self

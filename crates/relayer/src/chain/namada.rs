@@ -329,7 +329,7 @@ impl ChainEndpoint for NamadaChain {
         let amount = token::Amount::try_from_slice(&value[..]).map_err(Error::borsh_decode)?;
 
         Ok(Balance {
-            amount: amount.to_string(),
+            amount: amount.to_string_native(),
             denom: denom.to_string(),
         })
     }
@@ -347,12 +347,12 @@ impl ChainEndpoint for NamadaChain {
         let mut balances = vec![];
         let prefix = Key::from(Address::Internal(InternalAddress::Multitoken).to_db_key());
         for PrefixValue { key, value } in self.query_prefix(prefix)? {
-            if let Some((token, owner)) = token::is_any_token_balance_key(&key) {
+            if let Some([token, owner]) = token::is_any_token_balance_key(&key) {
                 if key_owner == owner {
                     let amount =
                         token::Amount::try_from_slice(&value[..]).map_err(Error::borsh_decode)?;
                     let balance = Balance {
-                        amount: amount.to_string(),
+                        amount: amount.to_string_native(),
                         denom: token.to_string(),
                     };
                     balances.push(balance);

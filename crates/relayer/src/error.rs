@@ -604,7 +604,7 @@ define_error! {
                 balance: Amount,
                 fee: Amount
             }
-            |e|  { format!("The relayer doesn't have enough balance for Namada transaction fee: balance {}, fee {}", e.balance, e.fee) },
+            |e|  { format!("The relayer doesn't have enough balance for Namada transaction fee: balance {}, fee {}", e.balance.to_string_native(), e.fee.to_string_native()) },
 
         // for different tendermint-rs
         AbciPlusRpc
