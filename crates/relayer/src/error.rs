@@ -597,7 +597,7 @@ define_error! {
 
         NamadaTx
             [ TraceError<NamadaTxError> ]
-            |_| { format!("Namada transaction request failed") },
+            |_| { "Namada transaction request failed" },
 
         NamadaTxFee
             {

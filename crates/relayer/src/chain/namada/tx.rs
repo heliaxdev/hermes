@@ -10,7 +10,7 @@ use namada::ledger::args::{InputAmount, Tx as TxArgs};
 use namada::ledger::parameters::storage as parameter_storage;
 use namada::ledger::rpc::TxBroadcastData;
 use namada::ledger::signing::{sign_tx, TxSigningKey};
-use namada::ledger::tx::broadcast_tx;
+use namada::ledger::tx::{broadcast_tx, prepare_tx};
 use namada::ledger::tx::{TX_IBC_WASM, TX_REVEAL_PK};
 use namada::proto::{Code, Data, Tx};
 use namada::tendermint_rpc::endpoint::broadcast::tx_sync::Response as AbciPlusRpcResponse;
@@ -69,7 +69,6 @@ impl NamadaChain {
             .wallet
             .find_address(&self.config.key_name)
             .expect("The relayer doesn't exist in the wallet");
-        let signer = TxSigningKey::WalletAddress(relayer_addr.clone());
 
         let tx_args = TxArgs {
             dry_run: false,
@@ -87,31 +86,41 @@ impl NamadaChain {
             signing_key: None,
             signer: Some(relayer_addr.clone()),
             tx_reveal_code_path: PathBuf::from(TX_REVEAL_PK),
+            verification_key: None,
             password: None,
         };
 
-        let broadcast_data = self
+        let (mut tx, _, pk) = self
             .rt
-            .block_on(sign_tx(
+            .block_on(prepare_tx(
                 &self.rpc_client,
                 &mut self.wallet,
-                tx,
                 &tx_args,
-                signer,
+                tx,
+                TxSigningKey::None,
+                #[cfg(not(feature = "mainnet"))]
                 false,
             ))
             .map_err(Error::namada_tx)?;
-        let decrypted_hash = match &broadcast_data {
-            TxBroadcastData::Wrapper {
-                tx: _,
-                wrapper_hash: _,
-                decrypted_hash,
-            } => decrypted_hash.clone(),
-            _ => unreachable!("the broadcast data should be TxBroadcastData"),
+
+        self.rt
+            .block_on(sign_tx(&mut self.wallet, &mut tx, &tx_args, &pk))
+            .map_err(Error::namada_tx)?;
+
+        let wrapper_hash = tx.header_hash().to_string();
+        let decrypted_hash = tx
+            .clone()
+            .update_header(TxType::Raw)
+            .header_hash()
+            .to_string();
+        let to_broadcast = TxBroadcastData::Wrapper {
+            tx,
+            wrapper_hash,
+            decrypted_hash: decrypted_hash.clone(),
         };
         let mut response = self
             .rt
-            .block_on(broadcast_tx(&self.rpc_client, &broadcast_data))
+            .block_on(broadcast_tx(&self.rpc_client, &to_broadcast))
             .map_err(Error::namada_tx)?;
         // overwrite the tx decrypted hash for the tx query
         response.hash = decrypted_hash.parse().expect("invalid hash");

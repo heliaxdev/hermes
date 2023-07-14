@@ -3576,7 +3576,6 @@ version = "0.36.0"
 source = "git+https://github.com/heliaxdev/cosmos-ibc-rs.git?rev=634f4ede136d045dd6f1ff8f4984dd0006aa15f0#634f4ede136d045dd6f1ff8f4984dd0006aa15f0"
 dependencies = [
  "bytes",
- "cfg-if 1.0.0",
  "derive_more",
  "displaydoc",
  "dyn-clone",
@@ -3584,7 +3583,6 @@ dependencies = [
  "ibc-proto 0.26.0",
  "ics23",
  "num-traits 0.2.15",
- "parking_lot 0.12.1",
  "primitive-types",
  "prost",
  "safe-regex",
@@ -3596,7 +3594,6 @@ dependencies = [
  "tendermint 0.23.6",
  "tendermint-light-client-verifier 0.23.6",
  "tendermint-proto 0.23.6",
- "tendermint-testgen 0.23.6",
  "time 0.3.17",
  "tracing 0.1.37",
  "uint",
@@ -3721,7 +3718,7 @@ dependencies = [
  "tendermint-light-client-verifier 0.28.0",
  "tendermint-proto 0.28.0",
  "tendermint-rpc 0.28.0",
- "tendermint-testgen 0.28.0",
+ "tendermint-testgen",
  "test-log",
  "thiserror",
  "tiny-bip39 1.0.0",
@@ -3815,7 +3812,7 @@ dependencies = [
  "tendermint-light-client-verifier 0.28.0",
  "tendermint-proto 0.28.0",
  "tendermint-rpc 0.28.0",
- "tendermint-testgen 0.28.0",
+ "tendermint-testgen",
  "test-log",
  "time 0.3.17",
  "tracing 0.1.37",
@@ -4821,8 +4818,8 @@ dependencies = [
 
 [[package]]
 name = "namada"
-version = "0.18.0"
-source = "git+https://github.com/anoma/namada?rev=0fceef69574a5cd2d5e24d4f40e5de74ef4f12b7#0fceef69574a5cd2d5e24d4f40e5de74ef4f12b7"
+version = "0.19.0"
+source = "git+https://github.com/anoma/namada?rev=cd95787afd8dcf4ef4ec3e6b29fa832e30334860#cd95787afd8dcf4ef4ec3e6b29fa832e30334860"
 dependencies = [
  "async-trait",
  "bimap",
@@ -4880,8 +4877,8 @@ dependencies = [
 
 [[package]]
 name = "namada_apps"
-version = "0.18.0"
-source = "git+https://github.com/anoma/namada?rev=0fceef69574a5cd2d5e24d4f40e5de74ef4f12b7#0fceef69574a5cd2d5e24d4f40e5de74ef4f12b7"
+version = "0.19.0"
+source = "git+https://github.com/anoma/namada?rev=cd95787afd8dcf4ef4ec3e6b29fa832e30334860#cd95787afd8dcf4ef4ec3e6b29fa832e30334860"
 dependencies = [
  "ark-serialize",
  "ark-std",
@@ -4963,8 +4960,8 @@ dependencies = [
 
 [[package]]
 name = "namada_core"
-version = "0.18.0"
-source = "git+https://github.com/anoma/namada?rev=0fceef69574a5cd2d5e24d4f40e5de74ef4f12b7#0fceef69574a5cd2d5e24d4f40e5de74ef4f12b7"
+version = "0.19.0"
+source = "git+https://github.com/anoma/namada?rev=cd95787afd8dcf4ef4ec3e6b29fa832e30334860#cd95787afd8dcf4ef4ec3e6b29fa832e30334860"
 dependencies = [
  "ark-bls12-381",
  "ark-ec",
@@ -5015,8 +5012,8 @@ dependencies = [
 
 [[package]]
 name = "namada_ethereum_bridge"
-version = "0.18.0"
-source = "git+https://github.com/anoma/namada?rev=0fceef69574a5cd2d5e24d4f40e5de74ef4f12b7#0fceef69574a5cd2d5e24d4f40e5de74ef4f12b7"
+version = "0.19.0"
+source = "git+https://github.com/anoma/namada?rev=cd95787afd8dcf4ef4ec3e6b29fa832e30334860#cd95787afd8dcf4ef4ec3e6b29fa832e30334860"
 dependencies = [
  "borsh",
  "ethers",
@@ -5036,8 +5033,8 @@ dependencies = [
 
 [[package]]
 name = "namada_macros"
-version = "0.18.0"
-source = "git+https://github.com/anoma/namada?rev=0fceef69574a5cd2d5e24d4f40e5de74ef4f12b7#0fceef69574a5cd2d5e24d4f40e5de74ef4f12b7"
+version = "0.19.0"
+source = "git+https://github.com/anoma/namada?rev=cd95787afd8dcf4ef4ec3e6b29fa832e30334860#cd95787afd8dcf4ef4ec3e6b29fa832e30334860"
 dependencies = [
  "proc-macro2",
  "quote",
@@ -5046,8 +5043,8 @@ dependencies = [
 
 [[package]]
 name = "namada_proof_of_stake"
-version = "0.18.0"
-source = "git+https://github.com/anoma/namada?rev=0fceef69574a5cd2d5e24d4f40e5de74ef4f12b7#0fceef69574a5cd2d5e24d4f40e5de74ef4f12b7"
+version = "0.19.0"
+source = "git+https://github.com/anoma/namada?rev=cd95787afd8dcf4ef4ec3e6b29fa832e30334860#cd95787afd8dcf4ef4ec3e6b29fa832e30334860"
 dependencies = [
  "borsh",
  "data-encoding",
@@ -7825,21 +7822,6 @@ dependencies = [
  "url",
  "uuid 0.8.2",
  "walkdir",
-]
-
-[[package]]
-name = "tendermint-testgen"
-version = "0.23.6"
-source = "git+https://github.com/heliaxdev/tendermint-rs.git?rev=b7d1e5afc6f2ccb3fd1545c2174bab1cc48d7fa7#b7d1e5afc6f2ccb3fd1545c2174bab1cc48d7fa7"
-dependencies = [
- "ed25519-dalek",
- "gumdrop",
- "serde 1.0.150",
- "serde_json",
- "simple-error",
- "tempfile",
- "tendermint 0.23.6",
- "time 0.3.17",
 ]
 
 [[package]]
