@@ -2685,6 +2685,17 @@ dependencies = [
 ]
 
 [[package]]
+name = "fd-lock"
+version = "3.0.13"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "ef033ed5e9bad94e55838ca0ca906db0e043f517adda0c8b79c7a8c66c93c1b5"
+dependencies = [
+ "cfg-if 1.0.0",
+ "rustix 0.38.3",
+ "windows-sys 0.48.0",
+]
+
+[[package]]
 name = "ferveo"
 version = "0.1.1"
 source = "git+https://github.com/anoma/ferveo?rev=e5abd0acc938da90140351a65a26472eb495ce4d#e5abd0acc938da90140351a65a26472eb495ce4d"
@@ -2743,16 +2754,6 @@ dependencies = [
  "bitvec 1.0.1",
  "rand_core 0.6.4",
  "subtle 2.4.1",
-]
-
-[[package]]
-name = "file-lock"
-version = "2.1.9"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "f59be9010c5418713a48aac4c1b897d85dafd958055683dc31bdae553536647b"
-dependencies = [
- "cc",
- "libc",
 ]
 
 [[package]]
@@ -4818,8 +4819,8 @@ dependencies = [
 
 [[package]]
 name = "namada"
-version = "0.19.0"
-source = "git+https://github.com/anoma/namada?rev=cd95787afd8dcf4ef4ec3e6b29fa832e30334860#cd95787afd8dcf4ef4ec3e6b29fa832e30334860"
+version = "0.20.0"
+source = "git+https://github.com/anoma/namada?rev=b6714b5eca577c520b2b42b5f7f8048d46bb9d8b#b6714b5eca577c520b2b42b5f7f8048d46bb9d8b"
 dependencies = [
  "async-trait",
  "bimap",
@@ -4877,8 +4878,8 @@ dependencies = [
 
 [[package]]
 name = "namada_apps"
-version = "0.19.0"
-source = "git+https://github.com/anoma/namada?rev=cd95787afd8dcf4ef4ec3e6b29fa832e30334860#cd95787afd8dcf4ef4ec3e6b29fa832e30334860"
+version = "0.20.0"
+source = "git+https://github.com/anoma/namada?rev=b6714b5eca577c520b2b42b5f7f8048d46bb9d8b#b6714b5eca577c520b2b42b5f7f8048d46bb9d8b"
 dependencies = [
  "ark-serialize",
  "ark-std",
@@ -4904,13 +4905,14 @@ dependencies = [
  "ethbridge-events",
  "ethbridge-governance-events",
  "eyre",
+ "fd-lock",
  "ferveo",
  "ferveo-common",
- "file-lock",
  "flate2",
  "futures",
  "git2",
  "itertools",
+ "lazy_static",
  "libc",
  "libloading",
  "masp_primitives",
@@ -4942,6 +4944,7 @@ dependencies = [
  "sparse-merkle-tree",
  "sysinfo",
  "tar",
+ "tempfile",
  "tendermint-config 0.23.6",
  "thiserror",
  "tokio",
@@ -4960,8 +4963,8 @@ dependencies = [
 
 [[package]]
 name = "namada_core"
-version = "0.19.0"
-source = "git+https://github.com/anoma/namada?rev=cd95787afd8dcf4ef4ec3e6b29fa832e30334860#cd95787afd8dcf4ef4ec3e6b29fa832e30334860"
+version = "0.20.0"
+source = "git+https://github.com/anoma/namada?rev=b6714b5eca577c520b2b42b5f7f8048d46bb9d8b#b6714b5eca577c520b2b42b5f7f8048d46bb9d8b"
 dependencies = [
  "ark-bls12-381",
  "ark-ec",
@@ -5012,8 +5015,8 @@ dependencies = [
 
 [[package]]
 name = "namada_ethereum_bridge"
-version = "0.19.0"
-source = "git+https://github.com/anoma/namada?rev=cd95787afd8dcf4ef4ec3e6b29fa832e30334860#cd95787afd8dcf4ef4ec3e6b29fa832e30334860"
+version = "0.20.0"
+source = "git+https://github.com/anoma/namada?rev=b6714b5eca577c520b2b42b5f7f8048d46bb9d8b#b6714b5eca577c520b2b42b5f7f8048d46bb9d8b"
 dependencies = [
  "borsh",
  "ethers",
@@ -5033,8 +5036,8 @@ dependencies = [
 
 [[package]]
 name = "namada_macros"
-version = "0.19.0"
-source = "git+https://github.com/anoma/namada?rev=cd95787afd8dcf4ef4ec3e6b29fa832e30334860#cd95787afd8dcf4ef4ec3e6b29fa832e30334860"
+version = "0.20.0"
+source = "git+https://github.com/anoma/namada?rev=b6714b5eca577c520b2b42b5f7f8048d46bb9d8b#b6714b5eca577c520b2b42b5f7f8048d46bb9d8b"
 dependencies = [
  "proc-macro2",
  "quote",
@@ -5043,8 +5046,8 @@ dependencies = [
 
 [[package]]
 name = "namada_proof_of_stake"
-version = "0.19.0"
-source = "git+https://github.com/anoma/namada?rev=cd95787afd8dcf4ef4ec3e6b29fa832e30334860#cd95787afd8dcf4ef4ec3e6b29fa832e30334860"
+version = "0.20.0"
+source = "git+https://github.com/anoma/namada?rev=b6714b5eca577c520b2b42b5f7f8048d46bb9d8b#b6714b5eca577c520b2b42b5f7f8048d46bb9d8b"
 dependencies = [
  "borsh",
  "data-encoding",
@@ -5137,9 +5140,9 @@ dependencies = [
 
 [[package]]
 name = "ntapi"
-version = "0.3.7"
+version = "0.4.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "c28774a7fd2fbb4f0babd8237ce554b73af68021b5f695a3cebd6c59bac0980f"
+checksum = "e8a3895c6391c39d7fe7ebc444a87eb2991b2a0bc718fdabd071eec617fc68e4"
 dependencies = [
  "winapi 0.3.9",
 ]
@@ -7536,9 +7539,9 @@ dependencies = [
 
 [[package]]
 name = "sysinfo"
-version = "0.21.1"
+version = "0.29.6"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "fb6c2c4a6ca462f07ca89841a2618dca6e405304d19ae238997e64915d89f513"
+checksum = "c7cb97a5a85a136d84e75d5c3cf89655090602efb1be0d8d5337b7e386af2908"
 dependencies = [
  "cfg-if 1.0.0",
  "core-foundation-sys",
