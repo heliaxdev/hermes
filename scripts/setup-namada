@@ -179,3 +179,7 @@ echo "${HERMES_CONFIG_TEMPLATE}" \
 
 echo "2 Namada chains are running"
 echo "You can use Hermes with ${HERMES_DIR}/config_for_namada.toml"
+
+echo "You also want to run the following lines:"
+echo "export CHAIN_A_ID=${chain_id_a}"
+echo "export CHAIN_B_ID=${chain_id_b}"
