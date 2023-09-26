@@ -129,6 +129,8 @@ function init_relayer_acc() {
   local base_dir=${DATA_DIR}/namada-${suffix}/.namada
   local wallet_dir=${HERMES_DIR}/namada_wallet/${chain_id}
 
+  cp ${base_dir}/${chain_id}/setup/other/wallet.toml ${base_dir}/${chain_id}/wallet.toml
+
   ${NAMADAW} --base-dir ${base_dir} \
     key gen --alias relayer --unsafe-dont-encrypt
 

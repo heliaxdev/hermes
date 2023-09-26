@@ -6,9 +6,10 @@ use std::time::Instant;
 
 use borsh::BorshDeserialize;
 use ibc_proto::google::protobuf::Any;
-use namada::sdk::args::{Tx as TxArgs, TxCustom};
-use namada::sdk::masp::ShieldedContext;
 use namada::ledger::parameters::storage as parameter_storage;
+use namada::sdk::args::{Tx as TxArgs, TxCustom};
+use namada::sdk::error::Error as NamadaError;
+use namada::sdk::masp::ShieldedContext;
 use namada::sdk::rpc::TxBroadcastData;
 use namada::sdk::wallet::Wallet;
 use namada::sdk::{signing, tx};
@@ -16,7 +17,6 @@ use namada::tendermint_rpc::endpoint::broadcast::tx_sync::Response as AbciPlusRp
 use namada::tendermint_rpc::HttpClient;
 use namada::types::address::{Address, ImplicitAddress};
 use namada::types::chain::ChainId;
-use namada::sdk::error::Error as NamadaError;
 use namada::types::io::DefaultIo;
 use namada::types::key::RefTo;
 use namada::types::transaction::{GasLimit, TxType};
@@ -110,7 +110,7 @@ impl NamadaChain {
 
         let signing_data = self
             .rt
-            .block_on(signing::aux_signing_data::<_,_,DefaultIo>(
+            .block_on(signing::aux_signing_data::<_, _, DefaultIo>(
                 &client,
                 &mut self.wallet,
                 &args.tx,
@@ -130,7 +130,7 @@ impl NamadaChain {
         let mut shielded = ShieldedContext::<CLIShieldedUtils>::default();
         let (mut tx, _) = self
             .rt
-            .block_on(tx::build_custom::<_,_,_,DefaultIo>(
+            .block_on(tx::build_custom::<_, _, _, DefaultIo>(
                 &client,
                 &mut self.wallet,
                 &mut shielded,
@@ -140,7 +140,7 @@ impl NamadaChain {
             .map_err(Error::namada_tx)?;
 
         self.rt
-            .block_on(signing::generate_test_vector::<_,_,DefaultIo>(
+            .block_on(signing::generate_test_vector::<_, _, DefaultIo>(
                 &client,
                 &mut self.wallet,
                 &tx,
@@ -163,7 +163,10 @@ impl NamadaChain {
         };
         let mut response = self
             .rt
-            .block_on(tx::broadcast_tx::<_,DefaultIo>(&self.rpc_client, &to_broadcast))
+            .block_on(tx::broadcast_tx::<_, DefaultIo>(
+                &self.rpc_client,
+                &to_broadcast,
+            ))
             .map_err(Error::namada_tx)?;
         // overwrite the tx decrypted hash for the tx query
         response.hash = decrypted_hash.parse().expect("invalid hash");
@@ -227,10 +230,11 @@ impl NamadaChain {
 
             if tx::is_reveal_pk_needed(client, address, args.force).await? {
                 let signing_data =
-                    signing::aux_signing_data::<_,_,DefaultIo>(client, wallet, args, None, None).await?;
+                    signing::aux_signing_data::<_, _, DefaultIo>(client, wallet, args, None, None)
+                        .await?;
 
                 let mut shielded = ShieldedContext::<CLIShieldedUtils>::default();
-                let (mut tx, _) = tx::build_reveal_pk::<_,_,_,DefaultIo>(
+                let (mut tx, _) = tx::build_reveal_pk::<_, _, _, DefaultIo>(
                     client,
                     wallet,
                     &mut shielded,
@@ -241,11 +245,11 @@ impl NamadaChain {
                 )
                 .await?;
 
-                signing::generate_test_vector::<_,_,DefaultIo>(client, wallet, &tx).await?;
+                signing::generate_test_vector::<_, _, DefaultIo>(client, wallet, &tx).await?;
 
                 signing::sign_tx(wallet, args, &mut tx, signing_data)?;
 
-                tx::process_tx::<_,_,DefaultIo>(client, wallet, args, tx).await?;
+                tx::process_tx::<_, _, DefaultIo>(client, wallet, args, tx).await?;
             }
         }
 
