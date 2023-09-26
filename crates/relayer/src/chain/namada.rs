@@ -391,7 +391,10 @@ impl ChainEndpoint for NamadaChain {
         let denom_key = token::denom_key(&token);
         let (value, _) = self.query(denom_key, QueryHeight::Latest, IncludeProof::No)?;
         let denominated_amount = if value.is_empty() {
-            token::DenominatedAmount::native(amount)
+            token::DenominatedAmount {
+                amount,
+                denom: 0.into(),
+            }
         } else {
             let token_denom =
                 token::Denomination::try_from_slice(&value[..]).map_err(Error::borsh_decode)?;
@@ -425,7 +428,10 @@ impl ChainEndpoint for NamadaChain {
                     let (value, _) =
                         self.query(denom_key, QueryHeight::Latest, IncludeProof::No)?;
                     let denominated_amount = if value.is_empty() {
-                        token::DenominatedAmount::native(amount)
+                        token::DenominatedAmount {
+                            amount,
+                            denom: 0.into(),
+                        }
                     } else {
                         let namada_denom = token::Denomination::try_from_slice(&value[..])
                             .map_err(Error::borsh_decode)?;
