@@ -39,7 +39,7 @@ use namada::ledger::parameters::storage as param_storage;
 use namada::ledger::parameters::EpochDuration;
 use namada::ledger::storage::ics23_specs::ibc_proof_specs;
 use namada::ledger::storage::Sha256Hasher;
-use namada::ledger::wallet::Wallet;
+use namada::sdk::wallet::Wallet;
 use namada::proof_of_stake::parameters::PosParams;
 use namada::proof_of_stake::storage as pos_storage;
 use namada::tendermint::block::Height as TmHeight;

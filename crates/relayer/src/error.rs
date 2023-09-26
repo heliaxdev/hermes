@@ -10,7 +10,7 @@ use namada::tendermint::Error as AbciPlusTmError;
 use namada::tendermint::Error as NamadaTendermintError;
 use namada::tendermint_proto::Error as AbciPlusTmProtoError;
 use namada::tendermint_rpc::Error as TendermintAbciPlusRpcError;
-use namada::types::error::Error as NamadaTxError;
+use namada::sdk::error::Error as NamadaTxError;
 use namada::types::token::Amount;
 use prost::{DecodeError, EncodeError};
 use regex::Regex;
@@ -603,7 +603,7 @@ define_error! {
             |_| { "Namada wallet has not been initialized yet" },
 
         NamadaKeyPairNotFound
-            [ TraceError<namada::ledger::wallet::FindKeyError> ]
+            [ TraceError<namada::sdk::wallet::FindKeyError> ]
             |_| { "The keypair was not found" },
 
         NamadaAddressNotFound
