@@ -16,16 +16,16 @@ cd $(dirname $0)
 HERMES_DIR=${PWD%/scripts*}
 
 # edit for your environment
-NAMADAC="${NAMADA_DIR}/target/debug/namadac"
-NAMADAN="${NAMADA_DIR}/target/debug/namadan"
-NAMADAW="${NAMADA_DIR}/target/debug/namadaw"
+NAMADAC="${NAMADA_DIR}/target/release/namadac"
+NAMADAN="${NAMADA_DIR}/target/release/namadan"
+NAMADAW="${NAMADA_DIR}/target/release/namadaw"
 BASE_GENESIS_PATH="${NAMADA_DIR}/genesis/e2e-tests-single-node.toml"
 CHECKSUM_PATH="${NAMADA_DIR}/wasm/checksums.json"
 DATA_DIR="${HERMES_DIR}/data"
 GENESIS_PATH="${DATA_DIR}/e2e-tests-single-node.toml"
 
 NET_ADDR="127.0.0.1:27656"
-LEDGER_ADDR="127.0.0.1:27657"
+LEDGER_ADDR="tcp://127.0.0.1:27657"
 
 HERMES_CONFIG_TEMPLATE="
 [global]
@@ -96,18 +96,30 @@ function copy_wasm() {
   cp ${NAMADA_DIR}/wasm/*.wasm ${base_dir}/${chain_id}/setup/validator-0/.namada/${chain_id}/wasm/
 }
 
+
 function init_relayer_acc() {
   local chain_id=$1
-  local ledger_addr=$2
 
   local base_dir=${DATA_DIR}/namada/.namada
   local wallet_dir=${HERMES_DIR}/namada_wallet/${chain_id}
+
+  cp ${base_dir}/${chain_id}/setup/other/wallet.toml ${base_dir}/${chain_id}/wallet.toml
 
   ${NAMADAW} --base-dir ${base_dir} \
     key gen --alias relayer --unsafe-dont-encrypt
 
   mkdir -p ${wallet_dir}
   ln -s ${base_dir}/${chain_id}/wallet.toml ${wallet_dir}
+}
+
+function fund_relayer_acc() {
+  local account=$1
+  local ledger_addr=$2
+  local base_dir=${DATA_DIR}/namada/.namada
+
+  ${NAMADAC} --base-dir ${base_dir} \
+    transfer --node ${ledger_addr} \
+    --source ${account} --target relayer --amount 10000 --token NAM
 }
 
 # ==== main ====
@@ -124,7 +136,10 @@ ${NAMADAN} --base-dir ${DATA_DIR}/namada/.namada/${chain_id}/setup/validator-0/.
 echo "Namada chain's PID = $!"
 sleep 5
 
-init_relayer_acc ${chain_id} ${LEDGER_ADDR}
+init_relayer_acc ${chain_id}
+sleep 10
+
+fund_relayer_acc "albert" ${LEDGER_ADDR}
 
 # for the relayer
 cd ${HERMES_DIR}
@@ -134,3 +149,6 @@ echo "${HERMES_CONFIG_TEMPLATE}" \
 
 echo "A Namada chain is running"
 echo "You can use Hermes with ${HERMES_DIR}/config_for_namada.toml"
+
+echo "You also want to run the following lines:"
+echo "export CHAIN_ID=${chain_id}"
