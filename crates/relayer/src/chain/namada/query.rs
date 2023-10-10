@@ -3,7 +3,6 @@ use ibc_relayer_types::core::ics23_commitment::merkle::convert_tm_to_ics_merkle_
 use ibc_relayer_types::core::ics23_commitment::merkle::MerkleProof;
 use ibc_relayer_types::events::IbcEvent;
 use ibc_relayer_types::Height as ICSHeight;
-use namada::ledger::events::EventType as NamadaEventType;
 use namada::ledger::queries::RPC;
 use namada::tendermint::block::Height as TmHeight;
 use namada::tendermint_rpc::Client;
@@ -112,14 +111,6 @@ impl NamadaChain {
 
     /// Get all IBC events when the tx has been applied
     pub fn query_tx_events(&self, tx_hash: &str) -> Result<Vec<IbcEventWithHeight>, Error> {
-        match self.query_tx_height(tx_hash)? {
-            Some(height) => self.query_events(height),
-            None => Ok(vec![]),
-        }
-    }
-
-    /// Get the height at which the tx has been applied
-    fn query_tx_height(&self, tx_hash: &str) -> Result<Option<ICSHeight>, Error> {
         match self
             .rt
             .block_on(RPC.shell().applied(
@@ -136,9 +127,20 @@ impl NamadaChain {
                     .map_err(|_| Error::invalid_height_no_source())?;
                 let height = ICSHeight::new(self.config.id.version(), h)
                     .map_err(|_| Error::invalid_height_no_source())?;
-                Ok(Some(height))
+                // Check if the tx is valid
+                let code = applied.get("code").expect("The code should exist");
+                if code != "0" {
+                    return Ok(vec![IbcEventWithHeight::new(
+                        IbcEvent::ChainError(format!(
+                            "The transaction was invalid: Event {:?}",
+                            applied,
+                        )),
+                        height,
+                    )]);
+                }
+                self.query_events(height)
             }
-            None => Ok(None),
+            None => Ok(vec![]),
         }
     }
 
@@ -242,29 +244,8 @@ impl NamadaChain {
         let mut ibc_events = vec![];
         for event in &events {
             let event = into_abci_event(event);
-            match ibc_event_try_from_abci_event(&event) {
-                Ok(e) => ibc_events.push(IbcEventWithHeight::new(e, height)),
-                Err(_) => {
-                    // check the transaction result
-                    if event.kind == NamadaEventType::Applied.to_string() {
-                        let success_code_tag = EventAttribute {
-                            key: "code".to_string(),
-                            value: "0".to_string(),
-                            index: true,
-                        };
-                        if !event.attributes.contains(&success_code_tag) {
-                            let ibc_event = IbcEventWithHeight::new(
-                                IbcEvent::ChainError(format!(
-                                    "The transaction was invalid: Event {:?}",
-                                    event,
-                                )),
-                                height,
-                            );
-                            ibc_events.push(ibc_event);
-                        }
-                    }
-                    // skip special ibc-rs events
-                }
+            if let Ok(ibc_event) = ibc_event_try_from_abci_event(&event) {
+                ibc_events.push(IbcEventWithHeight::new(ibc_event, height))
             }
         }
         Ok(ibc_events)
