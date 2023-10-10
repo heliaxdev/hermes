@@ -7,6 +7,7 @@ use namada::ledger::queries::RPC;
 use namada::tendermint::block::Height as TmHeight;
 use namada::tendermint_rpc::Client;
 use namada::types::storage::{BlockHeight, Epoch, Key, PrefixValue};
+use namada_apps::node::ledger::shell::ErrorCodes;
 use tendermint::abci::{Event, EventAttribute};
 use tendermint::merkle::proof::{ProofOp, ProofOps};
 
@@ -129,7 +130,7 @@ impl NamadaChain {
                     .map_err(|_| Error::invalid_height_no_source())?;
                 // Check if the tx is valid
                 let code = applied.get("code").expect("The code should exist");
-                if code != "0" {
+                if *code != String::from(ErrorCodes::Ok) {
                     return Ok(vec![IbcEventWithHeight::new(
                         IbcEvent::ChainError(format!(
                             "The transaction was invalid: Event {:?}",
