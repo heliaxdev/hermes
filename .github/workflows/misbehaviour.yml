@@ -43,14 +43,14 @@ jobs:
       fail-fast: false
       matrix:
         chain:
-          - package: gaia8
-            command: gaiad
-            account_prefix: cosmos
-          - package: gaia9
+          - package: gaia12
             command: gaiad
             account_prefix: cosmos
     steps:
       - uses: actions/checkout@v3
+      - uses: arduino/setup-protoc@v2
+        with:
+          repo-token: ${{ secrets.GITHUB_TOKEN }}
       - name: Install Nix
         uses: cachix/install-nix-action@v22
         with:

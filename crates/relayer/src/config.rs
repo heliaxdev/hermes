@@ -7,7 +7,6 @@ pub mod proof_specs;
 pub mod types;
 
 use alloc::collections::BTreeMap;
-use byte_unit::Byte;
 use core::{
     cmp::Ordering,
     fmt::{Display, Error as FmtError, Formatter},
@@ -42,6 +41,22 @@ pub use crate::config::Error as ConfigError;
 pub use error::Error;
 
 pub use filter::PacketFilter;
+
+// TODO: Use Byte with u64. `toml::to_string_pretty` failed
+// since the Byte is u128 because Namada is using byte-unit with u128.
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+pub struct Byte(u64);
+impl Byte {
+    #[inline]
+    pub const fn from_bytes(bytes: u64) -> Byte {
+        Byte(bytes)
+    }
+
+    #[inline]
+    pub const fn get_bytes(&self) -> u64 {
+        self.0
+    }
+}
 
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 pub struct GasPrice {

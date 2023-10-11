@@ -58,7 +58,7 @@ jobs:
       fail-fast: false
       matrix:
         first-package:
-          - package: gaia9
+          - package: gaia12
             command: gaiad
             account_prefix: cosmos
           - package: ibc-go-v7-simapp
@@ -83,6 +83,9 @@ jobs:
 
     steps:
       - uses: actions/checkout@v3
+      - uses: arduino/setup-protoc@v2
+        with:
+          repo-token: ${{ secrets.GITHUB_TOKEN }}
       - uses: cachix/install-nix-action@v22
         with:
           install_url: https://nixos-nix-install-tests.cachix.org/serve/vij683ly7sl95nnhb67bdjjfabclr85m/install

@@ -45,10 +45,7 @@ jobs:
       fail-fast: false
       matrix:
         chain:
-          - package: gaia8
-            command: gaiad
-            account_prefix: cosmos
-          - package: gaia9
+          - package: gaia12
             command: gaiad
             account_prefix: cosmos
           - package: ibc-go-v4-simapp
@@ -81,6 +78,9 @@ jobs:
 
     steps:
       - uses: actions/checkout@v3
+      - uses: arduino/setup-protoc@v2
+        with:
+          repo-token: ${{ secrets.GITHUB_TOKEN }}
       - uses: cachix/install-nix-action@v22
         with:
           install_url: https://nixos-nix-install-tests.cachix.org/serve/vij683ly7sl95nnhb67bdjjfabclr85m/install
@@ -119,6 +119,9 @@ jobs:
     timeout-minutes: 60
     steps:
       - uses: actions/checkout@v3
+      - uses: arduino/setup-protoc@v2
+        with:
+          repo-token: ${{ secrets.GITHUB_TOKEN }}
       - uses: cachix/install-nix-action@v22
         with:
           install_url: https://nixos-nix-install-tests.cachix.org/serve/vij683ly7sl95nnhb67bdjjfabclr85m/install
@@ -160,6 +163,9 @@ jobs:
             account_prefix: cosmos
     steps:
       - uses: actions/checkout@v3
+      - uses: arduino/setup-protoc@v2
+        with:
+          repo-token: ${{ secrets.GITHUB_TOKEN }}
       - uses: cachix/install-nix-action@v22
         with:
           install_url: https://nixos-nix-install-tests.cachix.org/serve/vij683ly7sl95nnhb67bdjjfabclr85m/install
@@ -209,6 +215,9 @@ jobs:
             account_prefix: migaloo
     steps:
       - uses: actions/checkout@v3
+      - uses: arduino/setup-protoc@v2
+        with:
+          repo-token: ${{ secrets.GITHUB_TOKEN }}
       - uses: cachix/install-nix-action@v22
         with:
           install_url: https://nixos-nix-install-tests.cachix.org/serve/vij683ly7sl95nnhb67bdjjfabclr85m/install
@@ -244,10 +253,7 @@ jobs:
       fail-fast: false
       matrix:
         chain:
-          - package: gaia8
-            command: gaiad
-            account_prefix: cosmos
-          - package: gaia9
+          - package: gaia12
             command: gaiad
             account_prefix: cosmos
           - package: juno
@@ -255,6 +261,9 @@ jobs:
             account_prefix: juno
     steps:
       - uses: actions/checkout@v3
+      - uses: arduino/setup-protoc@v2
+        with:
+          repo-token: ${{ secrets.GITHUB_TOKEN }}
       - uses: cachix/install-nix-action@v22
         with:
           install_url: https://nixos-nix-install-tests.cachix.org/serve/vij683ly7sl95nnhb67bdjjfabclr85m/install
@@ -290,11 +299,14 @@ jobs:
       fail-fast: false
       matrix:
         chain:
-          - package: .#gaia8 .#stride-no-admin
+          - package: .#gaia12 .#stride-no-admin
             command: gaiad,strided
             account_prefix: cosmos,stride
     steps:
       - uses: actions/checkout@v3
+      - uses: arduino/setup-protoc@v2
+        with:
+          repo-token: ${{ secrets.GITHUB_TOKEN }}
       - uses: cachix/install-nix-action@v22
         with:
           install_url: https://nixos-nix-install-tests.cachix.org/serve/vij683ly7sl95nnhb67bdjjfabclr85m/install
@@ -337,6 +349,9 @@ jobs:
             account_prefix: evmos
     steps:
       - uses: actions/checkout@v3
+      - uses: arduino/setup-protoc@v2
+        with:
+          repo-token: ${{ secrets.GITHUB_TOKEN }}
       - uses: cachix/install-nix-action@v22
         with:
           install_url: https://nixos-nix-install-tests.cachix.org/serve/vij683ly7sl95nnhb67bdjjfabclr85m/install
@@ -372,11 +387,14 @@ jobs:
       fail-fast: false
       matrix:
         chain:
-          - package: gaia9
+          - package: gaia12
             command: gaiad
             account_prefix: cosmos
     steps:
       - uses: actions/checkout@v3
+      - uses: arduino/setup-protoc@v2
+        with:
+          repo-token: ${{ secrets.GITHUB_TOKEN }}
       - uses: cachix/install-nix-action@v22
         with:
           install_url: https://nixos-nix-install-tests.cachix.org/serve/vij683ly7sl95nnhb67bdjjfabclr85m/install
@@ -417,6 +435,9 @@ jobs:
             account_prefix: neutron
     steps:
       - uses: actions/checkout@v3
+      - uses: arduino/setup-protoc@v2
+        with:
+          repo-token: ${{ secrets.GITHUB_TOKEN }}
       - uses: cachix/install-nix-action@v22
         with:
           install_url: https://nixos-nix-install-tests.cachix.org/serve/vij683ly7sl95nnhb67bdjjfabclr85m/install
@@ -442,7 +463,7 @@ jobs:
           CHAIN_COMMAND_PATHS: gaiad,${{ matrix.chain.command }}
           ACCOUNT_PREFIXES: cosmos,${{ matrix.chain.account_prefix }}
         run: |
-          nix shell .#gaia9 .#${{ matrix.chain.package }} -c cargo \
+          nix shell .#gaia12 .#${{ matrix.chain.package }} -c cargo \
             test -p ibc-integration-test --features interchain-security --no-fail-fast -- \
             --nocapture --test-threads=1 interchain_security::
 
@@ -452,9 +473,12 @@ jobs:
     strategy:
       matrix:
         gaiad:
-          - gaia6
+          - gaia12
     steps:
       - uses: actions/checkout@v3
+      - uses: arduino/setup-protoc@v2
+        with:
+          repo-token: ${{ secrets.GITHUB_TOKEN }}
       - uses: cachix/install-nix-action@v22
         with:
           install_url: https://nixos-nix-install-tests.cachix.org/serve/vij683ly7sl95nnhb67bdjjfabclr85m/install

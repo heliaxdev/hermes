@@ -29,15 +29,10 @@
         {
           packages = {
             inherit (cosmos-nix)
-              gaia5
-              gaia6
-              gaia7
-              gaia8
-              gaia9
+              gaia6-ordered
               gaia12
               osmosis
               wasmd
-              gaia6-ordered
               ibc-go-v2-simapp
               ibc-go-v3-simapp
               ibc-go-v4-simapp
