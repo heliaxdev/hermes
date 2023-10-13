@@ -108,7 +108,7 @@ impl NamadaChain {
             Mode::Push { url, batch_delay } => EventSource::websocket(
                 self.config.id.clone(),
                 url.clone(),
-                CompatMode::V0_34,
+                CompatMode::V0_37,
                 *batch_delay,
                 self.rt.clone(),
             ),
