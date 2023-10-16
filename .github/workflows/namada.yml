@@ -1,0 +1,63 @@
+name: Namada E2E test
+on:
+  pull_request:
+    paths:
+      - .github/workflows/integration.yaml
+      - Cargo.toml
+      - Cargo.lock
+      - flake.nix
+      - flake.lock
+      - ci/**
+      - e2e/**
+      - crates/**
+      - tools/**
+  push:
+    branches: *-namada
+    paths:
+      - .github/workflows/integration.yaml
+      - Cargo.toml
+      - Cargo.lock
+      - flake.nix
+      - flake.lock
+      - ci/**
+      - e2e/**
+      - crates/**
+      - tools/**
+
+jobs:
+  namada-e2e-test:
+    runs-on: ubuntu-20.04
+
+    strategy:
+      fail-fast: false
+      matrix:
+        namada: [0.23.0]
+        comet_bft: [0.37.2]
+
+    steps:
+      - uses: actions/checkout@v3
+      - uses: arduino/setup-protoc@v2
+        with:
+          repo-token: ${{ secrets.GITHUB_TOKEN }}
+      - uses: actions-rs/toolchain@v1
+        with:
+          toolchain: 1.70.0
+          override: true
+      - uses: Swatinem/rust-cache@v1
+      - uses: actions-rs/cargo@v1
+        with:
+          command: build
+      - name: Download CometBFT
+        run: |
+          curl -o cometbft.tar.gz -LO https://github.com/cometbft/cometbft/releases/download/v${{ matrix.comet_bft }}/cometbft_${{ matrix.comet_bft }}_linux_amd64.tar.gz
+          tar -xvzf cometbft.tar.gz
+          mv cometbft /usr/local/bin
+      - name: Download namada binaries
+        run: |
+          curl -o namada.tar.gz -LO https://github.com/anoma/namada/releases/download/v{{ matrix.namada }}/namada-v{{ matrix.namada }}-Linux-x86_64.tar.gz
+          tar -xvzf namada.tar.gz
+      - name: Run test
+        run: |
+          e2e/namada-e2e-test namada
+
+

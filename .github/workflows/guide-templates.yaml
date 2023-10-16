@@ -33,7 +33,7 @@ jobs:
           repo-token: ${{ secrets.GITHUB_TOKEN }}
       - uses: actions-rs/toolchain@v1
         with:
-          toolchain: stable
+          toolchain: 1.70.0
           override: true
       - name: Check templates
         run: bash scripts/auto_gen_templates.sh --mode "check"

@@ -92,7 +92,7 @@ jobs:
           name: cosmos
       - uses: actions-rs/toolchain@v1
         with:
-          toolchain: stable
+          toolchain: 1.70.0
           override: true
       - uses: Swatinem/rust-cache@v1
       - uses: actions-rs/cargo@v1
@@ -133,7 +133,7 @@ jobs:
           name: cosmos
       - uses: actions-rs/toolchain@v1
         with:
-          toolchain: stable
+          toolchain: 1.70.0
           override: true
       - uses: Swatinem/rust-cache@v1
       - uses: actions-rs/cargo@v1
@@ -177,7 +177,7 @@ jobs:
           name: cosmos
       - uses: actions-rs/toolchain@v1
         with:
-          toolchain: stable
+          toolchain: 1.70.0
           override: true
       - uses: Swatinem/rust-cache@v1
       - uses: actions-rs/cargo@v1
@@ -229,7 +229,7 @@ jobs:
           name: cosmos
       - uses: actions-rs/toolchain@v1
         with:
-          toolchain: stable
+          toolchain: 1.70.0
           override: true
       - uses: Swatinem/rust-cache@v1
       - uses: actions-rs/cargo@v1
@@ -275,7 +275,7 @@ jobs:
           name: cosmos
       - uses: actions-rs/toolchain@v1
         with:
-          toolchain: stable
+          toolchain: 1.70.0
           override: true
       - uses: Swatinem/rust-cache@v1
       - uses: actions-rs/cargo@v1
@@ -318,7 +318,7 @@ jobs:
           name: cosmos
       - uses: actions-rs/toolchain@v1
         with:
-          toolchain: stable
+          toolchain: 1.70.0
           override: true
       - uses: Swatinem/rust-cache@v1
       - uses: actions-rs/cargo@v1
@@ -363,7 +363,7 @@ jobs:
           name: cosmos
       - uses: actions-rs/toolchain@v1
         with:
-          toolchain: stable
+          toolchain: 1.70.0
           override: true
       - uses: Swatinem/rust-cache@v1
       - uses: actions-rs/cargo@v1
@@ -406,7 +406,7 @@ jobs:
           name: cosmos
       - uses: actions-rs/toolchain@v1
         with:
-          toolchain: stable
+          toolchain: 1.70.0
           override: true
       - uses: Swatinem/rust-cache@v1
       - uses: actions-rs/cargo@v1
@@ -449,7 +449,7 @@ jobs:
           name: cosmos
       - uses: actions-rs/toolchain@v1
         with:
-          toolchain: stable
+          toolchain: 1.70.0
           override: true
       - uses: Swatinem/rust-cache@v1
       - uses: actions-rs/cargo@v1
@@ -490,7 +490,7 @@ jobs:
           name: cosmos
       - uses: actions-rs/toolchain@v1
         with:
-          toolchain: stable
+          toolchain: 1.70.0
           override: true
       - uses: Swatinem/rust-cache@v1
       - uses: actions-rs/cargo@v1
