@@ -14,15 +14,13 @@ use namada::sdk::rpc::TxBroadcastData;
 use namada::sdk::wallet::Wallet;
 use namada::sdk::{signing, tx};
 use namada::tendermint_rpc::endpoint::broadcast::tx_sync::Response as AbciPlusRpcResponse;
-use namada::tendermint_rpc::HttpClient;
+use namada::tendermint_rpc::{HttpClient, Url};
 use namada::types::address::{Address, ImplicitAddress};
 use namada::types::chain::ChainId;
 use namada::types::io::DefaultIo;
 use namada::types::key::RefTo;
 use namada::types::transaction::{GasLimit, TxType};
-use namada_apps::cli::api::CliClient;
 use namada_apps::client::tx::CLIShieldedUtils;
-use namada_apps::facade::tendermint_config::net::Address as TendermintAddress;
 use namada_apps::wallet::CliWalletUtils;
 use tendermint_rpc::endpoint::broadcast::tx_sync::Response;
 
@@ -38,13 +36,10 @@ const WAIT_BACKOFF: Duration = Duration::from_millis(300);
 
 impl NamadaChain {
     pub fn send_tx(&mut self, proto_msg: &Any) -> Result<Response, Error> {
-        let mut ledger_address = TendermintAddress::from_str(&format!(
-            "{}:{}",
-            self.config.rpc_addr.host(),
-            self.config.rpc_addr.port()
-        ))
-        .expect("invalid ledger address");
-        let client = HttpClient::from_tendermint_address(&mut ledger_address);
+        // Convert Url for Namada's tendermint-rpc
+        let url = Url::from_str(&self.config.rpc_addr.to_string()).expect("invalid RPC address");
+        let client =
+            HttpClient::new(url.clone()).map_err(|e| Error::namada_tendermint_rpc(url, e))?;
 
         let mut tx_data = vec![];
         prost::Message::encode(proto_msg, &mut tx_data)

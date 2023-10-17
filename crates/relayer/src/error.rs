@@ -11,6 +11,7 @@ use namada::tendermint::Error as AbciPlusTmError;
 use namada::tendermint::Error as NamadaTendermintError;
 use namada::tendermint_proto::Error as AbciPlusTmProtoError;
 use namada::tendermint_rpc::Error as TendermintAbciPlusRpcError;
+use namada::tendermint_rpc::Error as NamadaTmRpcError;
 use namada::types::token::Amount;
 use prost::{DecodeError, EncodeError};
 use regex::Regex;
@@ -613,6 +614,11 @@ define_error! {
         NamadaTendermint
             [ NamadaTendermintError ]
             |_| { "Tendermint error" },
+
+        NamadaTendermintRpc
+            { url: namada::tendermint_rpc::Url }
+            [ NamadaTmRpcError ]
+            |e| { format!("RPC error to endpoint {}", e.url) },
 
         NamadaQuery
             { description: String }
