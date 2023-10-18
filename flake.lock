@@ -49,6 +49,7 @@
         "gaia7-src": "gaia7-src",
         "gaia8-src": "gaia8-src",
         "gaia9-src": "gaia9-src",
+        "gaia12-src": "gaia12-src",
         "ibc-go-v2-src": "ibc-go-v2-src",
         "ibc-go-v3-src": "ibc-go-v3-src",
         "ibc-go-v4-src": "ibc-go-v4-src",
@@ -335,6 +336,23 @@
       "original": {
         "owner": "cosmos",
         "ref": "v9.0.3",
+        "repo": "gaia",
+        "type": "github"
+      }
+    },
+    "gaia12-src": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1692870038,
+        "narHash": "sha256-KqpkazhGGQWzvHiiwCiE7ciA8+L2t2HgxN8270zuGd0=",
+        "owner": "cosmos",
+        "repo": "gaia",
+        "rev": "6f8067d76ce30996f83645862153ccfaf5f13dd1",
+        "type": "github"
+      },
+      "original": {
+        "owner": "cosmos",
+        "ref": "v12.0.0",
         "repo": "gaia",
         "type": "github"
       }

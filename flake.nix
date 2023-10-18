@@ -34,6 +34,7 @@
               gaia7
               gaia8
               gaia9
+              gaia12
               osmosis
               wasmd
               gaia6-ordered
