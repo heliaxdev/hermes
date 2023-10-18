@@ -66,6 +66,13 @@ pub fn bootstrap_single_node(
             "error creating initial stake with additional amount"
         )))?;
     let initial_coin = Token::new(denom.clone(), initial_amount);
+    // The fixed e2e test is using NAM for Namada
+    let nam_coin = Token::new(
+        Denom::base(
+            "atest1v4ehgw36x3prswzxggunzv6pxqmnvdj9xvcyzvpsggeyvs3cg9qnywf589qnwvfsg5erg3fkl09rg5",
+        ),
+        initial_amount,
+    );
 
     let chain_driver = builder.new_chain(prefix, use_random_id, chain_number)?;
 
@@ -87,7 +94,10 @@ pub fn bootstrap_single_node(
 
     chain_driver.add_genesis_account(&user2.address, &[&initial_stake, &initial_coin])?;
 
-    chain_driver.add_genesis_account(&relayer.address, &[&initial_stake, &initial_coin])?;
+    chain_driver.add_genesis_account(
+        &relayer.address,
+        &[&initial_stake, &initial_coin, &nam_coin],
+    )?;
 
     chain_driver.collect_gen_txs()?;
 

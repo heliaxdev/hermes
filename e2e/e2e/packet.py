@@ -53,8 +53,12 @@ class TxPacketSend(Cmd[TxPacketSendRes]):
         return args
 
     def process(self, result: Any) -> TxPacketSendRes:
-        entry = find_entry(result, 'event')
-        return from_dict(TxPacketSendRes, entry['SendPacket'])
+        for entry in result:
+            if 'event' in entry and 'SendPacket' in entry['event']:
+                event = entry['event']
+                return from_dict(TxPacketSendRes, event['SendPacket'])
+        l.error(f'No SendPacket event')
+        exit(1)
 
 # -----------------------------------------------------------------------------
 

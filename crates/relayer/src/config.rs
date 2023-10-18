@@ -44,7 +44,7 @@ pub use filter::PacketFilter;
 
 // TODO: Use Byte with u64. `toml::to_string_pretty` failed
 // since the Byte is u128 because Namada is using byte-unit with u128.
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Serialize)]
 pub struct Byte(u64);
 impl Byte {
     #[inline]
@@ -55,6 +55,19 @@ impl Byte {
     #[inline]
     pub const fn get_bytes(&self) -> u64 {
         self.0
+    }
+}
+
+use serde::de::{Deserialize, Deserializer};
+impl<'de> Deserialize<'de> for Byte {
+    fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
+    where
+        D: Deserializer<'de>,
+    {
+        let byte = byte_unit::Byte::deserialize(deserializer)?;
+        let value = u64::from_str(&byte.get_bytes().to_string())
+            .map_err(|e| serde::de::Error::custom(e.to_string()))?;
+        Ok(Self::from_bytes(value))
     }
 }
 
