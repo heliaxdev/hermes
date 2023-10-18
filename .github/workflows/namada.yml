@@ -12,7 +12,7 @@ on:
       - crates/**
       - tools/**
   push:
-    branches: *-namada
+    branches: '*-namada'
     paths:
       - .github/workflows/integration.yaml
       - Cargo.toml

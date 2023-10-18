@@ -48,33 +48,9 @@ jobs:
           - package: gaia12
             command: gaiad
             account_prefix: cosmos
-          - package: ibc-go-v4-simapp
-            command: simd
-            account_prefix: cosmos
-          - package: ibc-go-v5-simapp
-            command: simd
-            account_prefix: cosmos
-          - package: ibc-go-v6-simapp
-            command: simd
-            account_prefix: cosmos
           - package: ibc-go-v7-simapp
             command: simd
             account_prefix: cosmos
-          - package: wasmd
-            command: wasmd
-            account_prefix: wasm
-          - package: evmos
-            command: evmosd
-            account_prefix: evmos
-          - package: osmosis
-            command: osmosisd
-            account_prefix: osmo
-          - package: stride
-            command: strided
-            account_prefix: stride
-          - package: juno
-            command: junod
-            account_prefix: juno
 
     steps:
       - uses: actions/checkout@v3
@@ -90,6 +66,10 @@ jobs:
       - uses: cachix/cachix-action@v12
         with:
           name: cosmos
+      - name: Clear Nix cache
+        run: |
+          nix flake update --commit-lock-file
+          nix flake gc --ignore-failures
       - uses: actions-rs/toolchain@v1
         with:
           toolchain: 1.70.0
@@ -155,9 +135,6 @@ jobs:
       fail-fast: false
       matrix:
         chain:
-          - package: ibc-go-v6-simapp
-            command: simd
-            account_prefix: cosmos
           - package: ibc-go-v7-simapp
             command: simd
             account_prefix: cosmos
@@ -201,18 +178,9 @@ jobs:
       fail-fast: false
       matrix:
         chain:
-          - package: ibc-go-v5-simapp
-            command: simd
-            account_prefix: cosmos
-          - package: ibc-go-v6-simapp
-            command: simd
-            account_prefix: cosmos
           - package: ibc-go-v7-simapp
             command: simd
             account_prefix: cosmos
-          - package: migaloo
-            command: migalood
-            account_prefix: migaloo
     steps:
       - uses: actions/checkout@v3
       - uses: arduino/setup-protoc@v2
@@ -256,9 +224,6 @@ jobs:
           - package: gaia12
             command: gaiad
             account_prefix: cosmos
-          - package: juno
-            command: junod
-            account_prefix: juno
     steps:
       - uses: actions/checkout@v3
       - uses: arduino/setup-protoc@v2
@@ -344,9 +309,6 @@ jobs:
           - package: stride
             command: strided
             account_prefix: stride
-          - package: evmos
-            command: evmosd
-            account_prefix: evmos
     steps:
       - uses: actions/checkout@v3
       - uses: arduino/setup-protoc@v2

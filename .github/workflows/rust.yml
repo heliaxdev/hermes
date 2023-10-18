@@ -41,6 +41,7 @@ jobs:
       - uses: actions-rs/toolchain@v1
         with:
           toolchain: 1.70.0
+          components: rustfmt
           override: true
       - uses: actions-rs/cargo@v1
         with:

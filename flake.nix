@@ -28,7 +28,8 @@
         in
         {
           packages = {
-            inherit (cosmos-nix)
+            inherit
+              (cosmos-nix)
               gaia6-ordered
               gaia12
               osmosis
