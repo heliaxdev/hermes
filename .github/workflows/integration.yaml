@@ -45,7 +45,7 @@ jobs:
       fail-fast: false
       matrix:
         chain:
-          - package: gaia12
+          - package: gaia9
             command: gaiad
             account_prefix: cosmos
           - package: ibc-go-v7-simapp
@@ -66,10 +66,6 @@ jobs:
       - uses: cachix/cachix-action@v12
         with:
           name: cosmos
-      - name: Clear Nix cache
-        run: |
-          nix flake update --commit-lock-file
-          nix flake gc --ignore-failures
       - uses: actions-rs/toolchain@v1
         with:
           toolchain: 1.70.0
@@ -221,7 +217,7 @@ jobs:
       fail-fast: false
       matrix:
         chain:
-          - package: gaia12
+          - package: gaia9
             command: gaiad
             account_prefix: cosmos
     steps:
@@ -264,7 +260,7 @@ jobs:
       fail-fast: false
       matrix:
         chain:
-          - package: .#gaia12 .#stride-no-admin
+          - package: .#gaia9 .#stride-no-admin
             command: gaiad,strided
             account_prefix: cosmos,stride
     steps:
@@ -349,7 +345,7 @@ jobs:
       fail-fast: false
       matrix:
         chain:
-          - package: gaia12
+          - package: gaia9
             command: gaiad
             account_prefix: cosmos
     steps:
@@ -425,7 +421,7 @@ jobs:
           CHAIN_COMMAND_PATHS: gaiad,${{ matrix.chain.command }}
           ACCOUNT_PREFIXES: cosmos,${{ matrix.chain.account_prefix }}
         run: |
-          nix shell .#gaia12 .#${{ matrix.chain.package }} -c cargo \
+          nix shell .#gaia9 .#${{ matrix.chain.package }} -c cargo \
             test -p ibc-integration-test --features interchain-security --no-fail-fast -- \
             --nocapture --test-threads=1 interchain_security::
 
@@ -435,7 +431,7 @@ jobs:
     strategy:
       matrix:
         gaiad:
-          - gaia12
+          - gaia9
     steps:
       - uses: actions/checkout@v3
       - uses: arduino/setup-protoc@v2
