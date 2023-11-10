@@ -267,10 +267,6 @@ impl ChainEndpoint for NamadaChain {
                 )
             })?;
 
-        // TODO Namada health check
-
-        // TODO version check
-
         Ok(HealthCheck::Healthy)
     }
 
