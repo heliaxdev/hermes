@@ -35,6 +35,7 @@ use ibc_relayer_types::proofs::ProofError;
 
 use crate::chain::cosmos::version;
 use crate::chain::cosmos::BLOCK_MAX_BYTES_MAX_FRACTION;
+use crate::chain::namada::error::Error as NamadaError;
 use crate::config::Error as ConfigError;
 use crate::event::source;
 use crate::keyring::{errors::Error as KeyringError, KeyType};
@@ -586,6 +587,10 @@ define_error! {
         InvalidCompatMode
             [ TendermintRpcError ]
             |_| { "Invalid CompatMode queried from chain and no `compat_mode` configured in Hermes. This can be fixed by specifying a `compat_mode` in Hermes config.toml" },
+
+        Namada
+            [ NamadaError ]
+            |_| { "Namada error" },
     }
 }
 
