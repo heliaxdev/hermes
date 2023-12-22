@@ -236,7 +236,7 @@ pub fn add_key(
             let mut wallet = CliWalletUtils::new(path.to_path_buf());
             wallet
                 .load()
-                .map_err(|_| eyre!("error loading Namada wallet"))?;
+                .map_err(|e| eyre!(format!("error loading Namada wallet: {}", e.to_string())))?;
 
             let secret_key = wallet
                 .find_secret_key(key_name, None)
