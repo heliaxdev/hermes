@@ -111,7 +111,7 @@ default-features = false
 
 [dependencies.namada_sdk]
 git = "https://github.com/anoma/namada"
-tag = "v0.29.0"
+rev = "88c01a3dfccad2611a5994cb330926895299102f"
 features = ["std"]
 
 [dev-dependencies]

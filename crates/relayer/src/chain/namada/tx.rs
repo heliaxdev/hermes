@@ -68,6 +68,7 @@ impl NamadaChain {
             signatures: vec![],
             tx_reveal_code_path: PathBuf::from(tx::TX_REVEAL_PK),
             password: None,
+            memo: None,
             use_device: false,
         };
         let rt = self.rt.clone();
