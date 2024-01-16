@@ -1,0 +1,193 @@
+#!/bin/bash
+
+# This script sets up Namada and wasmd locally for testing NFT transfers
+# `make build` and `make build-wasm-scripts` on Namada directory
+# `./ts-relayer-tests/build.sh` on cw-ics721 directory
+# Run with `namada-cw721-transfers ${namada_dir} ${cw-ics721_dir}`
+
+set -e
+
+
+NAMADA_DIR=$1
+if [ -z "${NAMADA_DIR}" ]
+then
+  echo "ERROR: Namada directory should be given"
+  exit 1
+fi
+
+CW721_DIR=$2
+if [ -z "${CW721_DIR}" ]
+then
+  echo "ERROR: CW-ICS721 directory should be given"
+  exit 1
+fi
+
+cd $(dirname $0)
+HERMES_DIR=${PWD%/e2e*}
+
+# edit for your environment
+NAMADAC="${NAMADA_DIR}/target/debug/namadac"
+NAMADAN="${NAMADA_DIR}/target/debug/namadan"
+NAMADAW="${NAMADA_DIR}/target/debug/namadaw"
+DATA_DIR="${HERMES_DIR}/data"
+NAMADA_LEDGER_ADDR="127.0.0.1:27657"
+
+WASMD_CHAIN_ID="wasm"
+WASMD_CHAIN_CONFIG="
+[[chains]]
+id = 'wasm'
+type = 'CosmosSdk'
+rpc_addr = 'http://127.0.0.1:26657'
+grpc_addr = 'http://127.0.0.1:9090'
+event_source = { mode = 'push', url = 'ws://127.0.0.1:26657/websocket', batch_delay = '500ms' }
+account_prefix = 'wasm'
+key_name = 'testkey'
+store_prefix = 'ibc'
+gas_price = { price = 0.001, denom = 'stake' }
+"
+TOKEN_ID="test_nft_0"
+
+#### main ####
+mkdir -p ${DATA_DIR}
+
+# CosmWasm
+rm -rf ${DATA_DIR}/${WASMD_CHAIN_ID}
+
+${HERMES_DIR}/scripts/one-chain wasmd wasm ${DATA_DIR} \
+  26657 26656 6060 9090 10000
+
+WASMD_TX_ARGS="--home ${DATA_DIR}/${WASMD_CHAIN_ID} --keyring-backend test --chain-id ${WASMD_CHAIN_ID} --gas auto --gas-prices 0.001stake --gas-adjustment 1.3"
+
+# Store the contracts
+wasmd tx wasm store ${CW721_DIR}/ts-relayer-tests/internal/cw721_base_v0.18.0.wasm \
+  --from user -y \
+  ${WASMD_TX_ARGS}
+sleep 1
+
+wasmd tx wasm store ${CW721_DIR}/ts-relayer-tests/internal/ics721_base.wasm \
+  --from user -y \
+  ${WASMD_TX_ARGS}
+sleep 1
+
+echo "==== Check stored contracts ===="
+wasmd query wasm list-code
+
+# Instantiate the contracts
+# cw721_base
+minter=$(wasmd keys show user -a  --home ${DATA_DIR}/${WASMD_CHAIN_ID} --keyring-backend test)
+wasmd tx wasm instantiate 1 \
+  "{\"name\":\"test_nft\", \"symbol\": \"TEST_NFT\", \"minter\": \"${minter}\"}" \
+  --from user -y \
+  --label "cw721" \
+  --no-admin \
+  ${WASMD_TX_ARGS}
+sleep 1
+
+# ics721_base
+wasmd tx wasm instantiate 2 \
+  "{\"cw721_base_code_id\": 1}" \
+  --from user -y \
+  --label "ics721" \
+  --no-admin \
+  ${WASMD_TX_ARGS}
+sleep 1
+
+echo "==== Check instantiated contracts ===="
+cw721_contract=$(wasmd query wasm list-contract-by-code 1 --output jsonn | jq -r '.contracts[-1]')
+ics721_contract=$(wasmd query wasm list-contract-by-code 2 --output jsonn | jq -r '.contracts[-1]')
+
+# Mint an NFT
+wasmd tx wasm execute ${cw721_contract} \
+  "{\"mint\": {\"token_id\": \"${TOKEN_ID}\", \"owner\": \"${minter}\", \"token_uri\": \"http://example.com/\"}}" \
+  --from user -y \
+  ${WASMD_TX_ARGS}
+sleep 1
+
+echo "==== Check the minted NFT ===="
+wasmd query wasm contract-state smart ${cw721_contract} "{\"owner_of\": {\"token_id\": \"${TOKEN_ID}\"}}"
+
+# Namada
+${HERMES_DIR}/scripts/setup-namada-single-node ${NAMADA_DIR}
+base_dir=${DATA_DIR}/namada
+
+cd ${HERMES_DIR}
+chain_id=$(grep id config_for_namada.toml | sed -e s/\'//g | awk '{print $3}')
+
+# Add CosmWasm chain config
+echo "${WASMD_CHAIN_CONFIG}" >> config_for_namada.toml
+
+# Add CosmWasm key
+cargo run -q --bin hermes -- --config config_for_namada.toml \
+  keys add --chain ${WASMD_CHAIN_ID} --key-file ${DATA_DIR}/${WASMD_CHAIN_ID}/user_seed.json --overwrite
+
+# Initialize Relayer's balance on Namada
+${NAMADAC} --base-dir ${base_dir} \
+  transfer \
+  --source albert \
+  --target relayer \
+  --token nam \
+  --amount 10000 \
+  --node ${NAMADA_LEDGER_ADDR}
+
+# Get CosmWasm's port ID
+wasm_port=$(wasmd query wasm contract ${ics721_contract} --output json | jq -r '.contract_info.ibc_port_id')
+
+# Create a channel
+cargo run --bin hermes -- --config config_for_namada.toml \
+  create channel --a-chain ${chain_id} \
+  --b-chain ${WASMD_CHAIN_ID} \
+  --a-port nft-transfer \
+  --b-port ${wasm_port} \
+  --channel-version ics721-1 \
+  --new-client-connection --yes
+
+echo "==== Start Hermes ===="
+cargo run --bin hermes -- --config config_for_namada.toml \
+  start > ${HERMES_DIR}/e2e/hermes.log 2>&1 &
+
+echo "==== Send the NFT from CosmosWasm to Namada ===="
+TIMEOUT_HEIGHT=90000
+namada_receiver=$(${NAMADAW} --base-dir ${base_dir} find --alias relayer | awk '/"relayer":/{print $3}')
+msg="{\"receiver\": \"${namada_receiver}\", \"channel_id\": \"channel-0\", \"timeout\": {\"block\": { \"revision\": 0, \"height\": ${TIMEOUT_HEIGHT}}}}"
+encoded_msg=$(echo ${msg} | base64)
+wasmd tx wasm execute ${cw721_contract} \
+  "{\"send_nft\": {\"contract\":\"${ics721_contract}\", \"token_id\": \"${TOKEN_ID}\", \"msg\": \"${encoded_msg}\"}}" \
+  --from user -y \
+  ${WASMD_TX_ARGS}
+
+sleep 15
+
+echo "==== Check the escrowed NFT on CosmWasm chain ===="
+wasmd query wasm contract-state smart ${cw721_contract} "{\"owner_of\": {\"token_id\": \"${TOKEN_ID}\"}}"
+
+echo "==== Check the NFT on Namada ===="
+token="nft-transfer/channel-0/${cw721_contract}/${TOKEN_ID}"
+${NAMADAC} --base-dir ${base_dir} balance \
+  --token ${token} \
+  --owner relayer \
+  --node ${NAMADA_LEDGER_ADDR}
+
+echo "==== Send back the NFT from Namada to CosmosWasm ===="
+${NAMADAC} --base-dir ${base_dir} ibc-transfer \
+  --source relayer \
+  --receiver ${minter} \
+  --token  ${token}\
+  --amount 1 \
+  --signing-keys relayer \
+  --channel-id channel-0 \
+  --port-id nft-transfer \
+  --node ${NAMADA_LEDGER_ADDR}
+
+sleep 15
+
+echo "==== Check the escrowed NFT on CosmWasm chain ===="
+wasmd query wasm contract-state smart ${cw721_contract} "{\"owner_of\": {\"token_id\": \"${TOKEN_ID}\"}}"
+
+echo "==== Check the NFT on Namada ===="
+token="nft-transfer/channel-0/${cw721_contract}/${TOKEN_ID}"
+${NAMADAC} --base-dir ${base_dir} balance \
+  --token ${token} \
+  --owner relayer \
+  --node ${NAMADA_LEDGER_ADDR}
+
+killall wasmd namadan hermes

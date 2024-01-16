@@ -58,6 +58,10 @@ PROF_PORT=$6
 GRPC_PORT=$7
 SAMOLEANS=$8
 
+if [ "$BINARY" = "wasmd" ]; then
+  SUB_CMD="genesis"
+fi
+
 echo "Creating $BINARY instance: home=$CHAIN_DIR | chain-id=$CHAIN_ID | p2p=:$P2P_PORT | rpc=:$RPC_PORT | profiling=:$PROF_PORT | grpc=:$GRPC_PORT | samoleans=:$SAMOLEANS"
 
 # Add dir for chain, exit if error
@@ -89,25 +93,25 @@ sleep 1
 
 # Add samoleans to user
 USER=$($BINARY --home $CHAIN_DIR/$CHAIN_ID keys --keyring-backend="test" show user -a)
-$BINARY --home $CHAIN_DIR/$CHAIN_ID add-genesis-account $USER $USER_COINS &> /dev/null
+$BINARY $SUB_CMD --home $CHAIN_DIR/$CHAIN_ID add-genesis-account $USER $USER_COINS &> /dev/null
 sleep 1
 
 # Add samoleans to user2
 USER2=$($BINARY --home $CHAIN_DIR/$CHAIN_ID keys --keyring-backend="test" show user2 -a)
-$BINARY --home $CHAIN_DIR/$CHAIN_ID add-genesis-account $USER2 $USER_COINS &> /dev/null
+$BINARY $SUB_CMD --home $CHAIN_DIR/$CHAIN_ID add-genesis-account $USER2 $USER_COINS &> /dev/null
 sleep 1
 
 
 # Add stake to validator
 VALIDATOR=$($BINARY --home $CHAIN_DIR/$CHAIN_ID keys --keyring-backend="test" show validator -a)
-$BINARY --home $CHAIN_DIR/$CHAIN_ID add-genesis-account $VALIDATOR $STAKE &> /dev/null
+$BINARY $SUB_CMD --home $CHAIN_DIR/$CHAIN_ID add-genesis-account $VALIDATOR $STAKE &> /dev/null
 sleep 1
 
 # Stake everything
-$BINARY --home $CHAIN_DIR/$CHAIN_ID gentx validator --keyring-backend="test" --chain-id $CHAIN_ID $STAKE &> /dev/null
+$BINARY $SUB_CMD --home $CHAIN_DIR/$CHAIN_ID gentx validator --keyring-backend="test" --chain-id $CHAIN_ID $STAKE &> /dev/null
 sleep 1
 
-$BINARY --home $CHAIN_DIR/$CHAIN_ID collect-gentxs &> /dev/null
+$BINARY $SUB_CMD --home $CHAIN_DIR/$CHAIN_ID collect-gentxs &> /dev/null
 sleep 1
 
 # Check platform
