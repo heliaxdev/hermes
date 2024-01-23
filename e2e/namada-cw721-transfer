@@ -98,7 +98,7 @@ ics721_contract=$(wasmd query wasm list-contract-by-code 2 --output jsonn | jq -
 
 # Mint an NFT
 wasmd tx wasm execute ${cw721_contract} \
-  "{\"mint\": {\"token_id\": \"${TOKEN_ID}\", \"owner\": \"${minter}\", \"token_uri\": \"http://example.com/\"}}" \
+  "{\"mint\": {\"token_id\": \"${TOKEN_ID}\", \"owner\": \"${minter}\"}}" \
   --from user -y \
   ${WASMD_TX_ARGS}
 sleep 1
