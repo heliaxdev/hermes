@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# This script tests NFT transfers between a local Namada Stargaze testnet
+# This script tests NFT transfers between a local Namada and Stargaze testnet
 # Need to create an account and an NFT on Stargaze testnet.
 # `make build` and `make build-wasm-scripts` on Namada directory,
 # set up a local Namada with `scripts/setup-namada-single-node`,
@@ -116,7 +116,7 @@ cargo run --bin hermes -- --config ${CONFIG_FILE} clear packets \
   --port wasm.${ICS721_CONTRACT} \
   --channel ${stargaze_channel}
 
-echo "==== Check the escrowed NFT on CosmWasm chain ===="
+echo "==== Check the NFT on Stargaze ===="
 starsd query wasm contract-state smart ${SG721_CONTRACT} \
   "{\"owner_of\": {\"token_id\": \"${TOKEN_ID}\"}}" \
   --node ${STARGAZE_NODE}
@@ -193,7 +193,7 @@ cargo run --bin hermes -- --config ${CONFIG_FILE} clear packets \
   --port wasm.${ICS721_CONTRACT} \
   --channel ${stargaze_channel}
 
-echo "==== Check the escrowed NFT on CosmWasm chain ===="
+echo "==== Check the NFT on Stargaze ===="
 starsd query wasm contract-state smart ${SG721_CONTRACT} \
   "{\"owner_of\": {\"token_id\": \"${TOKEN_ID}\"}}" \
   --node ${STARGAZE_NODE}
