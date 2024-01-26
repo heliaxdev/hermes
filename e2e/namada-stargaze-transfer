@@ -167,7 +167,7 @@ resp=$(${NAMADAC} --base-dir ${NAMADA_BASE} ibc-gen-shielded \
 memo_path=$(echo ${resp} | awk '{print $8}')
 memo=$(cat ${memo_path})
 
-echo "==== Shielding the NFT from Stargaze to Namada ===="
+echo "==== Shielding transfer from Stargaze to Namada ===="
 current_height=$(starsd status --node ${STARGAZE_NODE} | jq .SyncInfo.latest_block_height | sed 's/"//g')
 timeout_height=$((${current_height} + 100))
 msg="{\"receiver\": \"${payment_addr}\", \"channel_id\": \"${stargaze_channel}\", \"timeout\": {\"block\": { \"revision\": 0, \"height\": ${timeout_height}}}, \"memo\": \"${memo}\"}"
@@ -196,7 +196,7 @@ ${NAMADAC} --base-dir ${NAMADA_BASE} balance \
   --owner ${SHIELDED_ALIAS} \
   --node ${NAMADA_LEDGER_ADDR}
 
-echo "==== Shielded transfer the NFT in Namada ===="
+echo "==== Shielded transfer in Namada ===="
 ${NAMADAC} --base-dir ${NAMADA_BASE} transfer \
   --source ${SHIELDED_ALIAS} \
   --target ${PAYMENT_ALIAS_2} \
@@ -218,7 +218,7 @@ ${NAMADAC} --base-dir ${NAMADA_BASE} balance \
   --owner ${SHIELDED_ALIAS_2} \
   --node ${NAMADA_LEDGER_ADDR}
 
-echo "==== Send back the NFT from Namada to Stargaze ===="
+echo "==== Unshielding transfer from Namada to Stargaze ===="
 ${NAMADAC} --base-dir ${NAMADA_BASE} ibc-transfer \
   --source ${SHIELDED_ALIAS_2} \
   --receiver ${stargaze_receiver} \
@@ -237,7 +237,7 @@ cargo run --bin hermes -- --config ${CONFIG_FILE} clear packets \
   --port wasm.${ICS721_CONTRACT} \
   --channel ${stargaze_channel}
 
-echo "==== Check the NFT on Stargaze ===="
+echo "==== Check the shielded NFT on Stargaze ===="
 starsd query wasm contract-state smart ${SG721_CONTRACT} \
   "{\"owner_of\": {\"token_id\": \"${TOKEN_ID}\"}}" \
   --node ${STARGAZE_NODE}
