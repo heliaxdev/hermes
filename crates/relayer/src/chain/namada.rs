@@ -52,6 +52,7 @@ use namada_trans_token::storage_key::{balance_key, denom_key, is_any_token_balan
 use namada_trans_token::{Amount, DenominatedAmount, Denomination};
 use tendermint::block::Height as TmHeight;
 use tendermint::{node, Time};
+use tendermint_config::net::Address as TendermintAddress;
 use tendermint_light_client::types::LightBlock as TMLightBlock;
 use tendermint_rpc::client::CompatMode;
 use tendermint_rpc::endpoint::broadcast::tx_sync::Response;
@@ -102,6 +103,12 @@ pub struct NamadaChain {
 impl NamadaChain {
     fn config(&self) -> &CosmosSdkConfig {
         &self.config
+    }
+
+    fn ledger_address(&self) -> TendermintAddress {
+        let url = &self.config().rpc_addr;
+        let rpc_addr = format!("{}:{}{}", url.host(), url.port(), url.path());
+        tendermint_config::net::Address::from_str(&rpc_addr).expect("invalid rpc address")
     }
 
     fn init_event_source(&mut self) -> Result<TxEventSourceCmd, Error> {

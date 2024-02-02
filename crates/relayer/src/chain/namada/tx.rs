@@ -6,12 +6,22 @@ use std::time::Instant;
 
 use ibc_proto::google::protobuf::Any;
 use namada_parameters::storage as parameter_storage;
-use namada_sdk::args::{Tx as TxArgs, TxCustom};
+use namada_sdk::args;
+use namada_sdk::args::{InputAmount, Tx as TxArgs, TxCustom};
 use namada_sdk::borsh::BorshDeserialize;
+use namada_sdk::borsh::BorshSerializeExt;
+use namada_sdk::ibc::apps::nft_transfer::types::packet::PacketData as NftPacketData;
+use namada_sdk::ibc::apps::transfer::types::packet::PacketData;
+use namada_sdk::ibc::core::channel::types::msgs::{
+    MsgRecvPacket as IbcMsgRecvPacket, RECV_PACKET_TYPE_URL,
+};
 use namada_sdk::tx::data::GasLimit;
 use namada_sdk::types::address::{Address, ImplicitAddress};
 use namada_sdk::types::chain::ChainId;
+use namada_sdk::types::ibc::MsgRecvPacket;
+use namada_sdk::types::masp::{PaymentAddress, TransferTarget};
 use namada_sdk::{signing, tx, Namada};
+use tendermint_proto::Protobuf;
 use tendermint_rpc::endpoint::broadcast::tx_sync::Response;
 
 use crate::chain::cosmos;
@@ -27,16 +37,9 @@ const WAIT_BACKOFF: Duration = Duration::from_millis(300);
 
 impl NamadaChain {
     pub fn send_tx(&mut self, proto_msg: &Any) -> Result<Response, Error> {
-        let mut tx_data = vec![];
-        prost::Message::encode(proto_msg, &mut tx_data)
-            .map_err(|e| Error::protobuf_encode(String::from("Message"), e))?;
+        let tx_data = self.gen_tx_data(proto_msg)?;
 
         let chain_id = ChainId::from_str(self.config.id.as_str()).expect("invalid chain ID");
-
-        let url = &self.config().rpc_addr;
-        let rpc_addr = format!("{}:{}{}", url.host(), url.port(), url.path());
-        let ledger_address =
-            tendermint_config::net::Address::from_str(&rpc_addr).expect("invalid rpc address");
 
         let fee_token = &self.config.gas_price.denom;
         let fee_token = Address::decode(fee_token)
@@ -70,7 +73,7 @@ impl NamadaChain {
             force: false,
             output_folder: None,
             broadcast_only: true,
-            ledger_address,
+            ledger_address: self.ledger_address(),
             initialized_account_alias: None,
             wallet_alias_force: false,
             wrapper_fee_payer: Some(relayer_public_key.clone()),
@@ -119,6 +122,89 @@ impl NamadaChain {
             }
             _ => unreachable!("The response type was unexpected"),
         }
+    }
+
+    fn gen_tx_data(&self, proto_msg: &Any) -> Result<Vec<u8>, Error> {
+        let transfer = if proto_msg.type_url == RECV_PACKET_TYPE_URL {
+            let message: IbcMsgRecvPacket =
+                Protobuf::decode_vec(&proto_msg.value).map_err(Error::decode)?;
+            serde_json::from_slice::<PacketData>(&message.packet.data)
+                .ok()
+                .and_then(|data| {
+                    PaymentAddress::from_str(data.receiver.as_ref())
+                        .map(|payment_addr| {
+                            (
+                                message.clone(),
+                                payment_addr,
+                                data.token.denom.to_string(),
+                                data.token.amount.to_string(),
+                            )
+                        })
+                        .ok()
+                })
+                .or(
+                    serde_json::from_slice::<NftPacketData>(&message.packet.data)
+                        .ok()
+                        .and_then(|data| {
+                            PaymentAddress::from_str(data.receiver.as_ref())
+                                .map(|payment_addr| {
+                                    let ibc_token = format!(
+                                        "{}/{}",
+                                        data.class_id,
+                                        data.token_ids
+                                            .0
+                                            .first()
+                                            .expect("at least 1 token ID should exist")
+                                    );
+                                    (message, payment_addr, ibc_token, "1".to_string())
+                                })
+                                .ok()
+                        }),
+                )
+        } else {
+            None
+        };
+
+        let namada_message = if let Some((message, receiver, token, amount)) = transfer {
+            let amount = InputAmount::Unvalidated(
+                amount
+                    .parse()
+                    .map_err(|e| Error::send_tx(format!("invalid amount: {e}")))?,
+            );
+
+            let args = args::GenIbcShieldedTransafer {
+                query: args::Query {
+                    ledger_address: self.ledger_address(),
+                },
+                output_folder: None,
+                target: TransferTarget::PaymentAddress(receiver),
+                token: token.clone(),
+                amount,
+                port_id: message.packet.port_id_on_b.clone(),
+                channel_id: message.packet.chan_id_on_b.clone(),
+            };
+            let shielded_transfer = self
+                .rt
+                .block_on(tx::gen_ibc_shielded_transfer(&self.ctx, args))
+                .map_err(NamadaError::namada)?;
+            Some(MsgRecvPacket {
+                message,
+                shielded_transfer,
+            })
+        } else {
+            None
+        };
+
+        let tx_data = if let Some(message) = namada_message {
+            message.serialize_to_vec()
+        } else {
+            let mut data = vec![];
+            prost::Message::encode(proto_msg, &mut data).map_err(|e| {
+                Error::protobuf_encode(String::from("Encoding the message failed"), e)
+            })?;
+            data
+        };
+        Ok(tx_data)
     }
 
     pub fn wait_for_block_commits(

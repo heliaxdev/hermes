@@ -3,7 +3,7 @@ use ibc_relayer_types::core::ics23_commitment::merkle::convert_tm_to_ics_merkle_
 use ibc_relayer_types::core::ics23_commitment::merkle::MerkleProof;
 use ibc_relayer_types::events::IbcEvent;
 use ibc_relayer_types::Height as ICSHeight;
-use namada_ibc::storage::{ibc_denom_key_prefix, is_ibc_denom_key};
+use namada_ibc::storage::{ibc_trace_key_prefix, is_ibc_trace_key};
 use namada_sdk::borsh::BorshDeserialize;
 use namada_sdk::queries::{Client as SdkClient, RPC};
 use namada_sdk::rpc;
@@ -275,12 +275,12 @@ impl NamadaChain {
             _ => return Err(NamadaError::denom_not_found(raw_addr).into()),
         };
 
-        let prefix = ibc_denom_key_prefix(None);
+        let prefix = ibc_trace_key_prefix(None);
         let pairs = self.query_prefix(prefix)?;
         let pair = pairs
             .iter()
             .find(|PrefixValue { key, value: _ }| {
-                if let Some((_, token_hash)) = is_ibc_denom_key(key) {
+                if let Some((_, token_hash)) = is_ibc_trace_key(key) {
                     token_hash == *hash
                 } else {
                     false
