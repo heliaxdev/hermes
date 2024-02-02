@@ -197,7 +197,7 @@ pub mod memo {
     pub struct Memo(String);
 
     impl Memo {
-        const MAX_LEN: usize = 50;
+        const MAX_LEN: usize = 200;
 
         pub fn new(memo: impl Into<String>) -> Result<Self, Error> {
             let memo = memo.into();
