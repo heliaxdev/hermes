@@ -143,6 +143,7 @@ impl NamadaChain {
                     &message.packet.port_id_on_b,
                     &message.packet.chan_id_on_b,
                     &message.packet.data,
+                    false,
                 )?
                 .map(|shielded_transfer| {
                     MsgRecvPacket {
@@ -167,6 +168,7 @@ impl NamadaChain {
                         &message.packet.port_id_on_b,
                         &message.packet.chan_id_on_a,
                         &message.packet.data,
+                        true,
                     )?
                     .map(|shielded_transfer| {
                         MsgAcknowledgement {
@@ -184,6 +186,7 @@ impl NamadaChain {
                     &message.packet.port_id_on_b,
                     &message.packet.chan_id_on_a,
                     &message.packet.data,
+                    true,
                 )?
                 .map(|shielded_transfer| {
                     MsgTimeout {
@@ -212,11 +215,17 @@ impl NamadaChain {
         port_id: &PortId,
         channel_id: &ChannelId,
         packet_data: &[u8],
+        is_refund: bool,
     ) -> Result<Option<IbcShieldedTransfer>, Error> {
         let transfer = serde_json::from_slice::<PacketData>(packet_data)
             .ok()
             .and_then(|data| {
-                PaymentAddress::from_str(data.receiver.as_ref())
+                let target = if is_refund {
+                    data.memo.as_ref()
+                } else {
+                    data.receiver.as_ref()
+                };
+                PaymentAddress::from_str(target)
                     .map(|payment_addr| {
                         (
                             payment_addr,
@@ -229,7 +238,12 @@ impl NamadaChain {
             .or(serde_json::from_slice::<NftPacketData>(packet_data)
                 .ok()
                 .and_then(|data| {
-                    PaymentAddress::from_str(data.receiver.as_ref())
+                    let target = if is_refund {
+                        data.memo.clone().unwrap_or_default().to_string()
+                    } else {
+                        data.receiver.as_ref().to_string()
+                    };
+                    PaymentAddress::from_str(&target)
                         .map(|payment_addr| {
                             let ibc_token = format!(
                                 "{}/{}",
@@ -260,6 +274,7 @@ impl NamadaChain {
                 amount,
                 port_id: port_id.clone(),
                 channel_id: channel_id.clone(),
+                refund: is_refund,
             };
             Ok(self
                 .rt
