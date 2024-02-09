@@ -12,13 +12,16 @@ use namada_sdk::borsh::BorshDeserialize;
 use namada_sdk::borsh::BorshSerializeExt;
 use namada_sdk::ibc::apps::nft_transfer::types::packet::PacketData as NftPacketData;
 use namada_sdk::ibc::apps::transfer::types::packet::PacketData;
+use namada_sdk::ibc::core::channel::types::acknowledgement::AcknowledgementStatus;
 use namada_sdk::ibc::core::channel::types::msgs::{
-    MsgRecvPacket as IbcMsgRecvPacket, RECV_PACKET_TYPE_URL,
+    MsgAcknowledgement as IbcMsgAcknowledgement, MsgRecvPacket as IbcMsgRecvPacket,
+    MsgTimeout as IbcMsgTimeout, ACKNOWLEDGEMENT_TYPE_URL, RECV_PACKET_TYPE_URL, TIMEOUT_TYPE_URL,
 };
+use namada_sdk::ibc::core::host::types::identifiers::{ChannelId, PortId};
 use namada_sdk::tx::data::GasLimit;
 use namada_sdk::types::address::{Address, ImplicitAddress};
 use namada_sdk::types::chain::ChainId;
-use namada_sdk::types::ibc::MsgRecvPacket;
+use namada_sdk::types::ibc::{IbcShieldedTransfer, MsgAcknowledgement, MsgRecvPacket, MsgTimeout};
 use namada_sdk::types::masp::{PaymentAddress, TransferTarget};
 use namada_sdk::{signing, tx, Namada};
 use tendermint_proto::Protobuf;
@@ -37,63 +40,13 @@ const WAIT_BACKOFF: Duration = Duration::from_millis(300);
 
 impl NamadaChain {
     pub fn send_tx(&mut self, proto_msg: &Any) -> Result<Response, Error> {
-        let tx_data = self.gen_tx_data(proto_msg)?;
+        let tx_args = self.make_tx_args()?;
 
-        let chain_id = ChainId::from_str(self.config.id.as_str()).expect("invalid chain ID");
-
-        let fee_token = &self.config.gas_price.denom;
-        let fee_token = Address::decode(fee_token)
-            .map_err(|_| NamadaError::address_decode(fee_token.to_string()))?;
-
-        // fee
-        let gas_limit_key = parameter_storage::get_fee_unshielding_gas_limit_key();
-        let (value, _) = self.query(gas_limit_key, QueryHeight::Latest, IncludeProof::No)?;
-        let gas_limit = GasLimit::try_from_slice(&value).map_err(NamadaError::borsh_decode)?;
-
-        let namada_key = self.get_key()?;
-        let relayer_public_key = namada_key.secret_key.to_public();
-        let relayer_addr = namada_key.address;
-
-        let memo = if !self.config().memo_prefix.as_str().is_empty() {
-            Some(
-                self.config()
-                    .memo_prefix
-                    .as_str()
-                    .to_string()
-                    .as_bytes()
-                    .to_vec(),
-            )
-        } else {
-            None
-        };
-        let tx_args = TxArgs {
-            dry_run: false,
-            dry_run_wrapper: false,
-            dump_tx: false,
-            force: false,
-            output_folder: None,
-            broadcast_only: true,
-            ledger_address: self.ledger_address(),
-            initialized_account_alias: None,
-            wallet_alias_force: false,
-            wrapper_fee_payer: Some(relayer_public_key.clone()),
-            fee_amount: None,
-            fee_token,
-            fee_unshield: None,
-            gas_limit,
-            expiration: None,
-            disposable_signing_key: false,
-            chain_id: Some(chain_id),
-            signing_keys: vec![relayer_public_key],
-            signatures: vec![],
-            tx_reveal_code_path: PathBuf::from(tx::TX_REVEAL_PK),
-            password: None,
-            memo,
-            use_device: false,
-        };
+        let relayer_addr = self.get_key()?.address;
         let rt = self.rt.clone();
         rt.block_on(self.submit_reveal_aux(&tx_args, &relayer_addr))?;
 
+        let tx_data = self.make_tx_data(proto_msg)?;
         let args = TxCustom {
             tx: tx_args.clone(),
             code_path: Some(PathBuf::from(tx::TX_IBC_WASM)),
@@ -124,54 +77,179 @@ impl NamadaChain {
         }
     }
 
-    fn gen_tx_data(&self, proto_msg: &Any) -> Result<Vec<u8>, Error> {
-        let transfer = if proto_msg.type_url == RECV_PACKET_TYPE_URL {
-            let message: IbcMsgRecvPacket =
-                Protobuf::decode_vec(&proto_msg.value).map_err(Error::decode)?;
-            serde_json::from_slice::<PacketData>(&message.packet.data)
-                .ok()
-                .and_then(|data| {
-                    PaymentAddress::from_str(data.receiver.as_ref())
-                        .map(|payment_addr| {
-                            (
-                                message.clone(),
-                                payment_addr,
-                                data.token.denom.to_string(),
-                                data.token.amount.to_string(),
-                            )
-                        })
-                        .ok()
-                })
-                .or(
-                    serde_json::from_slice::<NftPacketData>(&message.packet.data)
-                        .ok()
-                        .and_then(|data| {
-                            PaymentAddress::from_str(data.receiver.as_ref())
-                                .map(|payment_addr| {
-                                    let ibc_token = format!(
-                                        "{}/{}",
-                                        data.class_id,
-                                        data.token_ids
-                                            .0
-                                            .first()
-                                            .expect("at least 1 token ID should exist")
-                                    );
-                                    (message, payment_addr, ibc_token, "1".to_string())
-                                })
-                                .ok()
-                        }),
-                )
+    fn make_tx_args(&mut self) -> Result<TxArgs, Error> {
+        let chain_id = ChainId::from_str(self.config.id.as_str()).expect("invalid chain ID");
+
+        let fee_token = &self.config.gas_price.denom;
+        let fee_token = Address::decode(fee_token)
+            .map_err(|_| NamadaError::address_decode(fee_token.to_string()))?;
+
+        // fee
+        let gas_limit_key = parameter_storage::get_fee_unshielding_gas_limit_key();
+        let (value, _) = self.query(gas_limit_key, QueryHeight::Latest, IncludeProof::No)?;
+        let gas_limit = GasLimit::try_from_slice(&value).map_err(NamadaError::borsh_decode)?;
+
+        let namada_key = self.get_key()?;
+        let relayer_public_key = namada_key.secret_key.to_public();
+
+        let memo = if !self.config().memo_prefix.as_str().is_empty() {
+            Some(
+                self.config()
+                    .memo_prefix
+                    .as_str()
+                    .to_string()
+                    .as_bytes()
+                    .to_vec(),
+            )
         } else {
             None
         };
 
-        let namada_message = if let Some((message, receiver, token, amount)) = transfer {
+        Ok(TxArgs {
+            dry_run: false,
+            dry_run_wrapper: false,
+            dump_tx: false,
+            force: false,
+            output_folder: None,
+            broadcast_only: true,
+            ledger_address: self.ledger_address(),
+            initialized_account_alias: None,
+            wallet_alias_force: false,
+            wrapper_fee_payer: Some(relayer_public_key.clone()),
+            fee_amount: None,
+            fee_token,
+            fee_unshield: None,
+            gas_limit,
+            expiration: None,
+            disposable_signing_key: false,
+            chain_id: Some(chain_id),
+            signing_keys: vec![relayer_public_key],
+            signatures: vec![],
+            tx_reveal_code_path: PathBuf::from(tx::TX_REVEAL_PK),
+            password: None,
+            memo,
+            use_device: false,
+        })
+    }
+
+    fn make_tx_data(&self, proto_msg: &Any) -> Result<Vec<u8>, Error> {
+        // Make a new message with Namada shielded transfer
+        // if receiving or refunding to a shielded address
+        let data = match proto_msg.type_url.as_ref() {
+            RECV_PACKET_TYPE_URL => {
+                let message: IbcMsgRecvPacket =
+                    Protobuf::decode_vec(&proto_msg.value).map_err(Error::decode)?;
+                self.get_shielded_transfer(
+                    &message.packet.port_id_on_b,
+                    &message.packet.chan_id_on_b,
+                    &message.packet.data,
+                )?
+                .map(|shielded_transfer| {
+                    MsgRecvPacket {
+                        message,
+                        shielded_transfer: Some(shielded_transfer),
+                    }
+                    .serialize_to_vec()
+                })
+            }
+            ACKNOWLEDGEMENT_TYPE_URL => {
+                let message: IbcMsgAcknowledgement =
+                    Protobuf::decode_vec(&proto_msg.value).map_err(Error::decode)?;
+                let acknowledgement: AcknowledgementStatus =
+                    serde_json::from_slice(message.acknowledgement.as_ref()).map_err(|e| {
+                        Error::send_tx(format!("Decoding acknowledment failed: {e}"))
+                    })?;
+                if acknowledgement.is_successful() {
+                    None
+                } else {
+                    // Need to refund
+                    self.get_shielded_transfer(
+                        &message.packet.port_id_on_b,
+                        &message.packet.chan_id_on_a,
+                        &message.packet.data,
+                    )?
+                    .map(|shielded_transfer| {
+                        MsgAcknowledgement {
+                            message,
+                            shielded_transfer: Some(shielded_transfer),
+                        }
+                        .serialize_to_vec()
+                    })
+                }
+            }
+            TIMEOUT_TYPE_URL => {
+                let message: IbcMsgTimeout =
+                    Protobuf::decode_vec(&proto_msg.value).map_err(Error::decode)?;
+                self.get_shielded_transfer(
+                    &message.packet.port_id_on_b,
+                    &message.packet.chan_id_on_a,
+                    &message.packet.data,
+                )?
+                .map(|shielded_transfer| {
+                    MsgTimeout {
+                        message,
+                        shielded_transfer: Some(shielded_transfer),
+                    }
+                    .serialize_to_vec()
+                })
+            }
+            _ => None,
+        };
+
+        if let Some(tx_data) = data {
+            Ok(tx_data)
+        } else {
+            let mut tx_data = vec![];
+            prost::Message::encode(proto_msg, &mut tx_data).map_err(|e| {
+                Error::protobuf_encode(String::from("Encoding the message failed"), e)
+            })?;
+            Ok(tx_data)
+        }
+    }
+
+    fn get_shielded_transfer(
+        &self,
+        port_id: &PortId,
+        channel_id: &ChannelId,
+        packet_data: &[u8],
+    ) -> Result<Option<IbcShieldedTransfer>, Error> {
+        let transfer = serde_json::from_slice::<PacketData>(packet_data)
+            .ok()
+            .and_then(|data| {
+                PaymentAddress::from_str(data.receiver.as_ref())
+                    .map(|payment_addr| {
+                        (
+                            payment_addr,
+                            data.token.denom.to_string(),
+                            data.token.amount.to_string(),
+                        )
+                    })
+                    .ok()
+            })
+            .or(serde_json::from_slice::<NftPacketData>(packet_data)
+                .ok()
+                .and_then(|data| {
+                    PaymentAddress::from_str(data.receiver.as_ref())
+                        .map(|payment_addr| {
+                            let ibc_token = format!(
+                                "{}/{}",
+                                data.class_id,
+                                data.token_ids
+                                    .0
+                                    .first()
+                                    .expect("at least 1 token ID should exist")
+                            );
+                            (payment_addr, ibc_token, "1".to_string())
+                        })
+                        .ok()
+                }));
+
+        if let Some((receiver, token, amount)) = transfer {
             let amount = InputAmount::Unvalidated(
                 amount
                     .parse()
                     .map_err(|e| Error::send_tx(format!("invalid amount: {e}")))?,
             );
-
             let args = args::GenIbcShieldedTransafer {
                 query: args::Query {
                     ledger_address: self.ledger_address(),
@@ -180,31 +258,16 @@ impl NamadaChain {
                 target: TransferTarget::PaymentAddress(receiver),
                 token: token.clone(),
                 amount,
-                port_id: message.packet.port_id_on_b.clone(),
-                channel_id: message.packet.chan_id_on_b.clone(),
+                port_id: port_id.clone(),
+                channel_id: channel_id.clone(),
             };
-            let shielded_transfer = self
+            Ok(self
                 .rt
                 .block_on(tx::gen_ibc_shielded_transfer(&self.ctx, args))
-                .map_err(NamadaError::namada)?;
-            Some(MsgRecvPacket {
-                message,
-                shielded_transfer,
-            })
+                .map_err(NamadaError::namada)?)
         } else {
-            None
-        };
-
-        let tx_data = if let Some(message) = namada_message {
-            message.serialize_to_vec()
-        } else {
-            let mut data = vec![];
-            prost::Message::encode(proto_msg, &mut data).map_err(|e| {
-                Error::protobuf_encode(String::from("Encoding the message failed"), e)
-            })?;
-            data
-        };
-        Ok(tx_data)
+            Ok(None)
+        }
     }
 
     pub fn wait_for_block_commits(
