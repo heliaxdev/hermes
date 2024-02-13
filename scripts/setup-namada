@@ -84,7 +84,9 @@ gas_price = { price = 0.001, denom = '_FEE_TOKEN_B_' }
 function make_genesis() {
   local suffix=$1
   local base_dir=${DATA_DIR}/namada-${suffix}
-
+  # Delete if already exists
+  rm -rf ${base_dir}
+  
   mkdir -p ${base_dir}/templates
   cp ${BASE_GENESIS_DIR}/*.toml ${base_dir}/templates
   sed -i .bak "s/epochs_per_year = .*/epochs_per_year = 31536/g" ${base_dir}/templates/parameters.toml
@@ -142,7 +144,7 @@ function init_relayer_acc() {
   local base_dir=${DATA_DIR}/namada-${suffix}
 
   ${NAMADAW} --base-dir ${base_dir} \
-    key gen --alias relayer --unsafe-dont-encrypt
+    gen --alias relayer --unsafe-dont-encrypt
 }
 
 function add_relayer_key() {
@@ -207,6 +209,8 @@ ${NAMADAN} --base-dir ${DATA_DIR}/namada-a/setup/validator-0 \
   ledger run > ${DATA_DIR}/namada-a/namada.log 2>&1 &
 echo "Namada chain A's PID = $!"
 
+sleep 5
+
 ${NAMADAN} --base-dir ${DATA_DIR}/namada-b/setup/validator-0 \
   ledger run > ${DATA_DIR}/namada-b/namada.log 2>&1 &
 echo "Namada chain B's PID = $!"
@@ -218,8 +222,8 @@ init_relayer_acc "a" ${chain_id_a}
 init_relayer_acc "b" ${chain_id_b}
 
 # Get token addresses
-nam_addr_a=$(${NAMADAW} --base-dir ${DATA_DIR}/namada-a address find --alias nam | awk '{print $4}')
-nam_addr_b=$(${NAMADAW} --base-dir ${DATA_DIR}/namada-b address find --alias nam | awk '{print $4}')
+nam_addr_a=$(${NAMADAW} --base-dir ${DATA_DIR}/namada-a find --alias nam | awk '{print $4}')
+nam_addr_b=$(${NAMADAW} --base-dir ${DATA_DIR}/namada-b find --alias nam | awk '{print $4}')
 
 # Make Hermes config
 cd ${HERMES_DIR}
