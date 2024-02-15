@@ -2,7 +2,7 @@
 
 # This script executes shielded transfers between Namada instances locally
 # `make build` and `make build-wasm-scripts` on Namada directory in advance
-# Run with `namada-simple-transfers ${namada_dir}`
+# Run with `namada-shielded-transfers ${namada_dir}`
 
 set -e
 
