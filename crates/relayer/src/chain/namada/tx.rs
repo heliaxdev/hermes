@@ -106,7 +106,7 @@ impl NamadaChain {
                 .sign(&mut tx, &args.tx, signing_data, signing::default_sign, ()),
         )
         .map_err(NamadaError::namada)?;
-        let decrypted_hash = tx.raw_header_hash().to_string();
+        let tx_header_hash = tx.header_hash().to_string();
         let response = rt
             .block_on(self.ctx.submit(tx, &args.tx))
             .map_err(NamadaError::namada)?;
@@ -114,7 +114,7 @@ impl NamadaChain {
         match response {
             tx::ProcessTxResponse::Broadcast(mut response) => {
                 // overwrite the tx decrypted hash for the tx query
-                response.hash = decrypted_hash.parse().expect("invalid hash");
+                response.hash = tx_header_hash.parse().expect("invalid hash");
                 Ok(response)
             }
             _ => unreachable!("The response type was unexpected"),
