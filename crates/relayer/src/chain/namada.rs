@@ -175,6 +175,7 @@ impl NamadaChain {
                 self.ctx.client(),
                 &DefaultLogger::new(self.ctx.io()),
                 None,
+                None,
                 1,
                 &[],
                 &[],
