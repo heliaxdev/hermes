@@ -37,7 +37,7 @@ use namada_parameters::{storage as param_storage, EpochDuration};
 use namada_sdk::borsh::BorshDeserialize;
 use namada_sdk::io::NullIo;
 use namada_sdk::masp::fs::FsShieldedUtils;
-use namada_sdk::masp::ShieldedContext;
+use namada_sdk::masp::DefaultLogger;
 use namada_sdk::proof_of_stake::storage_key as pos_storage_key;
 use namada_sdk::proof_of_stake::OwnedPosParams;
 use namada_sdk::queries::Client as SdkClient;
@@ -52,7 +52,6 @@ use namada_trans_token::storage_key::{balance_key, denom_key, is_any_token_balan
 use namada_trans_token::{Amount, DenominatedAmount, Denomination};
 use tendermint::block::Height as TmHeight;
 use tendermint::{node, Time};
-use tendermint_config::net::Address as TendermintAddress;
 use tendermint_light_client::types::LightBlock as TMLightBlock;
 use tendermint_rpc::client::CompatMode;
 use tendermint_rpc::endpoint::broadcast::tx_sync::Response;
@@ -103,12 +102,6 @@ pub struct NamadaChain {
 impl NamadaChain {
     fn config(&self) -> &CosmosSdkConfig {
         &self.config
-    }
-
-    fn ledger_address(&self) -> TendermintAddress {
-        let url = &self.config().rpc_addr;
-        let rpc_addr = format!("{}:{}{}", url.host(), url.port(), url.path());
-        tendermint_config::net::Address::from_str(&rpc_addr).expect("invalid rpc address")
     }
 
     fn init_event_source(&mut self) -> Result<TxEventSourceCmd, Error> {
@@ -173,6 +166,23 @@ impl NamadaChain {
             .parse()
             .unwrap())
     }
+
+    async fn shielded_sync(&self) -> Result<(), Error> {
+        let mut shielded = self.ctx.shielded_mut().await;
+        let _ = shielded.load().await;
+        shielded
+            .fetch(
+                self.ctx.client(),
+                &DefaultLogger::new(self.ctx.io()),
+                None,
+                1,
+                &[],
+                &[],
+            )
+            .await
+            .map_err(NamadaError::namada)?;
+        shielded.save().await.map_err(Error::io)
+    }
 }
 
 impl ChainEndpoint for NamadaChain {
@@ -188,7 +198,7 @@ impl ChainEndpoint for NamadaChain {
     }
 
     fn config(&self) -> ChainConfig {
-        ChainConfig::CosmosSdk(self.config.clone())
+        ChainConfig::Namada(self.config.clone())
     }
 
     fn bootstrap(config: ChainConfig, rt: Arc<TokioRuntime>) -> Result<Self, Error> {
@@ -209,7 +219,12 @@ impl ChainEndpoint for NamadaChain {
             KeyRing::new_namada(config.key_store_type, &config.id, &config.key_store_folder)
                 .map_err(Error::key_base)?;
 
-        let shielded_ctx = ShieldedContext::<FsShieldedUtils>::default();
+        let shielded_dir = dirs_next::home_dir()
+            .expect("No home directory")
+            .join(".hermes/shielded")
+            .join(config.id.to_string());
+        std::fs::create_dir_all(&shielded_dir).map_err(Error::io)?;
+        let shielded_ctx = FsShieldedUtils::new(shielded_dir);
 
         let mut store = Store::default();
         let key = keybase

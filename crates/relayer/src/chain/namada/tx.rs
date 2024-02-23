@@ -112,7 +112,7 @@ impl NamadaChain {
             force: false,
             output_folder: None,
             broadcast_only: true,
-            ledger_address: self.ledger_address(),
+            ledger_address: self.config().rpc_addr.clone(),
             initialized_account_alias: None,
             wallet_alias_force: false,
             wrapper_fee_payer: Some(relayer_public_key.clone()),
@@ -259,14 +259,15 @@ impl NamadaChain {
                 }));
 
         if let Some((receiver, token, amount)) = transfer {
+            self.rt.block_on(self.shielded_sync())?;
             let amount = InputAmount::Unvalidated(
                 amount
                     .parse()
                     .map_err(|e| Error::send_tx(format!("invalid amount: {e}")))?,
             );
-            let args = args::GenIbcShieldedTransafer {
+            let args = args::GenIbcShieldedTransfer {
                 query: args::Query {
-                    ledger_address: self.ledger_address(),
+                    ledger_address: self.config().rpc_addr.clone(),
                 },
                 output_folder: None,
                 target: TransferTarget::PaymentAddress(receiver),
