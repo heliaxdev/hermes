@@ -88,6 +88,8 @@ function make_genesis() {
   mkdir -p ${base_dir}/templates
   cp ${BASE_GENESIS_DIR}/*.toml ${base_dir}/templates
   sed -i .bak "s/epochs_per_year = .*/epochs_per_year = 31536/g" ${base_dir}/templates/parameters.toml
+  sed -i .bak "s/default_mint_limit = .*/default_mint_limit = \"1000000000\"/g" ${base_dir}/templates/parameters.toml
+  sed -i .bak "s/default_per_epoch_throughput_limit = .*/default_per_epoch_throughput_limit = \"1000000000\"/g" ${base_dir}/templates/parameters.toml
 
   mkdir ${base_dir}/pre-genesis
   cp -r ${BASE_GENESIS_DIR}/src/pre-genesis/* ${base_dir}/pre-genesis
