@@ -28,14 +28,14 @@ cd $(dirname $0)
 HERMES_DIR=${PWD%/e2e*}
 
 # edit for your environment
-NAMADA_CHAIN_ID="namada-test.f71acc431fcc60ea1a"
+NAMADA_CHAIN_ID="namada-test.b789596d475d30c266"
 NAMADAC="${NAMADA_DIR}/target/debug/namadac"
 NAMADAN="${NAMADA_DIR}/target/debug/namadan"
 NAMADAW="${NAMADA_DIR}/target/debug/namadaw"
 DATA_DIR="${HERMES_DIR}/data"
-NAMADA_LEDGER_ADDR="127.0.0.1:27657"
+NAMADA_LEDGER_ADDR="http://127.0.0.1:27657"
 
-TOKEN_ID="3"
+TOKEN_ID="5"
 
 CONFIG_FILE="${HERMES_DIR}/config_namada_stargaze.toml"
 
@@ -83,7 +83,7 @@ starsd tx wasm execute ${SG721_CONTRACT} \
   "{\"send_nft\": {\"contract\":\"${ICS721_CONTRACT}\", \"token_id\": \"${TOKEN_ID}\", \"msg\": \"${encoded_msg}\"}}" \
   ${TX_ARGS}
 
-sleep 1
+sleep 5
 
 echo "==== Packet relaying ===="
 cargo run --bin hermes -- --config ${CONFIG_FILE} clear packets \
@@ -115,7 +115,7 @@ ${NAMADAC} --base-dir ${NAMADA_BASE} ibc-transfer \
   --port-id nft-transfer \
   --node ${NAMADA_LEDGER_ADDR}
 
-sleep 1
+sleep 5
 
 echo "==== Packet relaying ===="
 cargo run --bin hermes -- --config ${CONFIG_FILE} clear packets \
@@ -176,7 +176,7 @@ starsd tx wasm execute ${SG721_CONTRACT} \
   "{\"send_nft\": {\"contract\":\"${ICS721_CONTRACT}\", \"token_id\": \"${TOKEN_ID}\", \"msg\": \"${encoded_msg}\"}}" \
   ${TX_ARGS}
 
-sleep 1
+sleep 5
 
 echo "==== Packet relaying ===="
 cargo run --bin hermes -- --config ${CONFIG_FILE} clear packets \
@@ -190,6 +190,9 @@ starsd query wasm contract-state smart ${SG721_CONTRACT} \
   --node ${STARGAZE_NODE}
 
 echo "==== Check the NFT on Namada ===="
+${NAMADAC} --base-dir ${NAMADA_BASE} shielded-sync \
+  --viewing-keys ${SHIELDED_ALIAS} \
+  --node ${NAMADA_LEDGER_ADDR}
 token="nft-transfer/${namada_channel}/${SG721_CONTRACT}/${TOKEN_ID}"
 ${NAMADAC} --base-dir ${NAMADA_BASE} balance \
   --token ${token} \
@@ -207,6 +210,9 @@ ${NAMADAC} --base-dir ${NAMADA_BASE} transfer \
 
 echo "==== Check the shielded NFT on Namada ===="
 echo "== shielded-1 balance =="
+${NAMADAC} --base-dir ${NAMADA_BASE} shielded-sync \
+  --viewing-keys ${SHIELDED_ALIAS} ${SHIELDED_ALIAS_2}\
+  --node ${NAMADA_LEDGER_ADDR}
 ${NAMADAC} --base-dir ${NAMADA_BASE} balance \
   --token ${token} \
   --owner ${SHIELDED_ALIAS} \
@@ -229,7 +235,7 @@ ${NAMADAC} --base-dir ${NAMADA_BASE} ibc-transfer \
   --port-id nft-transfer \
   --node ${NAMADA_LEDGER_ADDR}
 
-sleep 1
+sleep 5
 
 echo "==== Packet relaying ===="
 cargo run --bin hermes -- --config ${CONFIG_FILE} clear packets \
@@ -243,6 +249,9 @@ starsd query wasm contract-state smart ${SG721_CONTRACT} \
   --node ${STARGAZE_NODE}
 
 echo "==== Check the NFT on Namada ===="
+${NAMADAC} --base-dir ${NAMADA_BASE} shielded-sync \
+  --viewing-keys ${SHIELDED_ALIAS} \
+  --node ${NAMADA_LEDGER_ADDR}
 token="nft-transfer/${namada_channel}/${SG721_CONTRACT}/${TOKEN_ID}"
 echo "== shielded-1 balance =="
 ${NAMADAC} --base-dir ${NAMADA_BASE} balance \

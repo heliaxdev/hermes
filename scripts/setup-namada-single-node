@@ -23,7 +23,7 @@ BASE_GENESIS_DIR="${NAMADA_DIR}/genesis/localnet"
 CHECKSUM_PATH="${NAMADA_DIR}/wasm/checksums.json"
 DATA_DIR="${HERMES_DIR}/data"
 
-LEDGER_ADDR="127.0.0.1:27657"
+LEDGER_ADDR="http://127.0.0.1:27657"
 
 HERMES_CONFIG_TEMPLATE="
 [global]

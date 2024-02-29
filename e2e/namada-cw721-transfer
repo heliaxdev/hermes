@@ -30,7 +30,7 @@ NAMADAC="${NAMADA_DIR}/target/debug/namadac"
 NAMADAN="${NAMADA_DIR}/target/debug/namadan"
 NAMADAW="${NAMADA_DIR}/target/debug/namadaw"
 DATA_DIR="${HERMES_DIR}/data"
-NAMADA_LEDGER_ADDR="127.0.0.1:27657"
+NAMADA_LEDGER_ADDR="http://127.0.0.1:27657"
 
 WASMD_CHAIN_ID="wasm"
 WASMD_CHAIN_CONFIG="
