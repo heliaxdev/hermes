@@ -221,7 +221,7 @@ impl NamadaChain {
             .ok()
             .and_then(|data| {
                 let target = if is_refund {
-                    data.memo.as_ref()
+                    data.sender.as_ref()
                 } else {
                     data.receiver.as_ref()
                 };
@@ -239,11 +239,11 @@ impl NamadaChain {
                 .ok()
                 .and_then(|data| {
                     let target = if is_refund {
-                        data.memo.clone().unwrap_or_default().to_string()
+                        data.sender.as_ref()
                     } else {
-                        data.receiver.as_ref().to_string()
+                        data.receiver.as_ref()
                     };
-                    PaymentAddress::from_str(&target)
+                    PaymentAddress::from_str(&target.to_string())
                         .map(|payment_addr| {
                             let ibc_token = format!(
                                 "{}/{}",
