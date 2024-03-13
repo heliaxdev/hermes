@@ -25,8 +25,8 @@ SHIELDED_ALIAS_B_2="shielded_b_2"
 PAYMENT_ALIAS_A="payment_a"
 PAYMENT_ALIAS_B="payment_b"
 PAYMENT_ALIAS_B_2="payment_b_2"
-LEDGER_ADDR_A="127.0.0.1:27657"
-LEDGER_ADDR_B="127.0.0.1:28657"
+LEDGER_ADDR_A="http://127.0.0.1:27657"
+LEDGER_ADDR_B="http://127.0.0.1:28657"
 INITIAL_BALANCE=5000
 
 function init_relayer_balance() {

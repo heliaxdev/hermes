@@ -1,0 +1,247 @@
+#!/bin/bash
+
+# Before testing,
+# - `make build` and `make build-wasm-scripts` on Namada directory
+# - Edit your Hermes config. The first [[chains]] should be for Namada.
+# - Transfer some amounts to user/relayer accounts for fees
+# Run with `namada-cosmos-transfers ${namada_dir}`
+
+set -ex
+
+NAMADA_DIR=$1
+if [ -z "${NAMADA_DIR}" ]
+then
+  echo "ERROR: Namada directory should be given"
+  exit 1
+fi
+cd $(dirname $0)
+HERMES_DIR=${PWD%/e2e*}
+
+# edit for your environment
+HERMES_CONFIG="${HERMES_DIR}/config_namada_noble.toml"
+
+NAMADAC="${NAMADA_DIR}/target/debug/namadac"
+NAMADAN="${NAMADA_DIR}/target/debug/namadan"
+NAMADAW="${NAMADA_DIR}/target/debug/namadaw"
+
+NAMADA_BASE_DIR="${HERMES_DIR}/data/namada"
+NAMADA_RELAYER_ACC="relayer"
+NAMADA_DENOM="naan"
+
+COSMOS_CMD="nobled"
+COSMOS_KEY_FILE="/Users/yuji/Workspace/noble-assets/noble/key.json"
+COSMOS_RELAYER_ACC="noble14pmnnrn760ar6jw0pdat5jsdhprgjngfgavh29"
+COSMOS_DENOM="uusdc"
+
+SHIELDED_ALIAS_A="shielded_a"
+SHIELDED_ALIAS_B="shielded_b"
+PAYMENT_ALIAS_A="payment_a"
+PAYMENT_ALIAS_B="payment_b"
+
+# Get chain IDs
+ids=$(grep "id" ${HERMES_CONFIG} | awk -F"'" '/^id/ {print $2}')
+namada_chain_id=$(echo "${ids}" | awk 'NR==1')
+cosmos_chain_id=$(echo "${ids}" | awk 'NR==2')
+# Get RPC addresses
+rpcs=$(grep "rpc_addr" ${HERMES_CONFIG} | awk -F"'" '/^rpc_addr/ {print $2}')
+namada_rpc_addr=$(echo "${rpcs}" | awk 'NR==1')
+cosmos_rpc_addr=$(echo "${rpcs}" | awk 'NR==2')
+
+# setup Namada shielded keys
+${NAMADAW} --base-dir ${NAMADA_BASE_DIR} gen --shielded --alias ${SHIELDED_ALIAS_A} --unsafe-dont-encrypt
+${NAMADAW} --base-dir ${NAMADA_BASE_DIR} gen-payment-addr --alias ${PAYMENT_ALIAS_A} --key ${SHIELDED_ALIAS_A}
+payment_addr_a=$(${NAMADAW} --base-dir ${NAMADA_BASE_DIR} find --alias ${PAYMENT_ALIAS_A} | awk -v paymentAlias="${PAYMENT_ALIAS_A}" '{if($1 ~ paymentAlias) {print $2}}')
+
+${NAMADAW} --base-dir ${NAMADA_BASE_DIR} gen --shielded --alias ${SHIELDED_ALIAS_B} --unsafe-dont-encrypt
+${NAMADAW} --base-dir ${NAMADA_BASE_DIR} gen-payment-addr --alias ${PAYMENT_ALIAS_B} --key ${SHIELDED_ALIAS_B}
+payment_addr_b=$(${NAMADAW} --base-dir ${NAMADA_BASE_DIR} find --alias ${PAYMENT_ALIAS_B} | awk -v paymentAlias="${PAYMENT_ALIAS_B}" '{if($1 ~ paymentAlias) {print $2}}')
+
+# Add relayer keys to Hermes
+cargo run --bin hermes -- --config ${HERMES_CONFIG} \
+    keys add \
+    --chain ${namada_chain_id} \
+    --key-file ${NAMADA_BASE_DIR}/${namada_chain_id}/wallet.toml \
+    --overwrite
+
+cargo run --bin hermes -- --config ${HERMES_CONFIG} \
+    keys add \
+    --chain ${cosmos_chain_id} \
+    --key-file ${COSMOS_KEY_FILE} \
+    --overwrite
+
+# create a channel
+resp=$(cargo run --bin hermes -- --config ${HERMES_CONFIG} \
+  create channel \
+  --a-chain ${namada_chain_id} \
+  --b-chain ${cosmos_chain_id} \
+  --a-port transfer \
+  --b-port transfer \
+  --new-client-connection --yes)
+
+namada_channel=$(echo "$resp" | grep "a_side" -A 19 | grep "channel-" | sed 's/"//g' | awk -F',' '{print $1}' | sed 's/ //g')
+cosmos_channel=$(echo "$resp" | grep "b_side" -A 19 | grep "channel-" | sed 's/"//g' | awk -F',' '{print $1}' | sed 's/ //g')
+ibc_token="transfer/${namada_channel}/${COSMOS_DENOM}"
+
+echo "==== Start Hermes ===="
+cargo run --bin hermes -- --config ${HERMES_CONFIG} \
+  start > ${HERMES_DIR}/e2e/hermes.log 2>&1 &
+
+echo "~~ Transfer 100 from Cosmos to Namada ~~"
+namada_receiver=$(${NAMADAW} --base-dir ${NAMADA_BASE_DIR} find --alias ${NAMADA_RELAYER_ACC} | awk '$3 ~ /^tnam/{print $3}')
+${COSMOS_CMD} tx ibc-transfer transfer \
+  transfer \
+  ${cosmos_channel} \
+  ${namada_receiver} \
+  100${COSMOS_DENOM} \
+  --from ${COSMOS_RELAYER_ACC} \
+  --keyring-backend test \
+  -y \
+  --node ${cosmos_rpc_addr}
+
+sleep 30
+
+echo "==== Balances on Namada ===="
+${NAMADAC} --base-dir ${NAMADA_BASE_DIR} balance \
+  --token ${ibc_token} \
+  --owner ${NAMADA_RELAYER_ACC} \
+  --node ${namada_rpc_addr}
+
+echo "==== Balances on Cosmos ===="
+${COSMOS_CMD} query bank balances ${COSMOS_RELAYER_ACC} --node ${cosmos_rpc_addr}
+
+
+echo "~~ Transfer back 50 from Namada to Cosmos ~~"
+${NAMADAC} --base-dir ${NAMADA_BASE_DIR} ibc-transfer \
+  --source ${NAMADA_RELAYER_ACC} \
+  --receiver ${COSMOS_RELAYER_ACC} \
+  --token ${ibc_token} \
+  --amount 50 \
+  --signing-keys ${NAMADA_RELAYER_ACC} \
+  --channel-id ${namada_channel} \
+  --node ${namada_rpc_addr}
+
+sleep 30
+
+echo "==== Balances on Namada ===="
+${NAMADAC} --base-dir ${NAMADA_BASE_DIR} balance \
+  --token ${ibc_token} \
+  --owner ${NAMADA_RELAYER_ACC} \
+  --node ${namada_rpc_addr}
+
+echo "==== Balances on  ===="
+${COSMOS_CMD} query bank balances ${COSMOS_RELAYER_ACC} --node ${cosmos_rpc_addr}
+
+
+echo "~~ Transfer 100 from Namada to Cosmos ~~"
+${NAMADAC} --base-dir ${NAMADA_BASE_DIR} ibc-transfer \
+  --source ${NAMADA_RELAYER_ACC} \
+  --receiver ${COSMOS_RELAYER_ACC} \
+  --token ${NAMADA_DENOM} \
+  --amount 100 \
+  --signing-keys ${NAMADA_RELAYER_ACC} \
+  --channel-id channel-0 \
+  --node ${namada_rpc_addr}
+
+sleep 30
+
+echo "==== Balances on Namada ===="
+${NAMADAC} --base-dir ${NAMADA_BASE_DIR} balance \
+  --token ${NAMADA_DENOM} \
+  --owner ${NAMADA_RELAYER_ACC} \
+  --node ${namada_rpc_addr}
+
+echo "==== Balances on Cosmos ===="
+${COSMOS_CMD} query bank balances ${COSMOS_RELAYER_ACC} --node ${cosmos_rpc_addr}
+
+echo "~~ Generate the proof from Namada for the following transfer ~~"
+resp=$(${NAMADAC} --base-dir ${NAMADA_BASE_DIR} ibc-gen-shielded \
+  --output-folder-path ${NAMADA_BASE_DIR} \
+  --target ${payment_addr_a} \
+  --token ${COSMOS_DENOM} \
+  --amount 10 \
+  --port-id transfer \
+  --channel-id ${namada_channel} \
+  --node ${namada_rpc_addr})
+memo_path=$(echo $resp | awk '{print $8}')
+
+echo "~~ Shielding transfer 10 from Cosmos to Namada ~~"
+memo=$(cat ${memo_path})
+${COSMOS_CMD} tx ibc-transfer transfer \
+  transfer
+  ${cosmos_channel} \
+  ${payment_addr_a} \
+  10${COSMOS_DENOM} \
+  --from ${COSMOS_RELAYER_ACC} \
+  --memo ${memo} \
+  --keyring-backend test \
+  -y \
+  --node ${cosmos_rpc_addr} \
+
+# wait for relaying
+sleep 40
+
+echo "==== Balance of shielded_a on Namada ===="
+${NAMADAC} --base-dir ${NAMADA_BASE_DIR} shielded-sync \
+  --viewing-keys ${SHIELDED_ALIAS_A} \
+  --node ${namada_rpc_addr}
+${NAMADAC} --base-dir ${NAMADA_BASE_DIR} balance \
+  --owner ${SHIELDED_ALIAS_A} \
+  --node ${namada_rpc_addr}
+
+echo "==== Balances on Cosmos ===="
+${COSMOS_CMD} query bank balances ${COSMOS_RELAYER_ACC} --node ${cosmos_rpc_addr}
+
+
+echo "~~ Shielded transfer 5 apfel from shielded_a to shielded_b on Namada ~~"
+${NAMADAC} --base-dir ${NAMADA_BASE_DIR} transfer \
+  --source ${SHIELDED_ALIAS_A} \
+  --target ${payment_addr_b} \
+  --token ${ibc_token} \
+  --amount 5 \
+  --signing-keys ${NAMADA_RELAYER_ACC} \
+  --node ${namada_rpc_addr}
+
+echo "==== Balance of shielded_a on Namada ===="
+${NAMADAC} --base-dir ${NAMADA_BASE_DIR} shielded-sync \
+  --viewing-keys ${SHIELDED_ALIAS_A} ${SHIELDED_ALIAS_B} \
+  --node ${namada_rpc_addr}
+${NAMADAC} --base-dir ${NAMADA_BASE_DIR} balance \
+  --owner ${SHIELDED_ALIAS_A} \
+  --node ${namada_rpc_addr}
+
+echo "==== Balance of shielded_b on Namada ===="
+${NAMADAC} --base-dir ${NAMADA_BASE_DIR} balance \
+  --owner ${SHIELDED_ALIAS_B} \
+  --node ${namada_rpc_addr}
+
+
+echo "~~ Transfer back 5 samoleans from Namada shielded_b to Cosmos ~~"
+${NAMADAC} --base-dir ${NAMADA_BASE_DIR} ibc-transfer \
+  --source ${SHIELDED_ALIAS_B} \
+  --receiver ${COSMOS_RELAYER_ACC} \
+  --token ${ibc_token} \
+  --amount 5 \
+  --signing-keys ${NAMADA_RELAYER_ACC} \
+  --channel-id ${namada_channel} \
+  --node ${namada_rpc_addr}
+
+# wait for relaying
+sleep 40
+
+echo "==== Balances of shielded_a on Namada ===="
+${NAMADAC} --base-dir ${NAMADA_BASE_DIR} shielded-sync \
+  --viewing-keys ${SHIELDED_ALIAS_A} ${SHIELDED_ALIAS_B} \
+  --node ${namada_rpc_addr}
+${NAMADAC} --base-dir ${NAMADA_BASE_DIR} balance \
+  --owner ${SHIELDED_ALIAS_A} \
+  --node ${namada_rpc_addr}
+
+echo "==== Balances of shielded_b on Namada ===="
+${NAMADAC} --base-dir ${NAMADA_BASE_DIR} balance \
+  --owner ${SHIELDED_ALIAS_B} \
+  --node ${namada_rpc_addr}
+
+echo "==== Balances on Cosmos ===="
+${COSMOS_CMD} query bank balances ${COSMOS_RELAYER_ACC} --node ${cosmos_rpc_addr}
+
+killall hermes

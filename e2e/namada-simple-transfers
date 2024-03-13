@@ -19,8 +19,8 @@ NAMADAC="${NAMADA_DIR}/target/debug/namadac"
 NAMADAW="${NAMADA_DIR}/target/debug/namadaw"
 DATA_DIR="${HERMES_DIR}/data"
 
-LEDGER_ADDR_A="127.0.0.1:27657"
-LEDGER_ADDR_B="127.0.0.1:28657"
+LEDGER_ADDR_A="http://127.0.0.1:27657"
+LEDGER_ADDR_B="http://127.0.0.1:28657"
 INITIAL_BALANCE=5000
 
 function init_relayer_balance() {
