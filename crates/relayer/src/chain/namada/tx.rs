@@ -6,10 +6,12 @@ use std::time::Instant;
 
 use ibc_proto::google::protobuf::Any;
 use namada_parameters::storage as parameter_storage;
+use namada_sdk::address::{Address, ImplicitAddress};
 use namada_sdk::args;
 use namada_sdk::args::{InputAmount, Tx as TxArgs, TxCustom};
 use namada_sdk::borsh::BorshDeserialize;
 use namada_sdk::borsh::BorshSerializeExt;
+use namada_sdk::chain::ChainId;
 use namada_sdk::ibc::apps::nft_transfer::types::packet::PacketData as NftPacketData;
 use namada_sdk::ibc::apps::transfer::types::packet::PacketData;
 use namada_sdk::ibc::core::channel::types::acknowledgement::AcknowledgementStatus;
@@ -18,12 +20,12 @@ use namada_sdk::ibc::core::channel::types::msgs::{
     MsgTimeout as IbcMsgTimeout, ACKNOWLEDGEMENT_TYPE_URL, RECV_PACKET_TYPE_URL, TIMEOUT_TYPE_URL,
 };
 use namada_sdk::ibc::core::host::types::identifiers::{ChannelId, PortId};
+use namada_sdk::ibc::{MsgAcknowledgement, MsgRecvPacket, MsgTimeout};
+use namada_sdk::masp::{PaymentAddress, TransferTarget};
+use namada_sdk::masp_primitives::transaction::Transaction as MaspTransaction;
 use namada_sdk::tx::data::GasLimit;
-use namada_sdk::types::address::{Address, ImplicitAddress};
-use namada_sdk::types::chain::ChainId;
-use namada_sdk::types::ibc::{IbcShieldedTransfer, MsgAcknowledgement, MsgRecvPacket, MsgTimeout};
-use namada_sdk::types::masp::{PaymentAddress, TransferTarget};
 use namada_sdk::{signing, tx, Namada};
+use namada_trans_token::Transfer;
 use tendermint_proto::Protobuf;
 use tendermint_rpc::endpoint::broadcast::tx_sync::Response;
 
@@ -46,17 +48,17 @@ impl NamadaChain {
         let rt = self.rt.clone();
         rt.block_on(self.submit_reveal_aux(&tx_args, &relayer_addr))?;
 
-        let tx_data = self.make_tx_data(proto_msg)?;
         let args = TxCustom {
             tx: tx_args.clone(),
             code_path: Some(PathBuf::from(tx::TX_IBC_WASM)),
-            data_path: Some(tx_data),
+            data_path: None,
             serialized_tx: None,
             owner: relayer_addr.clone(),
         };
         let (mut tx, signing_data) = rt
             .block_on(args.build(&self.ctx))
             .map_err(NamadaError::namada)?;
+        self.set_tx_data(&mut tx, proto_msg)?;
         rt.block_on(
             self.ctx
                 .sign(&mut tx, &args.tx, signing_data, signing::default_sign, ()),
@@ -132,7 +134,7 @@ impl NamadaChain {
         })
     }
 
-    fn make_tx_data(&self, proto_msg: &Any) -> Result<Vec<u8>, Error> {
+    fn set_tx_data(&self, tx: &mut tx::Tx, proto_msg: &Any) -> Result<(), Error> {
         // Make a new message with Namada shielded transfer
         // if receiving or refunding to a shielded address
         let data = match proto_msg.type_url.as_ref() {
@@ -145,12 +147,15 @@ impl NamadaChain {
                     &message.packet.data,
                     false,
                 )?
-                .map(|shielded_transfer| {
-                    MsgRecvPacket {
-                        message,
-                        shielded_transfer: Some(shielded_transfer),
-                    }
-                    .serialize_to_vec()
+                .map(|(transfer, masp_tx)| {
+                    (
+                        MsgRecvPacket {
+                            message,
+                            transfer: Some(transfer),
+                        }
+                        .serialize_to_vec(),
+                        masp_tx,
+                    )
                 })
             }
             ACKNOWLEDGEMENT_TYPE_URL => {
@@ -170,12 +175,15 @@ impl NamadaChain {
                         &message.packet.data,
                         true,
                     )?
-                    .map(|shielded_transfer| {
-                        MsgAcknowledgement {
-                            message,
-                            shielded_transfer: Some(shielded_transfer),
-                        }
-                        .serialize_to_vec()
+                    .map(|(transfer, masp_tx)| {
+                        (
+                            MsgAcknowledgement {
+                                message,
+                                transfer: Some(transfer),
+                            }
+                            .serialize_to_vec(),
+                            masp_tx,
+                        )
                     })
                 }
             }
@@ -188,26 +196,31 @@ impl NamadaChain {
                     &message.packet.data,
                     true,
                 )?
-                .map(|shielded_transfer| {
-                    MsgTimeout {
-                        message,
-                        shielded_transfer: Some(shielded_transfer),
-                    }
-                    .serialize_to_vec()
+                .map(|(transfer, masp_tx)| {
+                    (
+                        MsgTimeout {
+                            message,
+                            transfer: Some(transfer),
+                        }
+                        .serialize_to_vec(),
+                        masp_tx,
+                    )
                 })
             }
             _ => None,
         };
 
-        if let Some(tx_data) = data {
-            Ok(tx_data)
+        if let Some((tx_data, masp_tx)) = data {
+            tx.add_serialized_data(tx_data);
+            tx.add_masp_tx_section(masp_tx);
         } else {
             let mut tx_data = vec![];
             prost::Message::encode(proto_msg, &mut tx_data).map_err(|e| {
                 Error::protobuf_encode(String::from("Encoding the message failed"), e)
             })?;
-            Ok(tx_data)
+            tx.add_serialized_data(tx_data);
         }
+        Ok(())
     }
 
     fn get_shielded_transfer(
@@ -216,7 +229,7 @@ impl NamadaChain {
         channel_id: &ChannelId,
         packet_data: &[u8],
         is_refund: bool,
-    ) -> Result<Option<IbcShieldedTransfer>, Error> {
+    ) -> Result<Option<(Transfer, MaspTransaction)>, Error> {
         let transfer = serde_json::from_slice::<PacketData>(packet_data)
             .ok()
             .and_then(|data| {
@@ -243,7 +256,7 @@ impl NamadaChain {
                     } else {
                         data.receiver.as_ref()
                     };
-                    PaymentAddress::from_str(&target.to_string())
+                    PaymentAddress::from_str(target)
                         .map(|payment_addr| {
                             let ibc_token = format!(
                                 "{}/{}",
