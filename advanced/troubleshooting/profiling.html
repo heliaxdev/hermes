@@ -183,12 +183,12 @@
 <pre><pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
 </span><span class="boring">fn main() {
 </span>fn my_function(x: u32) -&gt; u32 {
-    time!(&quot;myfunction: x={}&quot;, x); // A
+    time!("myfunction: x={}", x); // A
 
     std::thread::sleep(Duration::from_secs(1));
 
     {
-        time!(&quot;inner operation&quot;); // B
+        time!("inner operation"); // B
 
         std::thread::sleep(Duration::from_secs(2));
 
@@ -242,12 +242,12 @@ Apr 13 20:58:21.279  INFO ibc_relayer::macros::profiling: ⏳ build_consensus_st
 Apr 13 20:58:21.280  INFO ibc_relayer::macros::profiling: ⏳ build_consensus_state - elapsed: 0ms
 Apr 13 20:58:21.280  INFO ibc_relayer::macros::profiling: ⏳ send_msgs - start
 Apr 13 20:58:21.280  INFO ibc_relayer::macros::profiling:    ⏳ send_tx - start
-Apr 13 20:58:21.282  INFO ibc_relayer::macros::profiling:       ⏳ PK &quot;03f17d2c094ee68cfcedb2c2f2b7dec6cd82ea158ac1c32d3de0ca8b288a3c8bfa&quot; - start
+Apr 13 20:58:21.282  INFO ibc_relayer::macros::profiling:       ⏳ PK "03f17d2c094ee68cfcedb2c2f2b7dec6cd82ea158ac1c32d3de0ca8b288a3c8bfa" - start
 Apr 13 20:58:21.282  INFO ibc_relayer::macros::profiling:          ⏳ block_on - start
 Apr 13 20:58:21.285  INFO ibc_relayer::macros::profiling:          ⏳ block_on - elapsed: 3ms
 Apr 13 20:58:21.296  INFO ibc_relayer::macros::profiling:             ⏳ block_on - start
 Apr 13 20:58:22.664  INFO ibc_relayer::macros::profiling:             ⏳ block_on - elapsed: 1367ms
-Apr 13 20:58:22.664  INFO ibc_relayer::macros::profiling:       ⏳ PK &quot;03f17d2c094ee68cfcedb2c2f2b7dec6cd82ea158ac1c32d3de0ca8b288a3c8bfa&quot; - elapsed: 1382ms
+Apr 13 20:58:22.664  INFO ibc_relayer::macros::profiling:       ⏳ PK "03f17d2c094ee68cfcedb2c2f2b7dec6cd82ea158ac1c32d3de0ca8b288a3c8bfa" - elapsed: 1382ms
 Apr 13 20:58:22.664  INFO ibc_relayer::macros::profiling:    ⏳ send_tx - elapsed: 1384ms
 Apr 13 20:58:22.664  INFO ibc_relayer::macros::profiling: ⏳ send_msgs - elapsed: 1384ms
 Success: CreateClient(
@@ -258,7 +258,7 @@ Success: CreateClient(
                 height: 10675,
             },
             client_id: ClientId(
-                &quot;07-tendermint-7&quot;,
+                "07-tendermint-7",
             ),
             client_type: Tendermint,
             consensus_height: Height {
@@ -277,17 +277,17 @@ env variable, or the current directory otherwise.</p>
 <p><strong>NOTE</strong>: Outputting profiling information in JSON format in a file is only available for the <code>hermes start</code> command.
 This debug option won't do anything with the other CLIs.</p>
 </blockquote>
-<pre><code class="language-json">{&quot;name&quot;:&quot;fetch_node_info&quot;,&quot;src_chain&quot;:&quot;ibc-0&quot;,&quot;elapsed&quot;:6}
-{&quot;name&quot;:&quot;chain_status&quot;,&quot;src_chain&quot;:&quot;ibc-0&quot;,&quot;elapsed&quot;:12}
-{&quot;name&quot;:&quot;query_config_params&quot;,&quot;src_chain&quot;:&quot;ibc-0&quot;,&quot;elapsed&quot;:3}
-{&quot;name&quot;:&quot;min_gas_price&quot;,&quot;src_chain&quot;:&quot;ibc-0&quot;,&quot;elapsed&quot;:3}
-{&quot;name&quot;:&quot;query_staking_params&quot;,&quot;src_chain&quot;:&quot;ibc-0&quot;,&quot;elapsed&quot;:159}
-{&quot;name&quot;:&quot;historical_entries&quot;,&quot;src_chain&quot;:&quot;ibc-0&quot;,&quot;elapsed&quot;:329}
-{&quot;name&quot;:&quot;query_staking_params&quot;,&quot;src_chain&quot;:&quot;ibc-0&quot;,&quot;elapsed&quot;:121}
-{&quot;name&quot;:&quot;unbonding_period&quot;,&quot;src_chain&quot;:&quot;ibc-0&quot;,&quot;elapsed&quot;:12}
-{&quot;name&quot;:&quot;query_latest_height&quot;,&quot;src_chain&quot;:&quot;ibc-0&quot;,&quot;elapsed&quot;:8}
-{&quot;name&quot;:&quot;fetch_node_info&quot;,&quot;src_chain&quot;:&quot;ibc-1&quot;,&quot;elapsed&quot;:9}
-{&quot;name&quot;:&quot;chain_status&quot;,&quot;src_chain&quot;:&quot;ibc-1&quot;,&quot;elapsed&quot;:43}
+<pre><code class="language-json">{"name":"fetch_node_info","src_chain":"ibc-0","elapsed":6}
+{"name":"chain_status","src_chain":"ibc-0","elapsed":12}
+{"name":"query_config_params","src_chain":"ibc-0","elapsed":3}
+{"name":"min_gas_price","src_chain":"ibc-0","elapsed":3}
+{"name":"query_staking_params","src_chain":"ibc-0","elapsed":159}
+{"name":"historical_entries","src_chain":"ibc-0","elapsed":329}
+{"name":"query_staking_params","src_chain":"ibc-0","elapsed":121}
+{"name":"unbonding_period","src_chain":"ibc-0","elapsed":12}
+{"name":"query_latest_height","src_chain":"ibc-0","elapsed":8}
+{"name":"fetch_node_info","src_chain":"ibc-1","elapsed":9}
+{"name":"chain_status","src_chain":"ibc-1","elapsed":43}
 </code></pre>
 
                     </main>

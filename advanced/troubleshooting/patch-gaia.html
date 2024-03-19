@@ -193,7 +193,7 @@ cd ~/go/src/github.com/cosmos/cosmos-sdk
            channelID string,
     ) error {
            // Disallow user-initiated channel closing for transfer channels
-   -       return sdkerrors.Wrap(sdkerrors.ErrInvalidRequest, &quot;user cannot close channel&quot;)
+   -       return sdkerrors.Wrap(sdkerrors.ErrInvalidRequest, "user cannot close channel")
    +       return nil
     }
 </code></pre>

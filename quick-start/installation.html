@@ -210,14 +210,14 @@ version of Hermes binary matching your platform:</p>
 <li>
 <p>Update your path, by adding this line in your <code>.bashrc</code> or <code>.zshrc</code> shell
 configuration file:</p>
-<pre><code class="language-shell">export PATH=&quot;$HOME/.hermes/bin:$PATH&quot;
+<pre><code class="language-shell">export PATH="$HOME/.hermes/bin:$PATH"
 </code></pre>
 </li>
 </ol>
 <blockquote>
 <p>NOTE: The binary may be initially prevented from running if you're
 on macOS.
-See the <a href="https://support.apple.com/HT202491">&quot;Open Anyway&quot; instructions from this support forum</a>
+See the <a href="https://support.apple.com/HT202491">"Open Anyway" instructions from this support forum</a>
 if that is the case.</p>
 </blockquote>
 <p>You should now be able to run Hermes by invoking the <code>hermes</code> executable.</p>
@@ -243,7 +243,7 @@ To install the latest release of Hermes, run the following command in a terminal
 add the <code>$HOME/.cargo/bin</code> directory to your <code>PATH</code> environment variable.
 For most shells, this can be done by adding the following line to your
 <code>.bashrc</code> or <code>.zshrc</code> configuration file:</p>
-<pre><code class="language-shell">export PATH=&quot;$HOME/.cargo/bin:$PATH&quot;
+<pre><code class="language-shell">export PATH="$HOME/.cargo/bin:$PATH"
 </code></pre>
 </blockquote>
 <p>You should now be able to run Hermes by invoking the <code>hermes</code> executable.</p>
@@ -341,7 +341,7 @@ and any further necessary modifications to the shell's startup files.</p>
 <pre><code class="language-sh">hermes completions --shell bash
  &gt; ~/.local/share/bash-completion/completions/hermes
 </code></pre>
-<p>On a macOS installation with Homebrew <code>bash-completion</code> formula installed, use </p>
+<p>On a macOS installation with Homebrew <code>bash-completion</code> formula installed, use</p>
 <pre><code class="language-sh">hermes completions --shell bash
  &gt; $(brew --prefix)/etc/bash_completion.d/hermes.bash-completion
 </code></pre>

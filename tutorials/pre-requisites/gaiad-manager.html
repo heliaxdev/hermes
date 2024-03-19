@@ -174,7 +174,7 @@
                 <div id="content" class="content">
                     <main>
                         <h2 id="install-gaiad-manager"><a class="header" href="#install-gaiad-manager">Install Gaiad Manager</a></h2>
-<p>Gaiad manager (<code>gm</code>) is a command-line tool (CLI) that helps manage local <code>gaiad</code> networks. </p>
+<p>Gaiad manager (<code>gm</code>) is a command-line tool (CLI) that helps manage local <code>gaiad</code> networks.</p>
 <p>Follow the instructions below to install and configure <code>gm</code>.</p>
 <hr />
 <h3 id="requirements"><a class="header" href="#requirements">Requirements</a></h3>
@@ -238,19 +238,19 @@ your path.</li>
   add_to_hermes = false
   auto_maintain_config = true
   extra_wallets = 2
-  gaiad_binary = &quot;~/go/bin/gaiad&quot;
-  hdpath = &quot;&quot;
-  home_dir = &quot;$HOME/.gm&quot;
+  gaiad_binary = "~/go/bin/gaiad"
+  hdpath = ""
+  home_dir = "$HOME/.gm"
   ports_start_at = 27000
-  validator_mnemonic = &quot;&quot;
-  wallet_mnemonic = &quot;&quot;
+  validator_mnemonic = ""
+  wallet_mnemonic = ""
 
   [global.hermes]
-    binary = &quot;PATH-TO-HERMES-BINARY&quot; #change this path according to your setup
-    config = &quot;$HOME/.hermes/config.toml&quot;
-    log_level = &quot;info&quot;
+    binary = "PATH-TO-HERMES-BINARY" #change this path according to your setup
+    config = "$HOME/.hermes/config.toml"
+    log_level = "info"
     telemetry_enabled = true
-    telemetry_host = &quot;127.0.0.1&quot;
+    telemetry_host = "127.0.0.1"
     telemetry_port = 3001
 
 [ibc-0]
@@ -261,12 +261,12 @@ your path.</li>
 
 [node-0]
   add_to_hermes = true
-  network = &quot;ibc-0&quot;
+  network = "ibc-0"
   ports_start_at = 27030
 
 [node-1]
   add_to_hermes = true
-  network = &quot;ibc-1&quot;
+  network = "ibc-1"
   ports_start_at = 27040
 </code></pre>
 <blockquote>

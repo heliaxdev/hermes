@@ -182,7 +182,7 @@
 <h2 id="identifiers"><a class="header" href="#identifiers">Identifiers</a></h2>
 <p>A chain allocates identifiers when it creates clients, connections and channels. These identifiers can subsequently be used to refer to existing clients, connections, and channels.</p>
 <blockquote>
-<p>NOTE: If you want to ensure you get the same identifiers while following the tutorials, run each of the commands in this page only <strong>once</strong> or reset the chains as instructed in section <a href="./start-local-chains.html#reset-your-configuration-and-start-the-chains">Start local chains</a>. </p>
+<p>NOTE: If you want to ensure you get the same identifiers while following the tutorials, run each of the commands in this page only <strong>once</strong> or reset the chains as instructed in section <a href="./start-local-chains.html#reset-your-configuration-and-start-the-chains">Start local chains</a>.</p>
 </blockquote>
 <p>Chains allocate identifiers using a chain-specific allocation scheme. Currently, the <em>cosmos-sdk</em> implementation uses the following identifiers:</p>
 <ul>
@@ -190,13 +190,13 @@
 <li><code>connection-&lt;n&gt;</code> for connections.</li>
 <li><code>channel-&lt;n&gt;</code> for channels.</li>
 </ul>
-<p>It is possible for two chains to use the same identifier to designate two different objects. For example, two different channels, one on the Hub and one on Osmosis, can both be designated with the <code>channel-0</code> identifier. </p>
+<p>It is possible for two chains to use the same identifier to designate two different objects. For example, two different channels, one on the Hub and one on Osmosis, can both be designated with the <code>channel-0</code> identifier.</p>
 <h2 id="create-the-relay-path"><a class="header" href="#create-the-relay-path">Create the relay path</a></h2>
 <p>A relay path refers to a specific channel used to interconnect two chains and over which packets are being sent.</p>
 <p>Hermes can be started to listen for packet events on the two ends of multiple paths and relay packets over these paths.
 This can be done over a new path or over existing paths.</p>
 <blockquote>
-<p><strong>NOTE</strong>: The following steps decompose every step from the creation of the clients to the channel handshake for educational purposes. 
+<p><strong>NOTE</strong>: The following steps decompose every step from the creation of the clients to the channel handshake for educational purposes.
 More realistically, you'd use the command <code>hermes create channel --a-chain ibc-0 --b-chain ibc-1 --a-port transfer --b-port transfer --new-client-connection </code> in order to create a new client on each chain, establish a connection, and open a channel, all with a single command.</p>
 </blockquote>
 <p>You will need to first create a client on both chains and then establish a connection between them. It is possible to have multiple connections between clients, which can be useful in order to support multiple versions of IBC. Finally, you need to create channels over a connection to identify the source and destination modules. You can learn more in the <a href="https://tutorials.cosmos.network/academy/3-ibc/1-what-is-ibc.html">cosmos academy tutorial</a>.</p>
@@ -210,7 +210,7 @@ More realistically, you'd use the command <code>hermes create channel --a-chain 
     CreateClient(
         Attributes {
             client_id: ClientId(
-                &quot;07-tendermint-0&quot;,
+                "07-tendermint-0",
             ),
             client_type: Tendermint,
             consensus_height: Height {
@@ -230,7 +230,7 @@ More realistically, you'd use the command <code>hermes create channel --a-chain 
     CreateClient(
         Attributes {
             client_id: ClientId(
-                &quot;07-tendermint-0&quot;,
+                "07-tendermint-0",
             ),
             client_type: Tendermint,
             consensus_height: Height {
@@ -241,14 +241,14 @@ More realistically, you'd use the command <code>hermes create channel --a-chain 
     ),
 )
 </code></pre>
-<p>As you can see, the identifier is also <code>07-tendermint-0</code> because the client-id is <strong>local to a chain</strong>. </p>
+<p>As you can see, the identifier is also <code>07-tendermint-0</code> because the client-id is <strong>local to a chain</strong>.</p>
 <h3 id="2-create-connections"><a class="header" href="#2-create-connections">2. Create connections</a></h3>
 <p>After creating clients on both chains, you have to establish a connection between them. Both chains will assign <code>connection-0</code> as the identifier of their first connection:</p>
 <pre><code class="language-shell">hermes create connection --a-chain ibc-0 --a-client 07-tendermint-0 --b-client 07-tendermint-0
 
 </code></pre>
 <blockquote>
-<p><strong>NOTE</strong>: The command does not take <code>--b-chain</code> as argument as <code>--a-client</code> can only track one chain (<code>ibc-1</code>). </p>
+<p><strong>NOTE</strong>: The command does not take <code>--b-chain</code> as argument as <code>--a-client</code> can only track one chain (<code>ibc-1</code>).</p>
 </blockquote>
 <p>If the command runs successfully, it should output something similar to:</p>
 <details><summary style="font-weight:bold">Create connection output</summary>
@@ -261,15 +261,15 @@ More realistically, you'd use the command <code>hermes create channel --a-chain 
             Attributes {
                 connection_id: Some(
                     ConnectionId(
-                        &quot;connection-0&quot;,
+                        "connection-0",
                     ),
                 ),
                 client_id: ClientId(
-                    &quot;07-tendermint-0&quot;,
+                    "07-tendermint-0",
                 ),
                 counterparty_connection_id: None,
                 counterparty_client_id: ClientId(
-                    &quot;07-tendermint-0&quot;,
+                    "07-tendermint-0",
                 ),
             },
         ),
@@ -288,19 +288,19 @@ More realistically, you'd use the command <code>hermes create channel --a-chain 
             Attributes {
                 connection_id: Some(
                     ConnectionId(
-                        &quot;connection-0&quot;,
+                        "connection-0",
                     ),
                 ),
                 client_id: ClientId(
-                    &quot;07-tendermint-0&quot;,
+                    "07-tendermint-0",
                 ),
                 counterparty_connection_id: Some(
                     ConnectionId(
-                        &quot;connection-0&quot;,
+                        "connection-0",
                     ),
                 ),
                 counterparty_client_id: ClientId(
-                    &quot;07-tendermint-0&quot;,
+                    "07-tendermint-0",
                 ),
             },
         ),
@@ -320,19 +320,19 @@ More realistically, you'd use the command <code>hermes create channel --a-chain 
             Attributes {
                 connection_id: Some(
                     ConnectionId(
-                        &quot;connection-0&quot;,
+                        "connection-0",
                     ),
                 ),
                 client_id: ClientId(
-                    &quot;07-tendermint-0&quot;,
+                    "07-tendermint-0",
                 ),
                 counterparty_connection_id: Some(
                     ConnectionId(
-                        &quot;connection-0&quot;,
+                        "connection-0",
                     ),
                 ),
                 counterparty_client_id: ClientId(
-                    &quot;07-tendermint-0&quot;,
+                    "07-tendermint-0",
                 ),
             },
         ),
@@ -350,19 +350,19 @@ More realistically, you'd use the command <code>hermes create channel --a-chain 
             Attributes {
                 connection_id: Some(
                     ConnectionId(
-                        &quot;connection-0&quot;,
+                        "connection-0",
                     ),
                 ),
                 client_id: ClientId(
-                    &quot;07-tendermint-0&quot;,
+                    "07-tendermint-0",
                 ),
                 counterparty_connection_id: Some(
                     ConnectionId(
-                        &quot;connection-0&quot;,
+                        "connection-0",
                     ),
                 ),
                 counterparty_client_id: ClientId(
-                    &quot;07-tendermint-0&quot;,
+                    "07-tendermint-0",
                 ),
             },
         ),
@@ -378,34 +378,34 @@ More realistically, you'd use the command <code>hermes create channel --a-chain 
     a_side: ConnectionSide {
         chain: BaseChainHandle {
             chain_id: ChainId {
-                id: &quot;ibc-0&quot;,
+                id: "ibc-0",
                 version: 0,
             },
             runtime_sender: Sender { .. },
         },
         client_id: ClientId(
-            &quot;07-tendermint-0&quot;,
+            "07-tendermint-0",
         ),
         connection_id: Some(
             ConnectionId(
-                &quot;connection-0&quot;,
+                "connection-0",
             ),
         ),
     },
     b_side: ConnectionSide {
         chain: BaseChainHandle {
             chain_id: ChainId {
-                id: &quot;ibc-1&quot;,
+                id: "ibc-1",
                 version: 1,
             },
             runtime_sender: Sender { .. },
         },
         client_id: ClientId(
-            &quot;07-tendermint-0&quot;,
+            "07-tendermint-0",
         ),
         connection_id: Some(
             ConnectionId(
-                &quot;connection-0&quot;,
+                "connection-0",
             ),
         ),
     },
@@ -416,34 +416,34 @@ SUCCESS Connection {
     a_side: ConnectionSide {
         chain: BaseChainHandle {
             chain_id: ChainId {
-                id: &quot;ibc-0&quot;,
+                id: "ibc-0",
                 version: 0,
             },
             runtime_sender: Sender { .. },
         },
         client_id: ClientId(
-            &quot;07-tendermint-0&quot;,
+            "07-tendermint-0",
         ),
         connection_id: Some(
             ConnectionId(
-                &quot;connection-0&quot;,
+                "connection-0",
             ),
         ),
     },
     b_side: ConnectionSide {
         chain: BaseChainHandle {
             chain_id: ChainId {
-                id: &quot;ibc-1&quot;,
+                id: "ibc-1",
                 version: 1,
             },
             runtime_sender: Sender { .. },
         },
         client_id: ClientId(
-            &quot;07-tendermint-0&quot;,
+            "07-tendermint-0",
         ),
         connection_id: Some(
             ConnectionId(
-                &quot;connection-0&quot;,
+                "connection-0",
             ),
         ),
     },
@@ -456,7 +456,7 @@ SUCCESS Connection {
 
 </code></pre>
 <blockquote>
-<p><strong>NOTE</strong>: Again, you do not need to specify the counterparty chain as a connection can only be established with a single counterparty. The <code>port</code> specifies the protocol which will be used on this channel. </p>
+<p><strong>NOTE</strong>: Again, you do not need to specify the counterparty chain as a connection can only be established with a single counterparty. The <code>port</code> specifies the protocol which will be used on this channel.</p>
 </blockquote>
 <p>If the command runs successfully, it should output something similar to:</p>
 <details><summary style="font-weight:bold">Create channel output</summary>
@@ -466,18 +466,18 @@ SUCCESS Connection {
     event: OpenInitChannel(
         OpenInit {
             port_id: PortId(
-                &quot;transfer&quot;,
+                "transfer",
             ),
             channel_id: Some(
                 ChannelId(
-                    &quot;channel-0&quot;,
+                    "channel-0",
                 ),
             ),
             connection_id: ConnectionId(
-                &quot;connection-0&quot;,
+                "connection-0",
             ),
             counterparty_port_id: PortId(
-                &quot;transfer&quot;,
+                "transfer",
             ),
             counterparty_channel_id: None,
         },
@@ -493,22 +493,22 @@ SUCCESS Connection {
     event: OpenTryChannel(
         OpenTry {
             port_id: PortId(
-                &quot;transfer&quot;,
+                "transfer",
             ),
             channel_id: Some(
                 ChannelId(
-                    &quot;channel-0&quot;,
+                    "channel-0",
                 ),
             ),
             connection_id: ConnectionId(
-                &quot;connection-0&quot;,
+                "connection-0",
             ),
             counterparty_port_id: PortId(
-                &quot;transfer&quot;,
+                "transfer",
             ),
             counterparty_channel_id: Some(
                 ChannelId(
-                    &quot;channel-0&quot;,
+                    "channel-0",
                 ),
             ),
         },
@@ -524,23 +524,23 @@ SUCCESS Connection {
     event: OpenAckChannel(
         OpenAck {
             port_id: PortId(
-                &quot;transfer&quot;,
+                "transfer",
             ),
             channel_id: Some(
                 ChannelId(
-                    &quot;channel-0&quot;,
+                    "channel-0",
                 ),
             ),
             counterparty_channel_id: Some(
                 ChannelId(
-                    &quot;channel-0&quot;,
+                    "channel-0",
                 ),
             ),
             connection_id: ConnectionId(
-                &quot;connection-0&quot;,
+                "connection-0",
             ),
             counterparty_port_id: PortId(
-                &quot;transfer&quot;,
+                "transfer",
             ),
         },
     ),
@@ -555,22 +555,22 @@ SUCCESS Connection {
     event: OpenConfirmChannel(
         OpenConfirm {
             port_id: PortId(
-                &quot;transfer&quot;,
+                "transfer",
             ),
             channel_id: Some(
                 ChannelId(
-                    &quot;channel-0&quot;,
+                    "channel-0",
                 ),
             ),
             connection_id: ConnectionId(
-                &quot;connection-0&quot;,
+                "connection-0",
             ),
             counterparty_port_id: PortId(
-                &quot;transfer&quot;,
+                "transfer",
             ),
             counterparty_channel_id: Some(
                 ChannelId(
-                    &quot;channel-0&quot;,
+                    "channel-0",
                 ),
             ),
         },
@@ -586,23 +586,23 @@ SUCCESS Connection {
     a_side: ChannelSide {
         chain: BaseChainHandle {
             chain_id: ChainId {
-                id: &quot;ibc-0&quot;,
+                id: "ibc-0",
                 version: 0,
             },
             runtime_sender: Sender { .. },
         },
         client_id: ClientId(
-            &quot;07-tendermint-0&quot;,
+            "07-tendermint-0",
         ),
         connection_id: ConnectionId(
-            &quot;connection-0&quot;,
+            "connection-0",
         ),
         port_id: PortId(
-            &quot;transfer&quot;,
+            "transfer",
         ),
         channel_id: Some(
             ChannelId(
-                &quot;channel-0&quot;,
+                "channel-0",
             ),
         ),
         version: None,
@@ -610,23 +610,23 @@ SUCCESS Connection {
     b_side: ChannelSide {
         chain: BaseChainHandle {
             chain_id: ChainId {
-                id: &quot;ibc-1&quot;,
+                id: "ibc-1",
                 version: 1,
             },
             runtime_sender: Sender { .. },
         },
         client_id: ClientId(
-            &quot;07-tendermint-0&quot;,
+            "07-tendermint-0",
         ),
         connection_id: ConnectionId(
-            &quot;connection-0&quot;,
+            "connection-0",
         ),
         port_id: PortId(
-            &quot;transfer&quot;,
+            "transfer",
         ),
         channel_id: Some(
             ChannelId(
-                &quot;channel-0&quot;,
+                "channel-0",
             ),
         ),
         version: None,
@@ -639,23 +639,23 @@ SUCCESS Channel {
     a_side: ChannelSide {
         chain: BaseChainHandle {
             chain_id: ChainId {
-                id: &quot;ibc-0&quot;,
+                id: "ibc-0",
                 version: 0,
             },
             runtime_sender: Sender { .. },
         },
         client_id: ClientId(
-            &quot;07-tendermint-0&quot;,
+            "07-tendermint-0",
         ),
         connection_id: ConnectionId(
-            &quot;connection-0&quot;,
+            "connection-0",
         ),
         port_id: PortId(
-            &quot;transfer&quot;,
+            "transfer",
         ),
         channel_id: Some(
             ChannelId(
-                &quot;channel-0&quot;,
+                "channel-0",
             ),
         ),
         version: None,
@@ -663,23 +663,23 @@ SUCCESS Channel {
     b_side: ChannelSide {
         chain: BaseChainHandle {
             chain_id: ChainId {
-                id: &quot;ibc-1&quot;,
+                id: "ibc-1",
                 version: 1,
             },
             runtime_sender: Sender { .. },
         },
         client_id: ClientId(
-            &quot;07-tendermint-0&quot;,
+            "07-tendermint-0",
         ),
         connection_id: ConnectionId(
-            &quot;connection-0&quot;,
+            "connection-0",
         ),
         port_id: PortId(
-            &quot;transfer&quot;,
+            "transfer",
         ),
         channel_id: Some(
             ChannelId(
-                &quot;channel-0&quot;,
+                "channel-0",
             ),
         ),
         version: None,
@@ -689,15 +689,15 @@ SUCCESS Channel {
 </code></pre>
 </details>
 <h2 id="visualize-the-current-network"><a class="header" href="#visualize-the-current-network">Visualize the current network</a></h2>
-<p>You can visualize the topology of the current network with: </p>
+<p>You can visualize the topology of the current network with:</p>
 <pre><code class="language-shell">hermes query channels --show-counterparty --chain ibc-0
 
 </code></pre>
-<p>If all the commands were successful, this command should output : </p>
+<p>If all the commands were successful, this command should output :</p>
 <pre><code>ibc-0: transfer/channel-0 --- ibc-1: transfer/channel-0
 </code></pre>
 <p>The chains <strong>ibc-0</strong> and <strong>ibc-1</strong> are now set up and configured as so:</p>
-<p><strong>Relay path</strong>: </p>
+<p><strong>Relay path</strong>:</p>
 <pre class="mermaid">flowchart LR
     A((ibc-0))---B(transfer&lt;br&gt;channel-0)---C(transfer&lt;br&gt;channel-0)---D((ibc-1))
 </pre>

@@ -205,12 +205,12 @@ as the version of the REST server itself (under the <code>ibc-relayer-rest</code
 </code></pre>
 <pre><code class="language-json">[
   {
-    &quot;name&quot;: &quot;ibc-relayer&quot;,
-    &quot;version&quot;: &quot;v1.7.4&quot;
+    "name": "ibc-relayer",
+    "version": "v1.7.4"
   },
   {
-    &quot;name&quot;: &quot;ibc-relayer-rest&quot;,
-    &quot;version&quot;: &quot;0.1.0&quot;
+    "name": "ibc-relayer-rest",
+    "version": "0.1.0"
   }
 ]
 </code></pre>
@@ -222,10 +222,10 @@ information about each chain's configuration. See the next section for more deta
 <pre><code>❯ curl -s -X GET 'http://127.0.0.1:3000/chains' | jq
 </code></pre>
 <pre><code class="language-json">{
-  &quot;status&quot;: &quot;success&quot;,
-  &quot;result&quot;: [
-    &quot;ibc-0&quot;,
-    &quot;ibc-1&quot;
+  "status": "success",
+  "result": [
+    "ibc-0",
+    "ibc-1"
   ]
 }
 </code></pre>
@@ -236,32 +236,32 @@ where <code>:id</code> stands for the identifier.</p>
 <pre><code>❯ curl -s -X GET 'http://127.0.0.1:3000/chain/ibc-0' | jq
 </code></pre>
 <pre><code class="language-json">{
-  &quot;status&quot;: &quot;success&quot;,
-  &quot;result&quot;: {
-    &quot;id&quot;: &quot;ibc-0&quot;,
-    &quot;rpc_addr&quot;: &quot;http://127.0.0.1:26657/&quot;,
-    &quot;websocket_addr&quot;: &quot;ws://127.0.0.1:26657/websocket&quot;,
-    &quot;grpc_addr&quot;: &quot;http://127.0.0.1:9090/&quot;,
-    &quot;rpc_timeout&quot;: &quot;10s&quot;,
-    &quot;account_prefix&quot;: &quot;cosmos&quot;,
-    &quot;key_name&quot;: &quot;testkey&quot;,
-    &quot;store_prefix&quot;: &quot;ibc&quot;,
-    &quot;max_gas&quot;: 900000000,
-    &quot;gas_multiplier&quot;: 1.0,
-    &quot;max_msg_num&quot;: 60,
-    &quot;max_tx_size&quot;: 2097152,
-    &quot;clock_drift&quot;: &quot;5s&quot;,
-    &quot;trusting_period&quot;: &quot;14days&quot;,
-    &quot;trust_threshold&quot;: {
-      &quot;numerator&quot;: &quot;1&quot;,
-      &quot;denominator&quot;: &quot;3&quot;
+  "status": "success",
+  "result": {
+    "id": "ibc-0",
+    "rpc_addr": "http://127.0.0.1:26657/",
+    "websocket_addr": "ws://127.0.0.1:26657/websocket",
+    "grpc_addr": "http://127.0.0.1:9090/",
+    "rpc_timeout": "10s",
+    "account_prefix": "cosmos",
+    "key_name": "testkey",
+    "store_prefix": "ibc",
+    "max_gas": 900000000,
+    "gas_multiplier": 1.0,
+    "max_msg_num": 60,
+    "max_tx_size": 2097152,
+    "clock_drift": "5s",
+    "trusting_period": "14days",
+    "trust_threshold": {
+      "numerator": "1",
+      "denominator": "3"
     },
-    &quot;gas_price&quot;: {
-      &quot;price&quot;: 0.001,
-      &quot;denom&quot;: &quot;stake&quot;
+    "gas_price": {
+      "price": 0.001,
+      "denom": "stake"
     },
-    &quot;packet_filter&quot;: {
-      &quot;policy&quot;: &quot;allowall&quot;
+    "packet_filter": {
+      "policy": "allowall"
     }
   }
 }
@@ -273,48 +273,48 @@ of all the workers which are currently active.</p>
 <pre><code>❯ curl -s -X GET 'http://127.0.0.1:3000/state' | jq
 </code></pre>
 <pre><code class="language-json">{
-  &quot;status&quot;: &quot;success&quot;,
-  &quot;result&quot;: {
-    &quot;chains&quot;: [
-      &quot;ibc-0&quot;,
-      &quot;ibc-1&quot;
+  "status": "success",
+  "result": {
+    "chains": [
+      "ibc-0",
+      "ibc-1"
     ],
-    &quot;workers&quot;: {
-      &quot;Client&quot;: [
+    "workers": {
+      "Client": [
         {
-          &quot;id&quot;: 3,
-          &quot;object&quot;: {
-            &quot;type&quot;: &quot;Client&quot;,
-            &quot;dst_chain_id&quot;: &quot;ibc-1&quot;,
-            &quot;dst_client_id&quot;: &quot;07-tendermint-0&quot;,
-            &quot;src_chain_id&quot;: &quot;ibc-0&quot;
+          "id": 3,
+          "object": {
+            "type": "Client",
+            "dst_chain_id": "ibc-1",
+            "dst_client_id": "07-tendermint-0",
+            "src_chain_id": "ibc-0"
           }
         },
         {
-          &quot;id&quot;: 4,
-          &quot;object&quot;: {
-            &quot;type&quot;: &quot;Client&quot;,
-            &quot;dst_chain_id&quot;: &quot;ibc-1&quot;,
-            &quot;dst_client_id&quot;: &quot;07-tendermint-1&quot;,
-            &quot;src_chain_id&quot;: &quot;ibc-0&quot;
+          "id": 4,
+          "object": {
+            "type": "Client",
+            "dst_chain_id": "ibc-1",
+            "dst_client_id": "07-tendermint-1",
+            "src_chain_id": "ibc-0"
           }
         },
         {
-          &quot;id&quot;: 1,
-          &quot;object&quot;: {
-            &quot;type&quot;: &quot;Client&quot;,
-            &quot;dst_chain_id&quot;: &quot;ibc-0&quot;,
-            &quot;dst_client_id&quot;: &quot;07-tendermint-0&quot;,
-            &quot;src_chain_id&quot;: &quot;ibc-1&quot;
+          "id": 1,
+          "object": {
+            "type": "Client",
+            "dst_chain_id": "ibc-0",
+            "dst_client_id": "07-tendermint-0",
+            "src_chain_id": "ibc-1"
           }
         },
         {
-          &quot;id&quot;: 2,
-          &quot;object&quot;: {
-            &quot;type&quot;: &quot;Client&quot;,
-            &quot;dst_chain_id&quot;: &quot;ibc-0&quot;,
-            &quot;dst_client_id&quot;: &quot;07-tendermint-1&quot;,
-            &quot;src_chain_id&quot;: &quot;ibc-1&quot;
+          "id": 2,
+          "object": {
+            "type": "Client",
+            "dst_chain_id": "ibc-0",
+            "dst_client_id": "07-tendermint-1",
+            "src_chain_id": "ibc-1"
           }
         }
       ]

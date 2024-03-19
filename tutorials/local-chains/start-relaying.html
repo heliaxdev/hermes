@@ -185,12 +185,12 @@
 <ul>
 <li>
 <p>Balances on ibc-0:</p>
-<pre><code class="language-shell">gaiad --node tcp://localhost:27030 query bank balances $(gaiad --home ~/.gm/ibc-0 keys --keyring-backend=&quot;test&quot; show wallet -a)
+<pre><code class="language-shell">gaiad --node tcp://localhost:27030 query bank balances $(gaiad --home ~/.gm/ibc-0 keys --keyring-backend="test" show wallet -a)
 </code></pre>
 </li>
 <li>
 <p>Balances on ibc-1:</p>
-<pre><code class="language-shell">gaiad --node tcp://localhost:27040 query bank balances $(gaiad --home ~/.gm/ibc-1 keys --keyring-backend=&quot;test&quot; show wallet -a)
+<pre><code class="language-shell">gaiad --node tcp://localhost:27040 query bank balances $(gaiad --home ~/.gm/ibc-1 keys --keyring-backend="test" show wallet -a)
 </code></pre>
 </li>
 </ul>
@@ -199,13 +199,13 @@
 </blockquote>
 <p>At this point in the tutorial, the two commands should output something similar to:</p>
 <pre><code>balances:
-- amount: &quot;100000000&quot;
+- amount: "100000000"
   denom: samoleans
-- amount: &quot;99994088&quot;
+- amount: "99994088"
   denom: stake
 pagination:
   next_key: null
-  total: &quot;0&quot;
+  total: "0"
 </code></pre>
 <blockquote>
 <p><strong>NOTE</strong>: Some <code>stake</code> tokens were used during the connection and channel handshakes.</p>
@@ -214,11 +214,11 @@ pagination:
 <p>Now, let's exchange <code>samoleans</code> between two chains.</p>
 <ul>
 <li>
-<p>Open a new terminal and start Hermes using the <code>start</code> command : </p>
+<p>Open a new terminal and start Hermes using the <code>start</code> command :</p>
 <pre><code class="language-shell">hermes start
 
 </code></pre>
-<p>Hermes will first relay the pending packets that have not been relayed and then start passively relaying by listening for and acting on packet events. </p>
+<p>Hermes will first relay the pending packets that have not been relayed and then start passively relaying by listening for and acting on packet events.</p>
 </li>
 <li>
 <p>In a separate terminal, use the <code>ft-transfer</code> command to send <code>100000 samoleans</code> from ibc-0 to ibc-1 over channel-0:</p>
@@ -231,26 +231,26 @@ pagination:
 <ul>
 <li>Balances at ibc-0:
 <pre><code>balances:
-- amount: &quot;99900000&quot;
+- amount: "99900000"
 denom: samoleans
-- amount: &quot;99992054&quot;
+- amount: "99992054"
 denom: stake
 pagination:
 next_key: null
-total: &quot;0&quot;
+total: "0"
 </code></pre>
 </li>
 <li>Balances at ibc-1:
 <pre><code>balances:
-- amount: &quot;100000&quot;
+- amount: "100000"
 denom: ibc/C1840BD16FCFA8F421DAA0DAAB08B9C323FC7685D0D7951DC37B3F9ECB08A199
-- amount: &quot;100000000&quot;
+- amount: "100000000"
 denom: samoleans
-- amount: &quot;99989196&quot;
+- amount: "99989196"
 denom: stake
 pagination:
 next_key: null
-total: &quot;0&quot;
+total: "0"
 </code></pre>
 </li>
 </ul>
@@ -268,24 +268,24 @@ The exact denomination you see might be different, make sure to use the denomina
 <ul>
 <li>Balances on ibc-0:
 <pre><code>balances:
-- amount: &quot;100000000&quot;
+- amount: "100000000"
 denom: samoleans
-- amount: &quot;99987927&quot;
+- amount: "99987927"
 denom: stake
 pagination:
 next_key: null
-total: &quot;0&quot;
+total: "0"
 </code></pre>
 </li>
 <li>Balances on ibc-1:
 <pre><code>balances:
-- amount: &quot;100000000&quot;
+- amount: "100000000"
 denom: samoleans
-- amount: &quot;99983879&quot;
+- amount: "99983879"
 denom: stake
 pagination:
 next_key: null
-total: &quot;0&quot;
+total: "0"
 </code></pre>
 </li>
 </ul>
@@ -311,7 +311,7 @@ total: &quot;0&quot;
 <li>Establishing a connection between them.</li>
 <li>Opening a channel.</li>
 <li>Visualizing your network.</li>
-<li>Exchanging packets. </li>
+<li>Exchanging packets.</li>
 </ul>
 <p>In the <a href="../more-chains/index.html">next tutorial</a>, you will learn how to relay between multiple chains with multiple instances.</p>
 

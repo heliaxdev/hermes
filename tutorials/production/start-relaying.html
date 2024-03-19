@@ -174,7 +174,7 @@
                 <div id="content" class="content">
                     <main>
                         <h1 id="start-relaying"><a class="header" href="#start-relaying">Start relaying</a></h1>
-<p>In section <a href="./setup-grafana.html">Setup Grafana</a>, you did set up a Grafana dashboard which is now waiting to receive data produced by <code>hermes</code> and running on port 3000. You also configured Hermes in section <a href="./setup-hermes.html">Setup Hermes</a> and added the keys you will be using. </p>
+<p>In section <a href="./setup-grafana.html">Setup Grafana</a>, you did set up a Grafana dashboard which is now waiting to receive data produced by <code>hermes</code> and running on port 3000. You also configured Hermes in section <a href="./setup-hermes.html">Setup Hermes</a> and added the keys you will be using.</p>
 <hr />
 <h2 id="create-an-empty-log-file"><a class="header" href="#create-an-empty-log-file">Create an empty log file</a></h2>
 <p>Promtail is shipping every log file from <code>/var/log</code> to Loki. Follow the steps below to create an empty log file for Hermes:</p>
@@ -189,7 +189,7 @@ sudo chown $(whoami) /var/log/hermes.log
 <p>Open your dashboard. Make sure it gets refreshed every 5s.</p>
 </li>
 <li>
-<p>In a new terminal, run <code>hermes start &amp;&gt; hermes.log</code>. </p>
+<p>In a new terminal, run <code>hermes start  &amp;&gt; hermes.log</code>.</p>
 </li>
 </ul>
 <p>If the command runs successfully, you should be able to see the metrics panels displaying data on the Grafana Dashboard and you should also be able to see the logs on the <code>Logs</code> panel at the top of the dashboard. You can also explore them on the <code>explore</code> page.</p>
@@ -201,7 +201,7 @@ sudo chown $(whoami) /var/log/hermes.log
 <hr />
 <h2 id="next-steps"><a class="header" href="#next-steps">Next steps</a></h2>
 <p>Visit the <a href="../../documentation/telemetry/index.html">Telemetry</a> section to learn how to use the metrics and the <a href="../../advanced/index.html">Avanced</a> section to learn about Hermes' features and general guidelines for troubleshooting.</p>
-<p>You can also learn more about <a href="https://grafana.com/tutorials/grafana-fundamentals/">Grafana's features</a> and learn how to create a <a href="https://grafana.com/docs/grafana/latest/alerting/alerting-rules/create-grafana-managed-rule/">Grafana Managed Alert</a>. </p>
+<p>You can also learn more about <a href="https://grafana.com/tutorials/grafana-fundamentals/">Grafana's features</a> and learn how to create a <a href="https://grafana.com/docs/grafana/latest/alerting/alerting-rules/create-grafana-managed-rule/">Grafana Managed Alert</a>.</p>
 <blockquote>
 <p><strong>NOTE</strong>: In the future, Hermes might implement functionalities to trigger the commands through a REST API. It might become possible to manipulate the relayer through Grafana Alerts.</p>
 </blockquote>

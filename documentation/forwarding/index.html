@@ -184,10 +184,10 @@
 </pre>
 <p>Then if the IBC packet forward middleware is active, Chain A can send a packet to Chain C, by including the following memo:</p>
 <pre><code class="language-json">{
-  &quot;forward&quot;: {
-    &quot;receiver&quot;: &quot;chain-c-bech32-address&quot;,
-    &quot;port&quot;: &quot;transfer&quot;,
-    &quot;channel&quot;: &quot;channel-123&quot;
+  "forward": {
+    "receiver": "chain-c-bech32-address",
+    "port": "transfer",
+    "channel": "channel-123"
   }
 }
 </code></pre>
@@ -197,19 +197,19 @@
 </pre>
 <p>Then if the IBC packet forward middleware is active, Chain A can send a packet to Chain D, by including the following memo:</p>
 <pre><code class="language-json">{
-  &quot;forward&quot;: {
-    &quot;receiver&quot;: &quot;chain-c-bech32-address&quot;,
-    &quot;port&quot;: &quot;transfer&quot;,
-    &quot;channel&quot;: &quot;channel-a-to-b&quot;,
-    &quot;timeout&quot;: &quot;10m&quot;,
-    &quot;retries&quot;: 2,
-    &quot;next&quot;: {
-      &quot;forward&quot;: {
-        &quot;receiver&quot;: &quot;chain-d-bech32-address&quot;,
-        &quot;port&quot;: &quot;transfer&quot;,
-        &quot;channel&quot;:&quot;channel-c-to-d&quot;,
-        &quot;timeout&quot;:&quot;10m&quot;,
-        &quot;retries&quot;: 2
+  "forward": {
+    "receiver": "chain-c-bech32-address",
+    "port": "transfer",
+    "channel": "channel-a-to-b",
+    "timeout": "10m",
+    "retries": 2,
+    "next": {
+      "forward": {
+        "receiver": "chain-d-bech32-address",
+        "port": "transfer",
+        "channel":"channel-c-to-d",
+        "timeout":"10m",
+        "retries": 2
       }
     }
   }

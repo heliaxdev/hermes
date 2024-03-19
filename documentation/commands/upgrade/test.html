@@ -189,19 +189,19 @@
   add_to_hermes = true
   auto_maintain_config = true
   extra_wallets = 2
-  gaiad_binary = &quot;$GOPATH/bin/gaiad&quot;
-  hdpath = &quot;&quot;
-  home_dir = &quot;$HOME/.gm&quot;
+  gaiad_binary = "$GOPATH/bin/gaiad"
+  hdpath = ""
+  home_dir = "$HOME/.gm"
   ports_start_at = 27040
-  validator_mnemonic = &quot;&quot;
-  wallet_mnemonic = &quot;&quot;
+  validator_mnemonic = ""
+  wallet_mnemonic = ""
 
   [global.hermes]
-    binary = &quot;&lt;path/to/hermes&gt;&quot;
-    config = &quot;$HOME/.hermes/config.toml&quot;
-    log_level = &quot;info&quot;
+    binary = "&lt;path/to/hermes&gt;"
+    config = "$HOME/.hermes/config.toml"
+    log_level = "info"
     telemetry_enabled = true
-    telemetry_host = &quot;127.0.0.1&quot;
+    telemetry_host = "127.0.0.1"
     telemetry_port = 3001
 
 [ibc-0]
@@ -227,7 +227,7 @@
        Attributes {
            height: Height { revision: 1, height: 9 },
            client_id: ClientId(
-               &quot;07-tendermint-0&quot;,
+               "07-tendermint-0",
            ),
            client_type: Tendermint,
            consensus_height: Height { revision: 0, height: 18 },
@@ -268,10 +268,10 @@ The proposal includes the upgraded client state constructed from the state of <c
   '@type': /ibc.core.client.v1.UpgradeProposal
   description: upgrade the chain software and unbonding period
   plan:
-    height: &quot;65&quot;
-    info: &quot;&quot;
+    height: "65"
+    info: ""
     name: plan
-    time: &quot;0001-01-01T00:00:00Z&quot;
+    time: "0001-01-01T00:00:00Z"
     upgraded_client_state: null
   title: proposal 0
   upgraded_client_state:
@@ -280,11 +280,11 @@ The proposal includes the upgraded client state constructed from the state of <c
     allow_update_after_misbehaviour: false
     chain_id: ibc-0
     frozen_height:
-      revision_height: &quot;0&quot;
-      revision_number: &quot;0&quot;
+      revision_height: "0"
+      revision_number: "0"
     latest_height:
-      revision_height: &quot;66&quot;
-      revision_number: &quot;0&quot;
+      revision_height: "66"
+      revision_number: "0"
     max_clock_drift: 0s
     proof_specs:
     - inner_spec:
@@ -322,27 +322,27 @@ The proposal includes the upgraded client state constructed from the state of <c
       max_depth: 0
       min_depth: 0
     trust_level:
-      denominator: &quot;0&quot;
-      numerator: &quot;0&quot;
+      denominator: "0"
+      numerator: "0"
     trusting_period: 0s
     unbonding_period: 1814400s
     upgrade_path:
     - upgrade
     - upgradedIBCState
-deposit_end_time: &quot;2022-07-06T15:14:38.993051Z&quot;
+deposit_end_time: "2022-07-06T15:14:38.993051Z"
 final_tally_result:
-  abstain: &quot;0&quot;
-  &quot;no&quot;: &quot;0&quot;
-  no_with_veto: &quot;0&quot;
-  &quot;yes&quot;: &quot;0&quot;
-proposal_id: &quot;1&quot;
+  abstain: "0"
+  "no": "0"
+  no_with_veto: "0"
+  "yes": "0"
+proposal_id: "1"
 status: PROPOSAL_STATUS_VOTING_PERIOD
-submit_time: &quot;2022-07-06T15:12:38.993051Z&quot;
+submit_time: "2022-07-06T15:12:38.993051Z"
 total_deposit:
-- amount: &quot;10000000&quot;
+- amount: "10000000"
   denom: stake
-voting_end_time: &quot;2022-07-06T15:14:38.993051Z&quot;
-voting_start_time: &quot;2022-07-06T15:12:38.993051Z&quot;
+voting_end_time: "2022-07-06T15:14:38.993051Z"
+voting_start_time: "2022-07-06T15:12:38.993051Z"
 </code></pre>
 </li>
 <li>
@@ -376,7 +376,7 @@ The <code>--upgrade-height 65</code> value is taken from the <code>height</code>
                     height: 68,
                 },
                 client_id: ClientId(
-                    &quot;07-tendermint-0&quot;,
+                    "07-tendermint-0",
                 ),
                 client_type: Tendermint,
                 consensus_height: Height {

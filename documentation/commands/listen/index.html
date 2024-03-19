@@ -196,7 +196,7 @@ REQUIRED:
 </code></pre>
 <pre><code class="language-json">EventBatch {
     chain_id: ChainId {
-        id: &quot;ibc-0&quot;,
+        id: "ibc-0",
         version: 0,
     },
     height: block::Height(10914),
@@ -210,7 +210,7 @@ REQUIRED:
 }
 EventBatch {
     chain_id: ChainId {
-        id: &quot;ibc-0&quot;,
+        id: "ibc-0",
         version: 0,
     },
     height: block::Height(10915),
@@ -221,15 +221,15 @@ EventBatch {
                     height: block::Height(10915),
                     connection_id: Some(
                         ConnectionId(
-                            &quot;connection-3&quot;,
+                            "connection-3",
                         ),
                     ),
                     client_id: ClientId(
-                        &quot;07-tendermint-3&quot;,
+                        "07-tendermint-3",
                     ),
                     counterparty_connection_id: None,
                     counterparty_client_id: ClientId(
-                        &quot;07-tendermint-5&quot;,
+                        "07-tendermint-5",
                     ),
                 },
             ),
@@ -240,7 +240,7 @@ EventBatch {
 
 EventBatch {
     chain_id: ChainId {
-        id: &quot;ibc-0&quot;,
+        id: "ibc-0",
         version: 0,
     },
     height: block::Height(10919),
@@ -250,7 +250,7 @@ EventBatch {
                 Attributes {
                     height: block::Height(10919),
                     client_id: ClientId(
-                        &quot;07-tendermint-3&quot;,
+                        "07-tendermint-3",
                     ),
                     client_type: Tendermint,
                     consensus_height: Height {
@@ -267,7 +267,7 @@ EventBatch {
 
 EventBatch {
     chain_id: ChainId {
-        id: &quot;ibc-0&quot;,
+        id: "ibc-0",
         version: 0,
     },
     height: block::Height(10924),
@@ -277,7 +277,7 @@ EventBatch {
                 Attributes {
                     height: block::Height(10924),
                     client_id: ClientId(
-                        &quot;07-tendermint-3&quot;,
+                        "07-tendermint-3",
                     ),
                     client_type: Tendermint,
                     consensus_height: Height {
@@ -293,19 +293,19 @@ EventBatch {
                     height: block::Height(10924),
                     connection_id: Some(
                         ConnectionId(
-                            &quot;connection-3&quot;,
+                            "connection-3",
                         ),
                     ),
                     client_id: ClientId(
-                        &quot;07-tendermint-3&quot;,
+                        "07-tendermint-3",
                     ),
                     counterparty_connection_id: Some(
                         ConnectionId(
-                            &quot;connection-5&quot;,
+                            "connection-5",
                         ),
                     ),
                     counterparty_client_id: ClientId(
-                        &quot;07-tendermint-5&quot;,
+                        "07-tendermint-5",
                     ),
                 },
             ),
@@ -317,7 +317,7 @@ EventBatch {
 <p>The <code>listen</code> command accepts a <code>--events</code> flag to specify which event types to listen for.</p>
 <p>At the moment, two event types are available:</p>
 <ul>
-<li><code>NewBlock</code> </li>
+<li><code>NewBlock</code></li>
 <li><code>Tx</code></li>
 </ul>
 <p>The <code>--events</code> flag can be repeated to specify more than one event type.</p>

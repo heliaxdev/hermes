@@ -258,7 +258,7 @@ port = 3001
 
 [[chains]]
 id = 'ibc-0'
-type = &quot;CosmosSdk&quot;
+type = "CosmosSdk"
 rpc_addr = 'http://localhost:27030'
 grpc_addr = 'http://localhost:27032'
 event_source = { mode = 'push', url = 'ws://localhost:27030/websocket', batch_delay = '200ms' }
@@ -287,7 +287,7 @@ trust_threshold = { numerator = '2', denominator = '3' }
 
 [[chains]]
 id = 'ibc-1'
-type = &quot;CosmosSdk&quot;
+type = "CosmosSdk"
 rpc_addr = 'http://localhost:27040'
 grpc_addr = 'http://localhost:27042'
 event_source = { mode = 'push', url = 'ws://localhost:27040/websocket', batch_delay = '200ms' }
@@ -321,58 +321,58 @@ trust_threshold = { numerator = '2', denominator = '3' }
 </code></pre>
 <p>This will generate an output similar to the one below (albeit all on the same line):</p>
 <details><summary style="font-weight:bold">gm keys output</summary>
-<pre><code>&quot;$HOME/go/bin/gaiad&quot; keys list --keyring-backend test --keyring-dir &quot;$HOME/.gm/ibc-0&quot;
+<pre><code>"$HOME/go/bin/gaiad" keys list --keyring-backend test --keyring-dir "$HOME/.gm/ibc-0"
 
 - name: validator
 address: cosmos1a5545h09sdzwgjpraasgkvu0f585lc33k9h4kx
 pubkey: cosmospub1addwnpepqw5j24lg0ya34umnrn7akxuks3as2ktggndxg37cnfsx2fl5xkl8ymte6c2
-mnemonic: &quot;confirm path season shiver adjust order quarter now empower crystal busy foam pony web chaos bachelor magnet imitate audit wear spike chunk garlic sport&quot;
+mnemonic: "confirm path season shiver adjust order quarter now empower crystal busy foam pony web chaos bachelor magnet imitate audit wear spike chunk garlic sport"
 
 - name: wallet
 address: cosmos14czpvfgzcr06astyylahshcexzwm0j9ne6h5p5
 pubkey: cosmospub1addwnpepqdcmngqappsxp6jp53atfx6kt5p7d6vce4un3mfvsa8gtml5n8lj2yh29q9
-mnemonic: &quot;brass exhibit artist beef album canvas liar fine water wave bus rose sunny permit strategy eight stove legal sustain vessel offer great book loan&quot;
+mnemonic: "brass exhibit artist beef album canvas liar fine water wave bus rose sunny permit strategy eight stove legal sustain vessel offer great book loan"
 
 - name: wallet1
 address: cosmos1qs5nmmf7jall4sm38fjssxfw5ay87mfp22p3xm
 pubkey: cosmospub1addwnpepqtxfgjxg8xrc9xrzqyfs3ud6svmu7wrt608s80d0t0g93rylu4kd7kpckj6
-mnemonic: &quot;puzzle pole beyond announce clip else cause airport index pencil intact camp leisure pole nasty put meat cover garage ripple chief unfair destroy spatial&quot;
+mnemonic: "puzzle pole beyond announce clip else cause airport index pencil intact camp leisure pole nasty put meat cover garage ripple chief unfair destroy spatial"
 
 - name: wallet2
 address: cosmos1n7qyhjkfp8szpy7ury7vlejd5wcfc2ysdd9xlx
 pubkey: cosmospub1addwnpepq2nuh2a9x9wd6ad78dcft3e8tuds5xs4ypeterl0zenw9ejt0tdvk38yd3z
-mnemonic: &quot;february slab crane panther harbor judge artefact ghost clay torch stay cave enrich narrow sausage expand tomato margin wool repeat squeeze couch fork unhappy&quot;
+mnemonic: "february slab crane panther harbor judge artefact ghost clay torch stay cave enrich narrow sausage expand tomato margin wool repeat squeeze couch fork unhappy"
 
-&quot;$HOME/go/bin/gaiad&quot; keys list --keyring-backend test --keyring-dir &quot;$HOME/.gm/ibc-1&quot;
+"$HOME/go/bin/gaiad" keys list --keyring-backend test --keyring-dir "$HOME/.gm/ibc-1"
 
 - name: validator
 address: cosmos14eg9y3kjlrepk8lmdavw8u5l472sl8e6xv99yk
 pubkey: cosmospub1addwnpepq0q4f0aaaq2wycg7y3x8j8gfacazdf3xlxujkjguy2k3gq654jwuyn58hhq
-mnemonic: &quot;clarify concert lens mobile hover lucky bulk home elite fix school jungle draw soul excess siren advice accuse shallow copper model absorb salon mystery&quot;
+mnemonic: "clarify concert lens mobile hover lucky bulk home elite fix school jungle draw soul excess siren advice accuse shallow copper model absorb salon mystery"
 
 - name: wallet
 address: cosmos120jm7xkv49erxty6ec9trs85j8yfgjwwdlsrtz
 pubkey: cosmospub1addwnpepqgs0llcm64e7yrpx7hs9fmzqefnwxzfxnujf3qgysdpv8w5aalu2z2e86gs
-mnemonic: &quot;shine again similar wheel also frozen equal win ask grit artist quality subject twenty pet scrub olympic ladder puppy balcony blood exotic buddy gather&quot;
+mnemonic: "shine again similar wheel also frozen equal win ask grit artist quality subject twenty pet scrub olympic ladder puppy balcony blood exotic buddy gather"
 
 - name: wallet1
 address: cosmos18ccme8td0zdktcy7dafhurdhx7x8xxx0s445y2
 pubkey: cosmospub1addwnpepq045d9qjrkvfxdx39849qdcrny0zr8z2elx6z7kjkgezrvw2enepx98pyxf
-mnemonic: &quot;join skill day disease canal alpha sweet sing icon donor relief little wheat borrow silver allow child silent teach then flower deliver arena library&quot;
+mnemonic: "join skill day disease canal alpha sweet sing icon donor relief little wheat borrow silver allow child silent teach then flower deliver arena library"
 
 - name: wallet2
 address: cosmos1x45ucdaa3fegemh3x2xp0qtnxl2gv533e2fg6g
 pubkey: cosmospub1addwnpepq0ryrcm08l8x5wskhd5dczrduj535fxs9w7wky04ux97amljcffe6ewxymg
-mnemonic: &quot;wish burden unfair subway club pulp wood helmet whip decline between maid defense sniff cash guard cargo travel donor nasty saddle tumble service fringe&quot;
+mnemonic: "wish burden unfair subway club pulp wood helmet whip decline between maid defense sniff cash guard cargo travel donor nasty saddle tumble service fringe"
 
-&quot;$HOME/go/bin/gaiad&quot; keys list --keyring-backend test --keyring-dir &quot;$HOME/.gm/node-0&quot;
+"$HOME/go/bin/gaiad" keys list --keyring-backend test --keyring-dir "$HOME/.gm/node-0"
 []
 
-&quot;$HOME/go/bin/gaiad&quot; keys list --keyring-backend test --keyring-dir &quot;$HOME/.gm/node-1&quot;
+"$HOME/go/bin/gaiad" keys list --keyring-backend test --keyring-dir "$HOME/.gm/node-1"
 []
 </code></pre>
 </details>
-<p>Next, we will need to associate a private key with chains <code>ibc-0</code> and <code>ibc-1</code> which <code>hermes</code> will use to sign transactions. </p>
+<p>Next, we will need to associate a private key with chains <code>ibc-0</code> and <code>ibc-1</code> which <code>hermes</code> will use to sign transactions.</p>
 <pre><code class="language-bash">gm hermes keys
 </code></pre>
 <p>If successful, the command should show an output similar to:</p>
@@ -384,7 +384,7 @@ SUCCESS Added key 'wallet2' (cosmos1644x9c8pyfwcmg43ch2u3vr6hl4rkmkz2weq39) on c
 SUCCESS Added key 'wallet1' (cosmos1dsrj2uqjvtssenkwperuvfkgkg2xvmydvpzswy) on chain ibc-1
 </code></pre>
 <blockquote>
-<p><strong>TROUBLESHOOTING</strong>: </p>
+<p><strong>TROUBLESHOOTING</strong>:</p>
 <ul>
 <li>If the command does not out output anything, make sure the path to Hermes' binary is set in <code>$HOME/.gm/gm.toml</code>.</li>
 </ul>

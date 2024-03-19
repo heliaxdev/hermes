@@ -188,7 +188,7 @@ class C deny;
 class G deny;
 class H deny;
 </pre>
-<p>Running multiple instances of Hermes can have many advantages and disadvantages. It allows for fine-grained control over every channel and can be more stable than running a single instance. However, you will also need to manage more wallets. </p>
+<p>Running multiple instances of Hermes can have many advantages and disadvantages. It allows for fine-grained control over every channel and can be more stable than running a single instance. However, you will also need to manage more wallets.</p>
 <hr />
 <h2 id="create-a-new-config-file"><a class="header" href="#create-a-new-config-file">Create a new config file</a></h2>
 <p>First, you will have to create a new configuration file with:</p>
@@ -417,7 +417,7 @@ list = [
     },
 }
 </code></pre>
-<p>As you can see, there is currently no stuck packet between <code>ibc-1</code> and <code>ibc-3</code>. </p>
+<p>As you can see, there is currently no stuck packet between <code>ibc-1</code> and <code>ibc-3</code>.</p>
 <h2 id="make-stuck-packets"><a class="header" href="#make-stuck-packets">Make stuck packets</a></h2>
 <p>For the sake of learning, let's make new stuck packets on the <code>ibc-0&lt;&gt;ibc-2</code> channel and the <code>ibc-1&lt;&gt;ibc-3</code> channel.</p>
 <pre><code class="language-shell">hermes tx ft-transfer --timeout-seconds 10000 --dst-chain ibc-3 --src-chain ibc-1 --src-port transfer --src-channel channel-2 --amount 1000000
@@ -425,7 +425,7 @@ list = [
 hermes tx ft-transfer --timeout-seconds 10000 --dst-chain ibc-2 --src-chain ibc-0 --src-port transfer --src-channel channel-1 --amount 1000000
 
 </code></pre>
-<p>If both commands run successfully, they should output a <code>SUCCESS</code> message. </p>
+<p>If both commands run successfully, they should output a <code>SUCCESS</code> message.</p>
 <p>Now, let's verify that these packets are indeed stuck with the <code>query packet</code> command:</p>
 <ul>
 <li>
@@ -473,16 +473,20 @@ hermes tx ft-transfer --timeout-seconds 10000 --dst-chain ibc-2 --src-chain ibc-
 </code></pre>
 </li>
 </ul>
-<p>You have pending packets on the two paths filtered out by our running instance. </p>
+<p>You have pending packets on the two paths filtered out by our running instance.</p>
 <blockquote>
 <p><strong>NOTE</strong>: You can also verify that Hermes is still relaying on the other paths by sending a packet from <code>ibc-1</code> to <code>ibc-2</code>:</p>
 <pre><code class="language-shell">hermes tx ft-transfer --timeout-seconds 10000 --dst-chain ibc-2 --src-chain ibc-1 --src-port transfer --src-channel channel-1 --amount 1000000
 </code></pre>
+</blockquote>
+<blockquote>
 <pre><code>
 Wait a few seconds then verify that no packet is pending with:
 ```shell
 hermes query packet pending --chain ibc-1 --port transfer --channel channel-1
 </code></pre>
+</blockquote>
+<blockquote>
 <pre><code></code></pre>
 </blockquote>
 <h2 id="start-your-second-instance-to-clear-packets"><a class="header" href="#start-your-second-instance-to-clear-packets">Start your second instance to clear packets</a></h2>

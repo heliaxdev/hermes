@@ -203,19 +203,19 @@ rm -r $HOME/.gm/ibc-*
   add_to_hermes = false
   auto_maintain_config = true
   extra_wallets = 2
-  gaiad_binary = &quot;~/go/bin/gaiad&quot;
-  hdpath = &quot;&quot;
-  home_dir = &quot;~/.gm&quot;
+  gaiad_binary = "~/go/bin/gaiad"
+  hdpath = ""
+  home_dir = "~/.gm"
   ports_start_at = 27000
-  validator_mnemonic = &quot;&quot;
-  wallet_mnemonic = &quot;&quot;
+  validator_mnemonic = ""
+  wallet_mnemonic = ""
 
   [global.hermes]
-    binary = &quot;$HOME/hermes/target/release/hermes&quot; # change this path according to your setup
-    config = &quot;~/.hermes/config.toml&quot;
-    log_level = &quot;info&quot;
+    binary = "$HOME/hermes/target/release/hermes" # change this path according to your setup
+    config = "~/.hermes/config.toml"
+    log_level = "info"
     telemetry_enabled = true
-    telemetry_host = &quot;127.0.0.1&quot;
+    telemetry_host = "127.0.0.1"
     telemetry_port = 3001
 
 [ibc-0]
@@ -232,22 +232,22 @@ rm -r $HOME/.gm/ibc-*
 
 [node-0]
   add_to_hermes = true
-  network = &quot;ibc-0&quot;
+  network = "ibc-0"
   ports_start_at = 27050
 
 [node-1]
   add_to_hermes = true
-  network = &quot;ibc-1&quot;
+  network = "ibc-1"
   ports_start_at = 27060
 
 [node-2]
   add_to_hermes = true
-  network = &quot;ibc-2&quot;
+  network = "ibc-2"
   ports_start_at = 27070
 
 [node-3]
   add_to_hermes = true
-  network = &quot;ibc-3&quot;
+  network = "ibc-3"
   ports_start_at = 27080
 </code></pre>
 <blockquote>
@@ -440,7 +440,7 @@ SUCCESS Added key 'wallet2' (cosmos1lz6df9uggl9459z2vusw9tknpy3xn2v7yq60k9) on c
 SUCCESS Added key 'wallet1' (cosmos15jxyjskrx7s8yqpfn3xddlrx7qcq0f8r69mp4g) on chain ibc-3
 </code></pre>
 <blockquote>
-<p><strong>TROUBLESHOOTING</strong>: </p>
+<p><strong>TROUBLESHOOTING</strong>:</p>
 <ul>
 <li>If the command does not out output anything, make sure the path to Hermes' binary is set in <code>$HOME/.gm/gm.toml</code>.</li>
 </ul>

@@ -200,7 +200,7 @@
 <p>In the command template above:</p>
 <ul>
 <li>
-<p><code>ibc-message</code> - identifies the &quot;main&quot; IBC message that is being sent, e.g. <code>conn-init</code>, <code>conn-try</code>, <code>chan-open-init</code>, etc. To ensure successful processing on the receiving chain, the majority of these commands build and send two messages: one <code>UpdateClient</code> message followed by the actual IBC message. These two messages are included in a single transaction. This is done for all IBC messages that include proofs collected from the source chain.</p>
+<p><code>ibc-message</code> - identifies the "main" IBC message that is being sent, e.g. <code>conn-init</code>, <code>conn-try</code>, <code>chan-open-init</code>, etc. To ensure successful processing on the receiving chain, the majority of these commands build and send two messages: one <code>UpdateClient</code> message followed by the actual IBC message. These two messages are included in a single transaction. This is done for all IBC messages that include proofs collected from the source chain.</p>
 <p>The messages that do not require proofs are:</p>
 <ul>
 <li><code>MsgConnectionOpenInit</code> (<code>conn-open-init</code> command),</li>

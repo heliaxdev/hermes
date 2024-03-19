@@ -185,7 +185,7 @@ to <code>key_store_folder = '$HOME/.hermes/keys'</code>.</p>
 Please use the sub-command <code>keys add</code> in order to restore a key.</p>
 </blockquote>
 <hr />
-<p>Using the <code>keys</code> command you can add and list keys. </p>
+<p>Using the <code>keys</code> command you can add and list keys.</p>
 <h4 id="show-usage"><a class="header" href="#show-usage">Show usage</a></h4>
 <p>To see the available sub-commands for the <code>keys</code> command run:</p>
 <pre><code class="language-shell">hermes help keys
@@ -212,16 +212,16 @@ SUBCOMMANDS:
 <p>In order to execute the command below you need a private key file (JSON). Hermes uses the private key file to sign the transactions submitted to the chain.</p>
 <p>The private key file can be obtained by using the <code>keys add</code> on a Cosmos chain. For example, the command for <code>gaiad</code> is:</p>
 <pre><code class="language-shell"># The `key_name` parameter is the name of the key that will be found in the json output
-# For example, in the &quot;Two Local Chains&quot; tutorial, we use &quot;testkey&quot;.
+# For example, in the "Two Local Chains" tutorial, we use "testkey".
 gaiad keys add &lt;key_name&gt; --output json
 </code></pre>
-<p>The command outputs a JSON similar to the one below. </p>
+<p>The command outputs a JSON similar to the one below.</p>
 <pre><code class="language-json">{
-  &quot;name&quot;: &quot;testkey&quot;,
-  &quot;type&quot;: &quot;local&quot;,
-  &quot;address&quot;: &quot;cosmos1tc3vcuxyyac0dmayf887t95tdg7qpyql48w7gj&quot;,
-  &quot;pubkey&quot;: &quot;cosmospub1addwnpepqgg7ng4ycm60pdxfzdfh4hjvkwcr3da59mr8k883vsstx60ruv7kur4525u&quot;,
-  &quot;mnemonic&quot;: &quot;[24 words mnemonic]&quot;
+  "name": "testkey",
+  "type": "local",
+  "address": "cosmos1tc3vcuxyyac0dmayf887t95tdg7qpyql48w7gj",
+  "pubkey": "cosmospub1addwnpepqgg7ng4ycm60pdxfzdfh4hjvkwcr3da59mr8k883vsstx60ruv7kur4525u",
+  "mnemonic": "[24 words mnemonic]"
 }
 </code></pre>
 <p>You can save this to a file (e.g. <code>key_seed.json</code>) and use it to add to Hermes with <code>hermes keys add --chain &lt;CHAIN_ID&gt; --key-file key_seed.json </code>. See the <code>Adding Keys</code> section for more details.</p>
@@ -263,11 +263,11 @@ FLAGS:
 </code></pre>
 <p>The content of the file key should have the same format as the output of the <code>gaiad keys add</code> command:</p>
 <pre><code class="language-json">{
-  &quot;name&quot;: &quot;testkey&quot;,
-  &quot;type&quot;: &quot;local&quot;,
-  &quot;address&quot;: &quot;cosmos1tc3vcuxyyac0dmayf887t95tdg7qpyql48w7gj&quot;,
-  &quot;pubkey&quot;: &quot;cosmospub1addwnpepqgg7ng4ycm60pdxfzdfh4hjvkwcr3da59mr8k883vsstx60ruv7kur4525u&quot;,
-  &quot;mnemonic&quot;: &quot;[24 words mnemonic]&quot;
+  "name": "testkey",
+  "type": "local",
+  "address": "cosmos1tc3vcuxyyac0dmayf887t95tdg7qpyql48w7gj",
+  "pubkey": "cosmospub1addwnpepqgg7ng4ycm60pdxfzdfh4hjvkwcr3da59mr8k883vsstx60ruv7kur4525u",
+  "mnemonic": "[24 words mnemonic]"
 }
 </code></pre>
 <p>If the command is successful a message similar to the one below will be displayed:</p>
@@ -279,6 +279,8 @@ By default, the key will be named after the <code>key_name</code> property speci
 To use a different key name, specify the <code>--key-name</code> option when invoking <code>keys add</code>.</p>
 <pre><code>hermes keys add --key-name [KEY_NAME] --chain &lt;CHAIN_ID&gt; --key-file &lt;PRIVATE_KEY_FILE&gt;
 </code></pre>
+</blockquote>
+<blockquote>
 <pre><code></code></pre>
 </blockquote>
 <h4 id="restore-a-private-key-to-a-chain-from-a-mnemonic"><a class="header" href="#restore-a-private-key-to-a-chain-from-a-mnemonic">Restore a private key to a chain from a mnemonic</a></h4>
@@ -288,7 +290,7 @@ To use a different key name, specify the <code>--key-name</code> option when inv
 <p>or using an explicit <a href="https://github.com/satoshilabs/slips/blob/master/slip-0044.md">derivation path</a>, for example
 an Ethereum coin type (used for Evmos, Injective, Umee, Cronos, and
 possibly other networks):</p>
-<pre><code class="language-shell">hermes keys add --hd-path &quot;m/44'/60'/0'/0/0&quot; --chain &lt;CHAIN_ID&gt; --mnemonic-file &lt;MNEMONIC_FILE&gt;
+<pre><code class="language-shell">hermes keys add --hd-path "m/44'/60'/0'/0/0" --chain &lt;CHAIN_ID&gt; --mnemonic-file &lt;MNEMONIC_FILE&gt;
 
 </code></pre>
 <p>The mnemonic file needs to have the 24 mnemonic words on the same line, separated by a white space. So the content should have the following format:</p>
@@ -303,6 +305,8 @@ By default, the key will be named after the <code>key_name</code> property speci
 To use a different key name, specify the <code>--key-name</code> option when invoking <code>keys add</code>.</p>
 <pre><code>hermes keys add --key-name &lt;KEY_NAME&gt; --chain &lt;CHAIN_ID&gt; --mnemonic-file &lt;MNEMONIC_FILE&gt;
 </code></pre>
+</blockquote>
+<blockquote>
 <pre><code></code></pre>
 </blockquote>
 <h3 id="delete-keys"><a class="header" href="#delete-keys">Delete keys</a></h3>
@@ -361,23 +365,23 @@ REQUIRED:
 </code></pre>
 <p>If the command is successful a message similar to the one below will be displayed:</p>
 <pre><code class="language-json">{
-  &quot;result&quot;: {
-    &quot;testkey&quot;: {
-      &quot;account&quot;: &quot;cosmos1dw88vdekeeuta5u50p6n5lt5v5c6y2we0pu8nz&quot;,
-      &quot;address&quot;: [ 107, 142, 118, 55, 54, 206, 120, 190, 211, 148, 120, 117, 58, 125, 116, 101, 49, 162, 41, 217 ],
-      &quot;coin_type&quot;: 118,
-      &quot;private_key&quot;: &quot;(snip)&quot;,
-      &quot;public_key&quot;: &quot;xpub6Gc7ZUt2q1BiQYjhUextPv5bZLwosHigZYqEquPD6FkAGmHDrLiBgE5Xnh8XGZp79rAXtZn1Dt3DNQHxxgCgVQqfRMfVsRiXn6mwULBnYq7&quot;
+  "result": {
+    "testkey": {
+      "account": "cosmos1dw88vdekeeuta5u50p6n5lt5v5c6y2we0pu8nz",
+      "address": [ 107, 142, 118, 55, 54, 206, 120, 190, 211, 148, 120, 117, 58, 125, 116, 101, 49, 162, 41, 217 ],
+      "coin_type": 118,
+      "private_key": "(snip)",
+      "public_key": "xpub6Gc7ZUt2q1BiQYjhUextPv5bZLwosHigZYqEquPD6FkAGmHDrLiBgE5Xnh8XGZp79rAXtZn1Dt3DNQHxxgCgVQqfRMfVsRiXn6mwULBnYq7"
     },
-    &quot;user2&quot;: {
-      &quot;account&quot;: &quot;cosmos1attn9fxrcvjz483w3tu4cfz77ldmlyujly3q3k&quot;,
-      &quot;address&quot;: [ 234, 215, 50, 164, 195, 195, 36, 42, 158, 46, 138, 249, 92, 36, 94, 247, 219, 191, 147, 146 ],
-      &quot;coin_type&quot;: 118,
-      &quot;private_key&quot;: &quot;(snip)&quot;,
-      &quot;public_key&quot;: &quot;xpub6FmDbeGTWVjSvHrqHfrpnMTZxpPX1V7XFiq5nMuvgwX9jumt1yUuwNAUQo8Nn36unbFShg6iSjkfMBgeY49wik7rF91N2SHvarpX62ByWMf&quot;
+    "user2": {
+      "account": "cosmos1attn9fxrcvjz483w3tu4cfz77ldmlyujly3q3k",
+      "address": [ 234, 215, 50, 164, 195, 195, 36, 42, 158, 46, 138, 249, 92, 36, 94, 247, 219, 191, 147, 146 ],
+      "coin_type": 118,
+      "private_key": "(snip)",
+      "public_key": "xpub6FmDbeGTWVjSvHrqHfrpnMTZxpPX1V7XFiq5nMuvgwX9jumt1yUuwNAUQo8Nn36unbFShg6iSjkfMBgeY49wik7rF91N2SHvarpX62ByWMf"
     }
   },
-  &quot;status&quot;: &quot;success&quot;
+  "status": "success"
 }
 </code></pre>
 <h3 id="query-balance"><a class="header" href="#query-balance">Query balance</a></h3>
@@ -410,11 +414,11 @@ REQUIRED:
 </code></pre>
 <p>If the command is successful a message with the following format will be displayed:</p>
 <pre><code class="language-json">{
-  &quot;result&quot;: {
-    &quot;amount&quot;: &quot;99989207&quot;,
-    &quot;denom&quot;: &quot;stake&quot;
+  "result": {
+    "amount": "99989207",
+    "denom": "stake"
   },
-  &quot;status&quot;: &quot;success&quot;
+  "status": "success"
 }
 </code></pre>
 

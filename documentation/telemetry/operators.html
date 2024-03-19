@@ -224,7 +224,7 @@ The metrics in the table below are design to answer this question on multiple di
 <li><code>Wallet</code>: The worker that periodically queries for the balance of each wallet that Hermes is using and updates <code>wallet_balance</code> metric.</li>
 </ul>
 </li>
-<li>For example, if your metrics show that you have 0 packet workers (<code>workers{type=&quot;packet&quot;} 0</code>), that is a clear indication that Hermes is <em>not relaying any packets at the moment</em>.</li>
+<li>For example, if your metrics show that you have 0 packet workers (<code>workers{type="packet"} 0</code>), that is a clear indication that Hermes is <em>not relaying any packets at the moment</em>.</li>
 </ul>
 <p><strong>How do we define the latency of a submitted transaction?</strong>
 The latency is defined as the difference between the moment when Hermes received an event (through the websocket) until the moment when the corresponding transaction(s) were submitted
@@ -237,12 +237,12 @@ into a full node's mempool.</p>
 For the <code>wallet_balance</code>, we convert from a String into a f64, which can lead to a loss in precision in the displayed value.</p>
 <p><strong>latency histogram</strong>
 The <code>tx_latency_submitted</code> and <code>tx_latency_confirmed</code> are displayed with histogram buckets which each contain the number of values less or equal to their bucket label. This means that if there are 5 buckets with label <code>500</code>, <code>2000</code>, <code>3000</code>, <code>4000</code> and <code>5000</code> and 2 <code>tx_latency_submitted</code> were recorded of respectively <code>1800ms</code> and <code>3100ms</code> then the <code>tx_latency_submitted</code> will look like this:</p>
-<pre><code class="language-text">tx_latency_submitted_bucket{chain=&quot;ibc-0&quot;,channel=&quot;channel-0&quot;,counterparty=&quot;ibc-1&quot;,port=&quot;transfer&quot;,service_name=&quot;unknown_service&quot;,otel_scope_name=&quot;hermes&quot;,otel_scope_version=&quot;&quot;,le=&quot;500&quot;} 0
-tx_latency_submitted_bucket{chain=&quot;ibc-0&quot;,channel=&quot;channel-0&quot;,counterparty=&quot;ibc-1&quot;,port=&quot;transfer&quot;,service_name=&quot;unknown_service&quot;,otel_scope_name=&quot;hermes&quot;,otel_scope_version=&quot;&quot;,le=&quot;2000&quot;} 1
-tx_latency_submitted_bucket{chain=&quot;ibc-0&quot;,channel=&quot;channel-0&quot;,counterparty=&quot;ibc-1&quot;,port=&quot;transfer&quot;,service_name=&quot;unknown_service&quot;,otel_scope_name=&quot;hermes&quot;,otel_scope_version=&quot;&quot;,le=&quot;3000&quot;} 1
-tx_latency_submitted_bucket{chain=&quot;ibc-0&quot;,channel=&quot;channel-0&quot;,counterparty=&quot;ibc-1&quot;,port=&quot;transfer&quot;,service_name=&quot;unknown_service&quot;,otel_scope_name=&quot;hermes&quot;,otel_scope_version=&quot;&quot;,le=&quot;4000&quot;} 2
-tx_latency_submitted_bucket{chain=&quot;ibc-0&quot;,channel=&quot;channel-0&quot;,counterparty=&quot;ibc-1&quot;,port=&quot;transfer&quot;,service_name=&quot;unknown_service&quot;,otel_scope_name=&quot;hermes&quot;,otel_scope_version=&quot;&quot;,le=&quot;5000&quot;} 2
-tx_latency_submitted_bucket{chain=&quot;ibc-1&quot;,channel=&quot;channel-0&quot;,counterparty=&quot;ibc-0&quot;,port=&quot;transfer&quot;,service_name=&quot;unknown_service&quot;,otel_scope_name=&quot;hermes&quot;,otel_scope_version=&quot;&quot;,le=&quot;+Inf&quot;} 2
+<pre><code class="language-text">tx_latency_submitted_bucket{chain="ibc-0",channel="channel-0",counterparty="ibc-1",port="transfer",service_name="unknown_service",otel_scope_name="hermes",otel_scope_version="",le="500"} 0
+tx_latency_submitted_bucket{chain="ibc-0",channel="channel-0",counterparty="ibc-1",port="transfer",service_name="unknown_service",otel_scope_name="hermes",otel_scope_version="",le="2000"} 1
+tx_latency_submitted_bucket{chain="ibc-0",channel="channel-0",counterparty="ibc-1",port="transfer",service_name="unknown_service",otel_scope_name="hermes",otel_scope_version="",le="3000"} 1
+tx_latency_submitted_bucket{chain="ibc-0",channel="channel-0",counterparty="ibc-1",port="transfer",service_name="unknown_service",otel_scope_name="hermes",otel_scope_version="",le="4000"} 2
+tx_latency_submitted_bucket{chain="ibc-0",channel="channel-0",counterparty="ibc-1",port="transfer",service_name="unknown_service",otel_scope_name="hermes",otel_scope_version="",le="5000"} 2
+tx_latency_submitted_bucket{chain="ibc-1",channel="channel-0",counterparty="ibc-0",port="transfer",service_name="unknown_service",otel_scope_name="hermes",otel_scope_version="",le="+Inf"} 2
 </code></pre>
 <p>The range of the buckets can be configured using the <code>latency_submitted</code> and <code>latency_confirmed</code> seen <a href="./index.html">here</a></p>
 <h2 id="are-hermes-transactions-successful"><a class="header" href="#are-hermes-transactions-successful">Are Hermes transactions successful?</a></h2>

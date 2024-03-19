@@ -207,59 +207,59 @@ To process all the output using <code>jq</code>, one can redirect <code>stderr</
 <pre><code class="language-shell">hermes  --json create client --host-chain ibc-0 --reference-chain ibc-1
 
 </code></pre>
-<pre><code class="language-json">{&quot;timestamp&quot;:&quot;Apr 13 20:46:31.921&quot;,&quot;level&quot;:&quot;INFO&quot;,&quot;fields&quot;:{&quot;message&quot;:&quot;Using default configuration from: '.hermes/config.toml'&quot;},&quot;target&quot;:&quot;ibc_relayer_cli::commands&quot;}
-{&quot;timestamp&quot;:&quot;Apr 13 20:46:31.961&quot;,&quot;level&quot;:&quot;INFO&quot;,&quot;fields&quot;:{&quot;message&quot;:&quot;running listener&quot;,&quot;chain.id&quot;:&quot;ibc-1&quot;},&quot;target&quot;:&quot;ibc_relayer::event::monitor&quot;}
-{&quot;timestamp&quot;:&quot;Apr 13 20:46:31.989&quot;,&quot;level&quot;:&quot;INFO&quot;,&quot;fields&quot;:{&quot;message&quot;:&quot;running listener&quot;,&quot;chain.id&quot;:&quot;ibc-0&quot;},&quot;target&quot;:&quot;ibc_relayer::event::monitor&quot;}
-{&quot;result&quot;:{&quot;CreateClient&quot;:{&quot;client_id&quot;:&quot;07-tendermint-1&quot;,&quot;client_type&quot;:&quot;Tendermint&quot;,&quot;consensus_height&quot;:{&quot;revision_height&quot;:10060,&quot;revision_number&quot;:1},&quot;height&quot;:{&quot;revision_height&quot;:10072,&quot;revision_number&quot;:0}}},&quot;status&quot;:&quot;success&quot;}
+<pre><code class="language-json">{"timestamp":"Apr 13 20:46:31.921","level":"INFO","fields":{"message":"Using default configuration from: '.hermes/config.toml'"},"target":"ibc_relayer_cli::commands"}
+{"timestamp":"Apr 13 20:46:31.961","level":"INFO","fields":{"message":"running listener","chain.id":"ibc-1"},"target":"ibc_relayer::event::monitor"}
+{"timestamp":"Apr 13 20:46:31.989","level":"INFO","fields":{"message":"running listener","chain.id":"ibc-0"},"target":"ibc_relayer::event::monitor"}
+{"result":{"CreateClient":{"client_id":"07-tendermint-1","client_type":"Tendermint","consensus_height":{"revision_height":10060,"revision_number":1},"height":{"revision_height":10072,"revision_number":0}}},"status":"success"}
 </code></pre>
-<p>The first three lines are printed to <code>stderr</code>, while the last line with a <code>&quot;result&quot;</code> key is printed to <code>stdout</code>.</p>
+<p>The first three lines are printed to <code>stderr</code>, while the last line with a <code>"result"</code> key is printed to <code>stdout</code>.</p>
 <p><strong>Example</strong></p>
 <p>To improve the readability, pipe all the output to <code>jq</code>:</p>
 <pre><code>hermes  --json create client --host-chain ibc-0 --reference-chain ibc-1
  2&gt;&amp;1 | jq
 </code></pre>
 <pre><code class="language-json">{
-  &quot;timestamp&quot;: &quot;Apr 13 20:52:26.060&quot;,
-  &quot;level&quot;: &quot;INFO&quot;,
-  &quot;fields&quot;: {
-    &quot;message&quot;: &quot;Using default configuration from: '.hermes/config.toml'&quot;
+  "timestamp": "Apr 13 20:52:26.060",
+  "level": "INFO",
+  "fields": {
+    "message": "Using default configuration from: '.hermes/config.toml'"
   },
-  &quot;target&quot;: &quot;ibc_relayer_cli::commands&quot;
+  "target": "ibc_relayer_cli::commands"
 }
 {
-  &quot;timestamp&quot;: &quot;Apr 13 20:52:26.082&quot;,
-  &quot;level&quot;: &quot;INFO&quot;,
-  &quot;fields&quot;: {
-    &quot;message&quot;: &quot;running listener&quot;,
-    &quot;chain.id&quot;: &quot;ibc-1&quot;
+  "timestamp": "Apr 13 20:52:26.082",
+  "level": "INFO",
+  "fields": {
+    "message": "running listener",
+    "chain.id": "ibc-1"
   },
-  &quot;target&quot;: &quot;ibc_relayer::event::monitor&quot;
+  "target": "ibc_relayer::event::monitor"
 }
 {
-  &quot;timestamp&quot;: &quot;Apr 13 20:52:26.088&quot;,
-  &quot;level&quot;: &quot;INFO&quot;,
-  &quot;fields&quot;: {
-    &quot;message&quot;: &quot;running listener&quot;,
-    &quot;chain.id&quot;: &quot;ibc-0&quot;
+  "timestamp": "Apr 13 20:52:26.088",
+  "level": "INFO",
+  "fields": {
+    "message": "running listener",
+    "chain.id": "ibc-0"
   },
-  &quot;target&quot;: &quot;ibc_relayer::event::monitor&quot;
+  "target": "ibc_relayer::event::monitor"
 }
 {
-  &quot;result&quot;: {
-    &quot;CreateClient&quot;: {
-      &quot;client_id&quot;: &quot;07-tendermint-5&quot;,
-      &quot;client_type&quot;: &quot;Tendermint&quot;,
-      &quot;consensus_height&quot;: {
-        &quot;revision_height&quot;: 10364,
-        &quot;revision_number&quot;: 1
+  "result": {
+    "CreateClient": {
+      "client_id": "07-tendermint-5",
+      "client_type": "Tendermint",
+      "consensus_height": {
+        "revision_height": 10364,
+        "revision_number": 1
       },
-      &quot;height&quot;: {
-        &quot;revision_height&quot;: 10375,
-        &quot;revision_number&quot;: 0
+      "height": {
+        "revision_height": 10375,
+        "revision_number": 0
       }
     }
   },
-  &quot;status&quot;: &quot;success&quot;
+  "status": "success"
 }
 </code></pre>
 <p><strong>Example</strong></p>
@@ -268,7 +268,7 @@ To process all the output using <code>jq</code>, one can redirect <code>stderr</
  | jq '.result.CreateClient.client_id'
 </code></pre>
 <p>Which should output:</p>
-<pre><code>&quot;07-tendermint-2&quot;
+<pre><code>"07-tendermint-2"
 </code></pre>
 
                     </main>

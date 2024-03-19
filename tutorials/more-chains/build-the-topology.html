@@ -200,17 +200,17 @@
 <pre><code class="language-shell">gm hermes cc 
 </code></pre>
 <p>If this command runs successfully, it should output the following:</p>
-<pre><code class="language-shell">&quot;$HOME/hermes/target/release/hermes&quot; create channel --a-chain ibc-0 --b-chain ibc-1 --a-port transfer --b-port transfer --new-client-connection
+<pre><code class="language-shell">"$HOME/hermes/target/release/hermes" create channel --a-chain ibc-0 --b-chain ibc-1 --a-port transfer --b-port transfer --new-client-connection
 
-&quot;$HOME/hermes/target/release/hermes&quot; create channel --a-chain ibc-0 --b-chain ibc-2 --a-port transfer --b-port transfer --new-client-connection
+"$HOME/hermes/target/release/hermes" create channel --a-chain ibc-0 --b-chain ibc-2 --a-port transfer --b-port transfer --new-client-connection
 
-&quot;$HOME/hermes/target/release/hermes&quot; create channel --a-chain ibc-0 --b-chain ibc-3 --a-port transfer --b-port transfer --new-client-connection
+"$HOME/hermes/target/release/hermes" create channel --a-chain ibc-0 --b-chain ibc-3 --a-port transfer --b-port transfer --new-client-connection
 
-&quot;$HOME/hermes/target/release/hermes&quot; create channel --a-chain ibc-1 --b-chain ibc-2 --a-port transfer --b-port transfer --new-client-connection
+"$HOME/hermes/target/release/hermes" create channel --a-chain ibc-1 --b-chain ibc-2 --a-port transfer --b-port transfer --new-client-connection
 
-&quot;$HOME/hermes/target/release/hermes&quot; create channel --a-chain ibc-1 --b-chain ibc-3 --a-port transfer --b-port transfer --new-client-connection
+"$HOME/hermes/target/release/hermes" create channel --a-chain ibc-1 --b-chain ibc-3 --a-port transfer --b-port transfer --new-client-connection
 
-&quot;$HOME/hermes/target/release/hermes&quot; create channel --a-chain ibc-2 --b-chain ibc-3 --a-port transfer --b-port transfer --new-client-connection
+"$HOME/hermes/target/release/hermes" create channel --a-chain ibc-2 --b-chain ibc-3 --a-port transfer --b-port transfer --new-client-connection
 
 </code></pre>
 <p>Executing these commands will:</p>
@@ -279,7 +279,7 @@ hermes query channels --show-counterparty --chain ibc-2
 hermes query channels --show-counterparty --chain ibc-3
 
 </code></pre>
-<p>Which should normally output: </p>
+<p>Which should normally output:</p>
 <pre><code>ibc-0: transfer/channel-0 --- ibc-1: transfer/channel-0
 ibc-0: transfer/channel-1 --- ibc-2: transfer/channel-0
 ibc-0: transfer/channel-2 --- ibc-3: transfer/channel-0
@@ -299,7 +299,7 @@ ibc-3: transfer/channel-2 --- ibc-2: transfer/channel-2
 <h2 id="add-packet-filters"><a class="header" href="#add-packet-filters">Add packet filters</a></h2>
 <p>Let's use packet filters to relay only on the green paths specified in the chart. In order to add filters, open your default configuration file <code>$HOME/.hermes/config.toml</code> and add:</p>
 <ul>
-<li>Under <code>ibc-0</code>'s config: 
+<li>Under <code>ibc-0</code>'s config:
 <pre><code>[chains.packet_filter]
 policy = 'allow'
 list = [
@@ -491,7 +491,7 @@ list = [
 
 </code></pre>
 <p>If the command runs successfully, the output should be:</p>
-<pre><code>SUCCESS &quot;configuration is valid&quot;
+<pre><code>SUCCESS "configuration is valid"
 </code></pre>
 <hr />
 <h2 id="next-steps"><a class="header" href="#next-steps">Next Steps</a></h2>

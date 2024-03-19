@@ -253,10 +253,10 @@ figure it out by looking up the given connection on <code>ibc-0</code>.</p>
     OpenInit(
         Attributes {
             height: Height { revision: 0, height: 129 },
-            port_id: PortId(&quot;transfer&quot;),
-            channel_id: Some(ChannelId(&quot;channel-1&quot;)),
-            connection_id: ConnectionId(&quot;connection-0&quot;),
-            counterparty_port_id: PortId(&quot;transfer&quot;),
+            port_id: PortId("transfer"),
+            channel_id: Some(ChannelId("channel-1")),
+            connection_id: ConnectionId("connection-0"),
+            counterparty_port_id: PortId("transfer"),
             counterparty_channel_id: None
         }
     )
@@ -265,11 +265,11 @@ figure it out by looking up the given connection on <code>ibc-0</code>.</p>
     OpenTry(
         Attributes {
             height: Height { revision: 1, height: 126 },
-            port_id: PortId(&quot;transfer&quot;),
-            channel_id: Some(ChannelId(&quot;channel-1&quot;)),
-            connection_id: ConnectionId(&quot;connection-0&quot;),
-            counterparty_port_id: PortId(&quot;transfer&quot;),
-            counterparty_channel_id: Some(ChannelId(&quot;channel-1&quot;))
+            port_id: PortId("transfer"),
+            channel_id: Some(ChannelId("channel-1")),
+            connection_id: ConnectionId("connection-0"),
+            counterparty_port_id: PortId("transfer"),
+            counterparty_channel_id: Some(ChannelId("channel-1"))
         }
     )
 )
@@ -277,11 +277,11 @@ figure it out by looking up the given connection on <code>ibc-0</code>.</p>
     OpenAck(
         Attributes {
             height: Height { revision: 0, height: 137 },
-            port_id: PortId(&quot;transfer&quot;),
-            channel_id: Some(ChannelId(&quot;channel-1&quot;)),
-            connection_id: ConnectionId(&quot;connection-0&quot;),
-            counterparty_port_id: PortId(&quot;transfer&quot;),
-            counterparty_channel_id: Some(ChannelId(&quot;channel-1&quot;))
+            port_id: PortId("transfer"),
+            channel_id: Some(ChannelId("channel-1")),
+            connection_id: ConnectionId("connection-0"),
+            counterparty_port_id: PortId("transfer"),
+            counterparty_channel_id: Some(ChannelId("channel-1"))
         }
     )
 )
@@ -289,11 +289,11 @@ figure it out by looking up the given connection on <code>ibc-0</code>.</p>
     OpenConfirm(
         Attributes {
             height: Height { revision: 1, height: 129 },
-            port_id: PortId(&quot;transfer&quot;),
-            channel_id: Some(ChannelId(&quot;channel-1&quot;)),
-            connection_id: ConnectionId(&quot;connection-0&quot;),
-            counterparty_port_id: PortId(&quot;transfer&quot;),
-            counterparty_channel_id: Some(ChannelId(&quot;channel-1&quot;))
+            port_id: PortId("transfer"),
+            channel_id: Some(ChannelId("channel-1")),
+            connection_id: ConnectionId("connection-0"),
+            counterparty_port_id: PortId("transfer"),
+            counterparty_channel_id: Some(ChannelId("channel-1"))
         }
     )
 )
@@ -302,43 +302,43 @@ figure it out by looking up the given connection on <code>ibc-0</code>.</p>
     a_side: ChannelSide {
         chain: ProdChainHandle {
             chain_id: ChainId {
-                id: &quot;ibc-0&quot;,
+                id: "ibc-0",
                 version: 0,
             },
             runtime_sender: Sender { .. },
         },
         client_id: ClientId(
-            &quot;07-tendermint-0&quot;,
+            "07-tendermint-0",
         ),
         connection_id: ConnectionId(
-            &quot;connection-0&quot;,
+            "connection-0",
         ),
         port_id: PortId(
-            &quot;transfer&quot;,
+            "transfer",
         ),
         channel_id: ChannelId(
-            &quot;channel-1&quot;,
+            "channel-1",
         ),
     },
     b_side: ChannelSide {
         chain: ProdChainHandle {
             chain_id: ChainId {
-                id: &quot;ibc-1&quot;,
+                id: "ibc-1",
                 version: 1,
             },
             runtime_sender: Sender { .. },
         },
         client_id: ClientId(
-            &quot;07-tendermint-0&quot;,
+            "07-tendermint-0",
         ),
         connection_id: ConnectionId(
-            &quot;connection-0&quot;,
+            "connection-0",
         ),
         port_id: PortId(
-            &quot;transfer&quot;,
+            "transfer",
         ),
         channel_id: ChannelId(
-            &quot;channel-1&quot;,
+            "channel-1",
         ),
     },
     connection_delay: 0s,
@@ -348,43 +348,43 @@ Success: Channel {
     a_side: ChannelSide {
         chain: ProdChainHandle {
             chain_id: ChainId {
-                id: &quot;ibc-0&quot;,
+                id: "ibc-0",
                 version: 0,
             },
             runtime_sender: Sender { .. },
         },
         client_id: ClientId(
-            &quot;07-tendermint-0&quot;,
+            "07-tendermint-0",
         ),
         connection_id: ConnectionId(
-            &quot;connection-0&quot;,
+            "connection-0",
         ),
         port_id: PortId(
-            &quot;transfer&quot;,
+            "transfer",
         ),
         channel_id: ChannelId(
-            &quot;channel-1&quot;,
+            "channel-1",
         ),
     },
     b_side: ChannelSide {
         chain: ProdChainHandle {
             chain_id: ChainId {
-                id: &quot;ibc-1&quot;,
+                id: "ibc-1",
                 version: 1,
             },
             runtime_sender: Sender { .. },
         },
         client_id: ClientId(
-            &quot;07-tendermint-0&quot;,
+            "07-tendermint-0",
         ),
         connection_id: ConnectionId(
-            &quot;connection-0&quot;,
+            "connection-0",
         ),
         port_id: PortId(
-            &quot;transfer&quot;,
+            "transfer",
         ),
         channel_id: ChannelId(
-            &quot;channel-1&quot;,
+            "channel-1",
         ),
     },
     connection_delay: 0s,
@@ -409,15 +409,15 @@ connection will be initialized as part of the process:</p>
             height: Height { revision: 0, height: 66 },
             connection_id: Some(
                 ConnectionId(
-                    &quot;connection-0&quot;,
+                    "connection-0",
                 ),
             ),
             client_id: ClientId(
-                &quot;07-tendermint-0&quot;,
+                "07-tendermint-0",
             ),
             counterparty_connection_id: None,
             counterparty_client_id: ClientId(
-                &quot;07-tendermint-0&quot;,
+                "07-tendermint-0",
             ),
         },
     ),
@@ -429,19 +429,19 @@ connection will be initialized as part of the process:</p>
             height: Height { revision: 1, height: 64 },
             connection_id: Some(
                 ConnectionId(
-                    &quot;connection-0&quot;,
+                    "connection-0",
                 ),
             ),
             client_id: ClientId(
-                &quot;07-tendermint-0&quot;,
+                "07-tendermint-0",
             ),
             counterparty_connection_id: Some(
                 ConnectionId(
-                    &quot;connection-0&quot;,
+                    "connection-0",
                 ),
             ),
             counterparty_client_id: ClientId(
-                &quot;07-tendermint-0&quot;,
+                "07-tendermint-0",
             ),
         },
     ),
@@ -453,19 +453,19 @@ connection will be initialized as part of the process:</p>
             height: Height { revision: 0, height: 76 },
             connection_id: Some(
                 ConnectionId(
-                    &quot;connection-0&quot;,
+                    "connection-0",
                 ),
             ),
             client_id: ClientId(
-                &quot;07-tendermint-0&quot;,
+                "07-tendermint-0",
             ),
             counterparty_connection_id: Some(
                 ConnectionId(
-                    &quot;connection-0&quot;,
+                    "connection-0",
                 ),
             ),
             counterparty_client_id: ClientId(
-                &quot;07-tendermint-0&quot;,
+                "07-tendermint-0",
             ),
         },
     ),
@@ -477,19 +477,19 @@ connection will be initialized as part of the process:</p>
             height: Height { revision: 1, height: 68 },
             connection_id: Some(
                 ConnectionId(
-                    &quot;connection-0&quot;,
+                    "connection-0",
                 ),
             ),
             client_id: ClientId(
-                &quot;07-tendermint-0&quot;,
+                "07-tendermint-0",
             ),
             counterparty_connection_id: Some(
                 ConnectionId(
-                    &quot;connection-0&quot;,
+                    "connection-0",
                 ),
             ),
             counterparty_client_id: ClientId(
-                &quot;07-tendermint-0&quot;,
+                "07-tendermint-0",
             ),
         },
     ),
@@ -500,31 +500,31 @@ connection will be initialized as part of the process:</p>
     a_side: ConnectionSide {
         chain: ProdChainHandle {
             chain_id: ChainId {
-                id: &quot;ibc-0&quot;,
+                id: "ibc-0",
                 version: 0,
             },
             runtime_sender: Sender { .. },
         },
         client_id: ClientId(
-            &quot;07-tendermint-0&quot;,
+            "07-tendermint-0",
         ),
         connection_id: ConnectionId(
-            &quot;connection-0&quot;,
+            "connection-0",
         ),
     },
     b_side: ConnectionSide {
         chain: ProdChainHandle {
             chain_id: ChainId {
-                id: &quot;ibc-1&quot;,
+                id: "ibc-1",
                 version: 1,
             },
             runtime_sender: Sender { .. },
         },
         client_id: ClientId(
-            &quot;07-tendermint-0&quot;,
+            "07-tendermint-0",
         ),
         connection_id: ConnectionId(
-            &quot;connection-0&quot;,
+            "connection-0",
         ),
     },
 }]
@@ -533,10 +533,10 @@ connection will be initialized as part of the process:</p>
     OpenInit(
         Attributes {
             height: Height { revision: 0, height: 78 },
-            port_id: PortId(&quot;transfer&quot;),
-            channel_id: Some(ChannelId(&quot;channel-0&quot;)),
-            connection_id: ConnectionId(&quot;connection-0&quot;),
-            counterparty_port_id: PortId(&quot;transfer&quot;),
+            port_id: PortId("transfer"),
+            channel_id: Some(ChannelId("channel-0")),
+            connection_id: ConnectionId("connection-0"),
+            counterparty_port_id: PortId("transfer"),
             counterparty_channel_id: None
         }
     )
@@ -546,11 +546,11 @@ connection will be initialized as part of the process:</p>
     OpenTry(
         Attributes {
             height: Height { revision: 1, height: 70 },
-            port_id: PortId(&quot;transfer&quot;),
-            channel_id: Some(ChannelId(&quot;channel-0&quot;)),
-            connection_id: ConnectionId(&quot;connection-0&quot;),
-            counterparty_port_id: PortId(&quot;transfer&quot;),
-            counterparty_channel_id: Some(ChannelId(&quot;channel-0&quot;))
+            port_id: PortId("transfer"),
+            channel_id: Some(ChannelId("channel-0")),
+            connection_id: ConnectionId("connection-0"),
+            counterparty_port_id: PortId("transfer"),
+            counterparty_channel_id: Some(ChannelId("channel-0"))
         }
     )
 )
@@ -559,11 +559,11 @@ connection will be initialized as part of the process:</p>
     OpenAck(
         Attributes {
             height: Height { revision: 0, height: 81 },
-            port_id: PortId(&quot;transfer&quot;),
-            channel_id: Some(ChannelId(&quot;channel-0&quot;)),
-            connection_id: ConnectionId(&quot;connection-0&quot;),
-            counterparty_port_id: PortId(&quot;transfer&quot;),
-            counterparty_channel_id: Some(ChannelId(&quot;channel-0&quot;))
+            port_id: PortId("transfer"),
+            channel_id: Some(ChannelId("channel-0")),
+            connection_id: ConnectionId("connection-0"),
+            counterparty_port_id: PortId("transfer"),
+            counterparty_channel_id: Some(ChannelId("channel-0"))
         }
     )
 )
@@ -572,11 +572,11 @@ connection will be initialized as part of the process:</p>
     OpenConfirm
         Attributes {
             height: Height { revision: 1, height: 73 },
-            port_id: PortId(&quot;transfer&quot;),
-            channel_id: Some(ChannelId(&quot;channel-0&quot;)),
-            connection_id: ConnectionId(&quot;connection-0&quot;),
-            counterparty_port_id: PortId(&quot;transfer&quot;),
-            counterparty_channel_id: Some(ChannelId(&quot;channel-0&quot;))
+            port_id: PortId("transfer"),
+            channel_id: Some(ChannelId("channel-0")),
+            connection_id: ConnectionId("connection-0"),
+            counterparty_port_id: PortId("transfer"),
+            counterparty_channel_id: Some(ChannelId("channel-0"))
         }
     )
 )
@@ -586,43 +586,43 @@ connection will be initialized as part of the process:</p>
     a_side: ChannelSide {
         chain: ProdChainHandle {
             chain_id: ChainId {
-                id: &quot;ibc-0&quot;,
+                id: "ibc-0",
                 version: 0,
             },
             runtime_sender: Sender { .. },
         },
         client_id: ClientId(
-            &quot;07-tendermint-0&quot;,
+            "07-tendermint-0",
         ),
         connection_id: ConnectionId(
-            &quot;connection-0&quot;,
+            "connection-0",
         ),
         port_id: PortId(
-            &quot;transfer&quot;,
+            "transfer",
         ),
         channel_id: ChannelId(
-            &quot;channel-0&quot;,
+            "channel-0",
         ),
     },
     b_side: ChannelSide {
         chain: ProdChainHandle {
             chain_id: ChainId {
-                id: &quot;ibc-1&quot;,
+                id: "ibc-1",
                 version: 1,
             },
             runtime_sender: Sender { .. },
         },
         client_id: ClientId(
-            &quot;07-tendermint-0&quot;,
+            "07-tendermint-0",
         ),
         connection_id: ConnectionId(
-            &quot;connection-0&quot;,
+            "connection-0",
         ),
         port_id: PortId(
-            &quot;transfer&quot;,
+            "transfer",
         ),
         channel_id: ChannelId(
-            &quot;channel-0&quot;,
+            "channel-0",
         ),
     },
     connection_delay: 0s,
@@ -633,43 +633,43 @@ Success: Channel {
     a_side: ChannelSide {
         chain: ProdChainHandle {
             chain_id: ChainId {
-                id: &quot;ibc-0&quot;,
+                id: "ibc-0",
                 version: 0,
             },
             runtime_sender: Sender { .. },
         },
         client_id: ClientId(
-            &quot;07-tendermint-0&quot;,
+            "07-tendermint-0",
         ),
         connection_id: ConnectionId(
-            &quot;connection-0&quot;,
+            "connection-0",
         ),
         port_id: PortId(
-            &quot;transfer&quot;,
+            "transfer",
         ),
         channel_id: ChannelId(
-            &quot;channel-0&quot;,
+            "channel-0",
         ),
     },
     b_side: ChannelSide {
         chain: ProdChainHandle {
             chain_id: ChainId {
-                id: &quot;ibc-1&quot;,
+                id: "ibc-1",
                 version: 1,
             },
             runtime_sender: Sender { .. },
         },
         client_id: ClientId(
-            &quot;07-tendermint-0&quot;,
+            "07-tendermint-0",
         ),
         connection_id: ConnectionId(
-            &quot;connection-0&quot;,
+            "connection-0",
         ),
         port_id: PortId(
-            &quot;transfer&quot;,
+            "transfer",
         ),
         channel_id: ChannelId(
-            &quot;channel-0&quot;,
+            "channel-0",
         ),
     },
     connection_delay: 0s,

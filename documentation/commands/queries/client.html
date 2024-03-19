@@ -216,19 +216,19 @@ REQUIRED:
 <pre><code class="language-json">Success: [
     ClientChain {
         client_id: ClientId(
-            &quot;07-tendermint-0&quot;,
+            "07-tendermint-0",
         ),
         chain_id: ChainId {
-            id: &quot;ibc-0&quot;,
+            id: "ibc-0",
             version: 0,
         },
     },
     ClientChain {
         client_id: ClientId(
-            &quot;07-tendermint-1&quot;,
+            "07-tendermint-1",
         ),
         chain_id: ChainId {
-            id: &quot;ibc-2&quot;,
+            id: "ibc-2",
             version: 2,
         },
     },
@@ -240,7 +240,7 @@ REQUIRED:
 </code></pre>
 <pre><code class="language-json">Success: [
     ClientId(
-        &quot;07-tendermint-1&quot;,
+        "07-tendermint-1",
     ),
 ]
 </code></pre>
@@ -286,7 +286,7 @@ REQUIRED:
 </code></pre>
 <pre><code class="language-json">Success: ClientState {
     chain_id: ChainId {
-        id: &quot;ibc-2&quot;,
+        id: "ibc-2",
         version: 2,
     },
     trust_threshold: TrustThresholdFraction {
@@ -305,8 +305,8 @@ REQUIRED:
         height: 3069,
     },
     upgrade_path: [
-        &quot;upgrade&quot;,
-        &quot;upgradedIBCState&quot;,
+        "upgrade",
+        "upgradedIBCState",
     ],
     allow_update_after_expiry: true,
     allow_update_after_misbehaviour: true,
@@ -375,7 +375,7 @@ REQUIRED:
         2021-04-13T14:11:20.969154Z
     ),
     root: CommitmentRoot(
-        &quot;371DD19003221B60162D42C78FD86ABF95A572F3D9497084584B75F97B05B70C&quot;
+        "371DD19003221B60162D42C78FD86ABF95A572F3D9497084584B75F97B05B70C"
     ),
     next_validators_hash: Hash::Sha256(
         740950668B6705A136D041914FC219045B1D0AD1C6A284C626BF5116005A98A7
@@ -404,8 +404,8 @@ REQUIRED:
 
 </code></pre>
 <pre><code class="language-json">Success: [
-    ConnectionId(&quot;connection-0&quot;),
-    ConnectionId(&quot;connection-1&quot;),
+    ConnectionId("connection-0"),
+    ConnectionId("connection-1"),
 ]
 </code></pre>
 <h2 id="query-for-the-header-used-in-a-client-update-at-a-certain-height"><a class="header" href="#query-for-the-header-used-in-a-client-update-at-a-certain-height">Query for the header used in a client update at a certain height</a></h2>
@@ -439,7 +439,7 @@ REQUIRED:
                     height: 0,
                 },
                 client_id: ClientId(
-                    &quot;07-tendermint-0&quot;,
+                    "07-tendermint-0",
                 ),
                 client_type: Tendermint,
                 consensus_height: Height {

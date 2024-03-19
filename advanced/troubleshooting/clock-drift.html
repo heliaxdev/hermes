@@ -180,20 +180,20 @@ The rest of this section describes the configuration parameters that determine t
 <p>IBC light client security model requires that the clocks of the reference and host chains are roughly synchronized. Hermes uses the <code>clock_drift</code> and <code>max_block_time</code> configuration parameters to determine how much clock drift is tolerable between the reference and host chains.</p>
 <ul>
 <li><code>clock_drift</code> is a correction parameter that specifies how far in the future or past a chain's clock may be from the current time..</li>
-<li><code>max_block_time</code> is the maximum amount of time that can occur before a new block is created on the chain. </li>
+<li><code>max_block_time</code> is the maximum amount of time that can occur before a new block is created on the chain.</li>
 </ul>
 <blockquote>
 <p><strong>Note:</strong> For Cosmos SDK chains, a good approximation for <code>max_block_time</code> is <code>C * (timeout_propose + timeout_commit)</code>,
-where <code>C</code> is a constant to allow for variation in block times, mainly due to tx execution time which is outside of 
-consensus params. To allow for some variance in block times while still detecting <a href="https://github.com/cometbft/cometbft/blob/main/docs/architecture/tendermint-core/adr-047-handling-evidence-from-light-client.md#appendix-b">forward lunatic attacks</a>, 
-it is recommended to set <code>C</code> to be in the <code>3..5</code> range. Hermes uses the default value of <code>30s</code> which is a good approximation 
+where <code>C</code> is a constant to allow for variation in block times, mainly due to tx execution time which is outside of
+consensus params. To allow for some variance in block times while still detecting <a href="https://github.com/cometbft/cometbft/blob/main/docs/architecture/tendermint-core/adr-047-handling-evidence-from-light-client.md#appendix-b">forward lunatic attacks</a>,
+it is recommended to set <code>C</code> to be in the <code>3..5</code> range. Hermes uses the default value of <code>30s</code> which is a good approximation
 for most Cosmos SDK chains that have 6-10sec block times.</p>
 </blockquote>
 <p>The <code>clock_drift</code> parameter values on both the reference and host chains, and <code>max_block_time</code> of the host chain are summed to get the <code>max_clock_drift</code> when creating a client on the host chain.
-This can be summarized more succinctly in the following equation: </p>
+This can be summarized more succinctly in the following equation:</p>
 <pre><code>client.max_clock_drift = reference.clock_drift + host.max_block_time + host.clock_drift
 </code></pre>
-<p>Thus, when configuring these values in Hermes' <code>config.toml</code>, keep in mind that this is how these 
+<p>Thus, when configuring these values in Hermes' <code>config.toml</code>, keep in mind that this is how these
 parameters will be used. If the total clock drift is too small, then we run the risk of client
 updates being rejected because a new block won't have been created yet. It's better to err on the
 side of total clock drift being larger than smaller, however, if this value ends up being <em>too</em>

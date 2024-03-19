@@ -206,7 +206,7 @@ rm mnemonic_file_osmosis
 </li>
 </ul>
 <h2 id="configuration-file"><a class="header" href="#configuration-file">Configuration file</a></h2>
-<p>Then, you need to create a configuration file for Hermes (more details in the <a href="../../documentation/configuration/index.html">documentation</a>). </p>
+<p>Then, you need to create a configuration file for Hermes (more details in the <a href="../../documentation/configuration/index.html">documentation</a>).</p>
 <p>The command <code>hermes config auto</code> provides a way to automatically generate a configuration file for chains in the <a href="https://github.com/cosmos/chain-registry">chain-registry</a>:</p>
 <pre><code class="language-shell">hermes config auto --output $HOME/.hermes/config.toml --chains cosmoshub:keyhub osmosis:keyosmosis
 
@@ -216,13 +216,13 @@ rm mnemonic_file_osmosis
 </blockquote>
 <p>If the command runs successfully, it should output:</p>
 <pre><code>2022-08-26T11:40:35.164371Z  INFO ThreadId(01) using default configuration from '$HOME/.hermes/config.toml'
-2022-08-26T11:40:35.165353Z  INFO ThreadId(01) Fetching configuration for chains: [&quot;cosmoshub&quot;, &quot;osmosis&quot;]
-2022-08-26T11:40:36.253328Z  WARN ThreadId(01) cosmoshub-4: uses key &quot;keyhub&quot;
-2022-08-26T11:40:36.253704Z  WARN ThreadId(01) osmosis-1: uses key &quot;keyosmosis&quot;
+2022-08-26T11:40:35.165353Z  INFO ThreadId(01) Fetching configuration for chains: ["cosmoshub", "osmosis"]
+2022-08-26T11:40:36.253328Z  WARN ThreadId(01) cosmoshub-4: uses key "keyhub"
+2022-08-26T11:40:36.253704Z  WARN ThreadId(01) osmosis-1: uses key "keyosmosis"
 2022-08-26T11:40:36.253860Z  WARN ThreadId(01) Gas parameters are set to default values.
-SUCCESS &quot;Config file written successfully : $HOME/.hermes/config.toml.&quot;
+SUCCESS "Config file written successfully : $HOME/.hermes/config.toml."
 </code></pre>
-<p>And generate the following configuration : </p>
+<p>And generate the following configuration :</p>
 <p><strong>config.toml</strong></p>
 <pre><code class="language-toml">[global]
 log_level = 'info'
@@ -339,10 +339,10 @@ derivation = 'cosmos'
 <p><strong>WARNING</strong>: It is difficult to estimate how much gas you will spend as it depends on many parameters like:</p>
 <ul>
 <li>The volume of transactions. More congestion means higher gas prices.</li>
-<li>The transaction's size. Bigger transactions need more gas. </li>
+<li>The transaction's size. Bigger transactions need more gas.</li>
 <li>The volume of IBC messages to relay.</li>
 </ul>
-<p>We cannot provide a way to precisely set those parameters. However, you can refer to <a href="https://github.com/informalsystems/hermes/discussions/2472#discussioncomment-3331695">other operators' configuration</a>. You can also find IBC transfers on <a href="https://www.mintscan.io/cosmos/txs">mintscan.io</a> to observe how much other operators are spending. But remember that if the gas wanted is too low, the transactions will fail. If the gas price is too high gas will be wasted, but the transactions will have a higher priority. </p>
+<p>We cannot provide a way to precisely set those parameters. However, you can refer to <a href="https://github.com/informalsystems/hermes/discussions/2472#discussioncomment-3331695">other operators' configuration</a>. You can also find IBC transfers on <a href="https://www.mintscan.io/cosmos/txs">mintscan.io</a> to observe how much other operators are spending. But remember that if the gas wanted is too low, the transactions will fail. If the gas price is too high gas will be wasted, but the transactions will have a higher priority.</p>
 </blockquote>
 <p>For the tutorial, we will follow the <a href="https://github.com/notional-labs/notional/blob/master/relaying/hermes/all-ibc.toml">example of Crypto Crew</a> and set the gas parameters as follows.</p>
 <ul>
@@ -370,7 +370,7 @@ price = 0.0026
 denom = 'uosmo'
 </code></pre>
 <blockquote>
-<p><strong>NOTE</strong>: <code>max_msg_nums</code> defines the number of messages that can be sent in the same transaction. </p>
+<p><strong>NOTE</strong>: <code>max_msg_nums</code> defines the number of messages that can be sent in the same transaction.</p>
 </blockquote>
 <blockquote>
 <p><strong>DISCLAIMER</strong>: These parameters need to be tuned. We can not guarantee that they will always work and kept up to date.</p>

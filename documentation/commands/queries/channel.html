@@ -217,18 +217,18 @@ REQUIRED:
 <pre><code class="language-json">Success: [
     PortChannelId {
         channel_id: ChannelId(
-            &quot;channel-0&quot;,
+            "channel-0",
         ),
         port_id: PortId(
-            &quot;transfer&quot;,
+            "transfer",
         ),
     },
     PortChannelId {
         channel_id: ChannelId(
-            &quot;channel-1&quot;,
+            "channel-1",
         ),
         port_id: PortId(
-            &quot;transfer&quot;,
+            "transfer",
         ),
     },
 ]
@@ -277,20 +277,20 @@ REQUIRED:
     ordering: Unordered,
     remote: Counterparty {
         port_id: PortId(
-            &quot;transfer&quot;,
+            "transfer",
         ),
         channel_id: Some(
             ChannelId(
-                &quot;channel-0&quot;,
+                "channel-0",
             ),
         ),
     },
     connection_hops: [
         ConnectionId(
-            &quot;connection-1&quot;,
+            "connection-1",
         ),
     ],
-    version: &quot;ics20-1&quot;,
+    version: "ics20-1",
 }
 </code></pre>
 <h2 id="query-the-channel-data-for-both-ends-of-a-channel"><a class="header" href="#query-the-channel-data-for-both-ends-of-a-channel">Query the channel data for both ends of a channel</a></h2>
@@ -319,36 +319,36 @@ REQUIRED:
 </code></pre>
 <pre><code class="language-json">Success: ChannelEndsSummary {
     chain_id: ChainId {
-        id: &quot;ibc-0&quot;,
+        id: "ibc-0",
         version: 0,
     },
     client_id: ClientId(
-        &quot;07-tendermint-1&quot;,
+        "07-tendermint-1",
     ),
     connection_id: ConnectionId(
-        &quot;connection-1&quot;,
+        "connection-1",
     ),
     channel_id: ChannelId(
-        &quot;channel-1&quot;,
+        "channel-1",
     ),
     port_id: PortId(
-        &quot;transfer&quot;,
+        "transfer",
     ),
     counterparty_chain_id: ChainId {
-        id: &quot;ibc-2&quot;,
+        id: "ibc-2",
         version: 2,
     },
     counterparty_client_id: ClientId(
-        &quot;07-tendermint-1&quot;,
+        "07-tendermint-1",
     ),
     counterparty_connection_id: ConnectionId(
-        &quot;connection-1&quot;,
+        "connection-1",
     ),
     counterparty_channel_id: ChannelId(
-        &quot;channel-1&quot;,
+        "channel-1",
     ),
     counterparty_port_id: PortId(
-        &quot;transfer&quot;,
+        "transfer",
     ),
 }
 </code></pre>
@@ -374,12 +374,12 @@ REQUIRED:
 <pre><code>Success: Some(
     IdentifiedAnyClientState {
         client_id: ClientId(
-            &quot;07-tendermint-0&quot;,
+            "07-tendermint-0",
         ),
         client_state: Tendermint(
             ClientState {
                 chain_id: ChainId {
-                    id: &quot;network2&quot;,
+                    id: "network2",
                     version: 0,
                 },
                 trust_threshold: TrustThreshold {
@@ -458,8 +458,8 @@ REQUIRED:
                     ],
                 ),
                 upgrade_path: [
-                    &quot;upgrade&quot;,
-                    &quot;upgradedIBCState&quot;,
+                    "upgrade",
+                    "upgradedIBCState",
                 ],
                 allow_update: AllowUpdate {
                     after_expiry: true,
@@ -477,94 +477,94 @@ REQUIRED:
 </code></pre>
 <p>If the command is successful a message with the following format will be displayed:</p>
 <pre><code class="language-json">{
-    &quot;result&quot;:
+    "result":
     {
-        &quot;client_id&quot;:&quot;07-tendermint-0&quot;,
-        &quot;client_state&quot;:
+        "client_id":"07-tendermint-0",
+        "client_state":
         {
-            &quot;allow_update&quot;:
+            "allow_update":
             {
-                &quot;after_expiry&quot;:true,
-                &quot;after_misbehaviour&quot;:true
+                "after_expiry":true,
+                "after_misbehaviour":true
             },
-            &quot;chain_id&quot;:&quot;network2&quot;,
-            &quot;frozen_height&quot;:null,
-            &quot;latest_height&quot;:
+            "chain_id":"network2",
+            "frozen_height":null,
+            "latest_height":
             {
-                &quot;revision_height&quot;:2775,
-                &quot;revision_number&quot;:0
+                "revision_height":2775,
+                "revision_number":0
             },
-            &quot;max_clock_drift&quot;:
+            "max_clock_drift":
             {
-                &quot;nanos&quot;:0,
-                &quot;secs&quot;:40
+                "nanos":0,
+                "secs":40
             },
-            &quot;proof_specs&quot;:
+            "proof_specs":
             [
                 {
-                    &quot;inner_spec&quot;:
+                    "inner_spec":
                     {
-                        &quot;child_order&quot;:[0,1],
-                        &quot;child_size&quot;:33,
-                        &quot;empty_child&quot;:&quot;&quot;,
-                        &quot;hash&quot;:1,
-                        &quot;max_prefix_length&quot;:12,
-                        &quot;min_prefix_length&quot;:4
+                        "child_order":[0,1],
+                        "child_size":33,
+                        "empty_child":"",
+                        "hash":1,
+                        "max_prefix_length":12,
+                        "min_prefix_length":4
                     },
-                    &quot;leaf_spec&quot;:
+                    "leaf_spec":
                     {
-                        &quot;hash&quot;:1,
-                        &quot;length&quot;:1,
-                        &quot;prefix&quot;:&quot;AA==&quot;,
-                        &quot;prehash_key&quot;:0,
-                        &quot;prehash_value&quot;:1
+                        "hash":1,
+                        "length":1,
+                        "prefix":"AA==",
+                        "prehash_key":0,
+                        "prehash_value":1
                     },
-                    &quot;max_depth&quot;:0,
-                    &quot;min_depth&quot;:0
+                    "max_depth":0,
+                    "min_depth":0
                 },
                 {
-                    &quot;inner_spec&quot;:
+                    "inner_spec":
                     {
-                        &quot;child_order&quot;:[0,1],
-                        &quot;child_size&quot;:32,
-                        &quot;empty_child&quot;:&quot;&quot;,
-                        &quot;hash&quot;:1,
-                        &quot;max_prefix_length&quot;:1,
-                        &quot;min_prefix_length&quot;:1
+                        "child_order":[0,1],
+                        "child_size":32,
+                        "empty_child":"",
+                        "hash":1,
+                        "max_prefix_length":1,
+                        "min_prefix_length":1
                     },
-                    &quot;leaf_spec&quot;:
+                    "leaf_spec":
                     {
-                        &quot;hash&quot;:1,
-                        &quot;length&quot;:1,
-                        &quot;prefix&quot;:&quot;AA==&quot;,
-                        &quot;prehash_key&quot;:0,
-                        &quot;prehash_value&quot;:1
+                        "hash":1,
+                        "length":1,
+                        "prefix":"AA==",
+                        "prehash_key":0,
+                        "prehash_value":1
                     },
-                    &quot;max_depth&quot;:0,
-                    &quot;min_depth&quot;:0
+                    "max_depth":0,
+                    "min_depth":0
                 }
             ],
-            &quot;trust_threshold&quot;:
+            "trust_threshold":
             {
-                &quot;denominator&quot;:3,
-                &quot;numerator&quot;:1
+                "denominator":3,
+                "numerator":1
             },
-            &quot;trusting_period&quot;:
+            "trusting_period":
             {
-                &quot;nanos&quot;:0,
-                &quot;secs&quot;:1209600
+                "nanos":0,
+                "secs":1209600
             },
-            &quot;type&quot;:&quot;Tendermint&quot;,
-            &quot;unbonding_period&quot;:
+            "type":"Tendermint",
+            "unbonding_period":
             {
-                &quot;nanos&quot;:0,
-                &quot;secs&quot;:1814400
+                "nanos":0,
+                "secs":1814400
             },
-            &quot;upgrade_path&quot;:[&quot;upgrade&quot;,&quot;upgradedIBCState&quot;]
+            "upgrade_path":["upgrade","upgradedIBCState"]
         },
-        &quot;type&quot;:&quot;IdentifiedAnyClientState&quot;
+        "type":"IdentifiedAnyClientState"
     },
-    &quot;status&quot;:&quot;success&quot;
+    "status":"success"
 }
 </code></pre>
 
