@@ -18,7 +18,7 @@ cd $(dirname $0)
 HERMES_DIR=${PWD%/e2e*}
 
 # edit for your environment
-HERMES_CONFIG="${HERMES_DIR}/config_namada_noble.toml"
+HERMES_CONFIG="${HERMES_DIR}/config_namada_osmosis.toml"
 
 NAMADAC="${NAMADA_DIR}/target/debug/namadac"
 NAMADAN="${NAMADA_DIR}/target/debug/namadan"
@@ -26,12 +26,13 @@ NAMADAW="${NAMADA_DIR}/target/debug/namadaw"
 
 NAMADA_BASE_DIR="${HERMES_DIR}/data/namada"
 NAMADA_RELAYER_ACC="relayer"
-NAMADA_DENOM="naan"
+NAMADA_DENOM="nam"
 
-COSMOS_CMD="nobled"
-COSMOS_KEY_FILE="/Users/yuji/Workspace/noble-assets/noble/key.json"
-COSMOS_RELAYER_ACC="noble14pmnnrn760ar6jw0pdat5jsdhprgjngfgavh29"
-COSMOS_DENOM="uusdc"
+COSMOS_CMD="osmosisd"
+COSMOS_KEY_FILE="/Users/yuji/Workspace/osmosis-labs/osmosis/men.json"
+COSMOS_RELAYER_ACC="osmo1gy0suuq8thxhqjqj92azgsj6tulesd3w4ckuau"
+COSMOS_DENOM="uosmo"
+COSMOS_GAS_PRICES="0.1uosmo"
 
 SHIELDED_ALIAS_A="shielded_a"
 SHIELDED_ALIAS_B="shielded_b"
@@ -96,7 +97,9 @@ ${COSMOS_CMD} tx ibc-transfer transfer \
   --from ${COSMOS_RELAYER_ACC} \
   --keyring-backend test \
   -y \
-  --node ${cosmos_rpc_addr}
+  --node ${cosmos_rpc_addr} \
+  --chain-id ${cosmos_chain_id} \
+  --gas-prices ${COSMOS_GAS_PRICES}
 
 sleep 30
 
@@ -167,7 +170,7 @@ memo_path=$(echo $resp | awk '{print $8}')
 echo "~~ Shielding transfer 10 from Cosmos to Namada ~~"
 memo=$(cat ${memo_path})
 ${COSMOS_CMD} tx ibc-transfer transfer \
-  transfer
+  transfer \
   ${cosmos_channel} \
   ${payment_addr_a} \
   10${COSMOS_DENOM} \
@@ -176,6 +179,8 @@ ${COSMOS_CMD} tx ibc-transfer transfer \
   --keyring-backend test \
   -y \
   --node ${cosmos_rpc_addr} \
+  --chain-id ${cosmos_chain_id} \
+  --gas-prices ${COSMOS_GAS_PRICES}
 
 # wait for relaying
 sleep 40
