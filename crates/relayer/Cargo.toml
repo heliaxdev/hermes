@@ -114,20 +114,19 @@ default-features = false
 
 [dependencies.namada_ibc]
 git = "https://github.com/anoma/namada"
-tag = "v0.31.0"
+version = "0.33.0"
 
 [dependencies.namada_parameters]
 git = "https://github.com/anoma/namada"
-tag = "v0.31.0"
+version = "0.33.0"
 
 [dependencies.namada_sdk]
 git = "https://github.com/anoma/namada"
-tag = "v0.31.0"
-features = ["std"]
+version = "0.33.0"
 
 [dependencies.namada_trans_token]
 git = "https://github.com/anoma/namada"
-tag = "v0.31.0"
+version = "0.33.0"
 
 [dev-dependencies]
 ibc-relayer-types = { version = "0.26.4", path = "../relayer-types", features = ["mocks"] }
