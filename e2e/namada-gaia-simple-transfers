@@ -193,6 +193,7 @@ sleep 15
 echo "==== Balances on Namada ===="
 ${NAMADAC} --base-dir ${base_dir} balance \
   --owner relayer \
+  --show-ibc-tokens \
   --node ${NAMADA_LEDGER_ADDR}
 
 echo "==== Balances on Gaia ===="
@@ -219,6 +220,7 @@ ${NAMADAC} --base-dir ${base_dir} shielded-sync \
   --node ${NAMADA_LEDGER_ADDR}
 ${NAMADAC} --base-dir ${base_dir} balance \
   --owner ${SHIELDED_ALIAS_A} \
+  --show-ibc-tokens \
   --node ${NAMADA_LEDGER_ADDR}
 
 echo "==== Balances on Gaia ===="
@@ -239,11 +241,13 @@ ${NAMADAC} --base-dir ${base_dir} shielded-sync \
   --node ${NAMADA_LEDGER_ADDR}
 ${NAMADAC} --base-dir ${base_dir} balance \
   --owner ${SHIELDED_ALIAS_A} \
+  --show-ibc-tokens \
   --node ${NAMADA_LEDGER_ADDR}
 
 echo "==== Balance of shielded_b on Namada ===="
 ${NAMADAC} --base-dir ${base_dir} balance \
   --owner ${SHIELDED_ALIAS_B} \
+  --show-ibc-tokens \
   --node ${NAMADA_LEDGER_ADDR}
 
 echo "~~ Transfer back 5 samoleans from Namada to Gaia ~~"
@@ -265,11 +269,13 @@ ${NAMADAC} --base-dir ${base_dir} shielded-sync \
   --node ${NAMADA_LEDGER_ADDR}
 ${NAMADAC} --base-dir ${base_dir} balance \
   --owner ${SHIELDED_ALIAS_A} \
+  --show-ibc-tokens \
   --node ${NAMADA_LEDGER_ADDR}
 
 echo "==== Balances of shielded_b on Namada ===="
 ${NAMADAC} --base-dir ${base_dir} balance \
   --owner ${SHIELDED_ALIAS_B} \
+  --show-ibc-tokens \
   --node ${NAMADA_LEDGER_ADDR}
 
 echo "==== Balances on Gaia ===="

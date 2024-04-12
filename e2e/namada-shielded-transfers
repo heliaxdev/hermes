@@ -120,6 +120,7 @@ ${NAMADAC} --base-dir ${base_dir_a} shielded-sync \
 ${NAMADAC} --base-dir ${base_dir_a} balance \
   --token apfel \
   --owner ${SHIELDED_ALIAS_A} \
+  --show-ibc-tokens \
   --node ${LEDGER_ADDR_A}
 
 echo "==== Balances on chain B ===="
@@ -128,6 +129,7 @@ ${NAMADAC} --base-dir ${base_dir_b} shielded-sync \
   --node ${LEDGER_ADDR_B}
 ${NAMADAC} --base-dir ${base_dir_b} balance \
   --owner ${SHIELDED_ALIAS_B} \
+  --show-ibc-tokens \
   --node ${LEDGER_ADDR_B}
 
 echo "~~ Shielded transfer 50 apfel from shielded_b to shielded_b_2 ~~"
@@ -145,6 +147,7 @@ ${NAMADAC} --base-dir ${base_dir_b} shielded-sync \
   --node ${LEDGER_ADDR_B}
 ${NAMADAC} --base-dir ${base_dir_b} balance \
   --owner ${SHIELDED_ALIAS_B} \
+  --show-ibc-tokens \
   --node ${LEDGER_ADDR_B}
 
 echo "==== Balance of shielded_b_2 on chain B ===="
@@ -153,6 +156,7 @@ ${NAMADAC} --base-dir ${base_dir_b} shielded-sync \
   --node ${LEDGER_ADDR_B}
 ${NAMADAC} --base-dir ${base_dir_b} balance \
   --owner ${SHIELDED_ALIAS_B_2} \
+  --show-ibc-tokens \
   --node ${LEDGER_ADDR_B}
 
 echo "~~ Transfer back 50 apfel from shielded_b_2 on chain B to chain A ~~"
@@ -174,16 +178,19 @@ ${NAMADAC} --base-dir ${base_dir_a} shielded-sync \
   --node ${LEDGER_ADDR_A}
 ${NAMADAC} --base-dir ${base_dir_a} balance \
   --owner ${SHIELDED_ALIAS_A} \
+  --show-ibc-tokens \
   --node ${LEDGER_ADDR_A}
 
 echo "==== Balances of shielded_b on chain B ===="
 ${NAMADAC} --base-dir ${base_dir_b} balance \
   --owner ${SHIELDED_ALIAS_B} \
+  --show-ibc-tokens \
   --node ${LEDGER_ADDR_B}
 
 echo "==== Balance of shielded_b_2 on chain B ===="
 ${NAMADAC} --base-dir ${base_dir_b} balance \
   --owner ${SHIELDED_ALIAS_B_2} \
+  --show-ibc-tokens \
   --node ${LEDGER_ADDR_B}
 
 killall hermes

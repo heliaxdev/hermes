@@ -28,7 +28,7 @@ cd $(dirname $0)
 HERMES_DIR=${PWD%/e2e*}
 
 # edit for your environment
-NAMADA_CHAIN_ID="namada-test.b789596d475d30c266"
+NAMADA_CHAIN_ID="namada-test.eb0199f3257a844df8"
 NAMADAC="${NAMADA_DIR}/target/debug/namadac"
 NAMADAN="${NAMADA_DIR}/target/debug/namadan"
 NAMADAW="${NAMADA_DIR}/target/debug/namadaw"
