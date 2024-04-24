@@ -113,20 +113,20 @@ version = "0.34.0"
 default-features = false
 
 [dependencies.namada_ibc]
-git = "https://github.com/anoma/namada"
-version = "0.33.0"
+git = "https://github.com/cpp-phoenix/namada"
+rev = "987ba2b58d34db21c734378b4b1e4a85bf9f9fcc"
 
 [dependencies.namada_parameters]
-git = "https://github.com/anoma/namada"
-version = "0.33.0"
+git = "https://github.com/cpp-phoenix/namada"
+rev = "987ba2b58d34db21c734378b4b1e4a85bf9f9fcc"
 
 [dependencies.namada_sdk]
-git = "https://github.com/anoma/namada"
-version = "0.33.0"
+git = "https://github.com/cpp-phoenix/namada"
+rev = "987ba2b58d34db21c734378b4b1e4a85bf9f9fcc"
 
 [dependencies.namada_trans_token]
-git = "https://github.com/anoma/namada"
-version = "0.33.0"
+git = "https://github.com/cpp-phoenix/namada"
+rev = "987ba2b58d34db21c734378b4b1e4a85bf9f9fcc"
 
 [dev-dependencies]
 ibc-relayer-types = { version = "0.26.4", path = "../relayer-types", features = ["mocks"] }
