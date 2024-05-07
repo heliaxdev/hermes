@@ -8,7 +8,7 @@ use ibc_proto::google::protobuf::Any;
 use namada_parameters::storage as parameter_storage;
 use namada_sdk::address::{Address, ImplicitAddress};
 use namada_sdk::args;
-use namada_sdk::args::{InputAmount, Tx as TxArgs, TxCustom};
+use namada_sdk::args::{InputAmount, Tx as TxArgs, TxCustom, TxExpiration};
 use namada_sdk::borsh::BorshDeserialize;
 use namada_sdk::borsh::BorshSerializeExt;
 use namada_sdk::chain::ChainId;
@@ -79,6 +79,50 @@ impl NamadaChain {
         }
     }
 
+    pub fn batch_txs(&mut self, msgs: &Vec<Any>) -> Result<Response, Error> {
+        let tx_args = self.make_tx_args()?;
+
+        let relayer_addr = self.get_key()?.address;
+        let rt = self.rt.clone();
+        rt.block_on(self.submit_reveal_aux(&tx_args, &relayer_addr))?;
+
+        let args = TxCustom {
+            tx: tx_args.clone(),
+            code_path: Some(PathBuf::from(tx::TX_IBC_WASM)),
+            data_path: None,
+            serialized_tx: None,
+            owner: relayer_addr.clone(),
+        };
+
+        let mut txs = Vec::new();
+        for msg in msgs {
+            let (mut tx, signing_data) = rt
+                .block_on(args.build(&self.ctx))
+                .map_err(NamadaError::namada)?;
+            self.set_tx_data(&mut tx, msg)?;
+            txs.push((tx, signing_data));
+        }
+        let (mut tx, signing_data) = tx::build_batch(txs).map_err(NamadaError::namada)?;
+        rt.block_on(
+            self.ctx
+                .sign(&mut tx, &args.tx, signing_data.first().unwrap().clone(), signing::default_sign, ()),
+        )
+        .map_err(NamadaError::namada)?;
+        let tx_header_hash = tx.header_hash().to_string();
+        let response = rt
+            .block_on(self.ctx.submit(tx, &args.tx))
+            .map_err(NamadaError::namada)?;
+
+        match response {
+            tx::ProcessTxResponse::Broadcast(mut response) => {
+                // overwrite the tx decrypted hash for the tx query
+                response.hash = tx_header_hash.parse().expect("invalid hash");
+                Ok(response)
+            }
+            _ => unreachable!("The response type was unexpected"),
+        }
+    }
+
     fn make_tx_args(&mut self) -> Result<TxArgs, Error> {
         let chain_id = ChainId::from_str(self.config.id.as_str()).expect("invalid chain ID");
 
@@ -122,7 +166,7 @@ impl NamadaChain {
             fee_token,
             fee_unshield: None,
             gas_limit,
-            expiration: None,
+            expiration: TxExpiration::default(),
             disposable_signing_key: false,
             chain_id: Some(chain_id),
             signing_keys: vec![relayer_public_key],
