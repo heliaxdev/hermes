@@ -180,7 +180,7 @@ impl NamadaChain {
                 &DefaultLogger::new(self.ctx.io()),
                 None,
                 None,
-                1,
+                0,
                 &[],
                 &[],
             )
@@ -337,23 +337,20 @@ impl ChainEndpoint for NamadaChain {
             return Ok(vec![]);
         }
         let mut tx_sync_results = vec![];
-        for msg in proto_msgs.iter() {
-            let response = self.send_tx(msg)?;
+        let response = self.batch_txs(proto_msgs)?;
+        // Note: we don't have any height information in this case. This hack will fix itself
+        // once we remove the `ChainError` event (which is not actually an event)
+        let height = ICSHeight::new(self.config.id.version(), 1).unwrap();
+        let events_per_tx = vec![IbcEventWithHeight::new(IbcEvent::ChainError(format!(
+            "check_tx (broadcast_tx_sync) on chain {} for Tx hash {} reports error: code={:?}, log={:?}",
+            self.config.id, response.hash, response.code, response.log
+        )), height)];
 
-            // Note: we don't have any height information in this case. This hack will fix itself
-            // once we remove the `ChainError` event (which is not actually an event)
-            let height = ICSHeight::new(self.config.id.version(), 1).unwrap();
-            let events_per_tx = vec![IbcEventWithHeight::new(IbcEvent::ChainError(format!(
-                "check_tx (broadcast_tx_sync) on chain {} for Tx hash {} reports error: code={:?}, log={:?}",
-                self.config.id, response.hash, response.code, response.log
-            )), height)];
-
-            tx_sync_results.push(TxSyncResult {
-                response,
-                events: events_per_tx,
-                status: TxStatus::Pending { message_count: 1 },
-            });
-        }
+        tx_sync_results.push(TxSyncResult {
+            response,
+            events: events_per_tx,
+            status: TxStatus::Pending { message_count: 1 },
+        });
 
         self.wait_for_block_commits(&mut tx_sync_results)?;
 
