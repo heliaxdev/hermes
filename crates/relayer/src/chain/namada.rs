@@ -29,7 +29,6 @@ use ibc_relayer_types::core::ics24_host::path::{
     AcksPath, ChannelEndsPath, ClientConsensusStatePath, ClientStatePath, CommitmentsPath,
     ConnectionsPath, ReceiptsPath, SeqRecvsPath,
 };
-use ibc_relayer_types::events::IbcEvent;
 use ibc_relayer_types::signer::Signer;
 use ibc_relayer_types::Height as ICSHeight;
 use namada_ibc::storage;
@@ -60,8 +59,8 @@ use tokio::runtime::Runtime as TokioRuntime;
 
 use crate::account::Balance;
 use crate::chain::client::ClientSettings;
+use crate::chain::cosmos::batch::response_to_tx_sync_result;
 use crate::chain::cosmos::config::CosmosSdkConfig;
-use crate::chain::cosmos::types::tx::{TxStatus, TxSyncResult};
 use crate::chain::cosmos::version::Specs;
 use crate::chain::endpoint::{ChainEndpoint, ChainStatus, HealthCheck};
 use crate::chain::handle::Subscription;
@@ -180,7 +179,7 @@ impl NamadaChain {
                 &DefaultLogger::new(self.ctx.io()),
                 None,
                 None,
-                0,
+                1,
                 &[],
                 &[],
             )
@@ -336,32 +335,21 @@ impl ChainEndpoint for NamadaChain {
         if proto_msgs.is_empty() {
             return Ok(vec![]);
         }
-        // Note: we don't have any height information in this case. This hack will fix itself
-        // once we remove the `ChainError` event (which is not actually an event)
-        let height = ICSHeight::new(self.config.id.version(), 1).unwrap();
         let max_msg_num = if self.config().sequential_batch_tx {
             1
         } else {
             self.config().max_msg_num.to_usize()
         };
         let msg_chunks = proto_msgs.chunks(max_msg_num);
-        let mut responses = vec![];
+        let mut tx_sync_results = vec![];
         for msg_chunk in msg_chunks {
-            responses.push(self.batch_txs(msg_chunk)?);
-        }
-
-        let mut tx_sync_results: Vec<TxSyncResult> = responses.into_iter().map(|response| {
-            let events_per_tx = vec![IbcEventWithHeight::new(IbcEvent::ChainError(format!(
-                "check_tx (broadcast_tx_sync) on chain {} for Tx hash {} reports error: code={:?}, log={:?}",
-                self.config.id, response.hash, response.code, response.log
-            )), height)];
-
-            TxSyncResult {
+            let response = self.batch_txs(msg_chunk)?;
+            tx_sync_results.push(response_to_tx_sync_result(
+                &self.config().id,
+                msg_chunk.len(),
                 response,
-                events: events_per_tx,
-                status: TxStatus::Pending { message_count: 1 },
-            }
-        }).collect();
+            ));
+        }
 
         self.wait_for_block_commits(&mut tx_sync_results)?;
 
@@ -1097,7 +1085,7 @@ impl ChainEndpoint for NamadaChain {
                     None => Ok(vec![]),
                 }
             }
-            QueryTxRequest::Transaction(tx) => self.query_tx_events(&tx.0.to_string()),
+            QueryTxRequest::Transaction(tx) => self.query_tx_events(&tx.0),
         }
     }
 

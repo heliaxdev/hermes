@@ -5,6 +5,7 @@ use std::thread;
 use std::time::Instant;
 
 use ibc_proto::google::protobuf::Any;
+use itertools::Itertools;
 use namada_sdk::address::{Address, ImplicitAddress};
 use namada_sdk::args::{self, TxBuilder};
 use namada_sdk::args::{InputAmount, Tx as TxArgs, TxCustom};
@@ -25,11 +26,11 @@ use namada_sdk::{signing, tx, Namada};
 use namada_trans_token::Transfer;
 use tendermint_proto::Protobuf;
 use tendermint_rpc::endpoint::broadcast::tx_sync::Response;
+use tracing::{debug, debug_span, trace};
 
-use crate::chain::cosmos;
 use crate::chain::cosmos::types::tx::{TxStatus, TxSyncResult};
+use crate::chain::cosmos::wait::all_tx_results_found;
 use crate::chain::endpoint::ChainEndpoint;
-use crate::chain::requests::{QueryTxHash, QueryTxRequest};
 use crate::error::Error;
 
 use super::error::Error as NamadaError;
@@ -39,6 +40,10 @@ const WAIT_BACKOFF: Duration = Duration::from_millis(300);
 
 impl NamadaChain {
     pub fn batch_txs(&mut self, msgs: &[Any]) -> Result<Response, Error> {
+        if msgs.is_empty() {
+            return Err(Error::send_tx("No message to be batched".to_string()));
+        }
+
         let tx_args = self.make_tx_args()?;
 
         let relayer_addr = self.get_key()?.address;
@@ -283,42 +288,67 @@ impl NamadaChain {
         &self,
         tx_sync_results: &mut [TxSyncResult],
     ) -> Result<(), Error> {
-        let start_time = Instant::now();
-        loop {
-            if cosmos::wait::all_tx_results_found(tx_sync_results) {
-                return Ok(());
-            }
+        if all_tx_results_found(tx_sync_results) {
+            return Ok(());
+        }
 
-            let elapsed = start_time.elapsed();
-            if elapsed > self.config.rpc_timeout {
-                return Err(Error::tx_no_confirmation());
-            }
-
-            thread::sleep(WAIT_BACKOFF);
-
-            for TxSyncResult {
-                response,
-                events,
-                status,
-            } in tx_sync_results.iter_mut()
+        let chain_id = &self.config().id;
+        crate::time!(
+            "wait_for_block_commits",
             {
-                if let TxStatus::Pending { message_count: _ } = status {
-                    // If the transaction failed, query_txs returns the IbcEvent::ChainError,
-                    // so that we don't attempt to resolve the transaction later on.
-                    if let Ok(events_per_tx) =
-                        self.query_txs(QueryTxRequest::Transaction(QueryTxHash(response.hash)))
-                    {
-                        // If we get events back, progress was made, so we replace the events
-                        // with the new ones. in both cases we will check in the next iteration
-                        // whether or not the transaction was fully committed.
-                        if !events_per_tx.is_empty() {
-                            *events = events_per_tx;
-                            *status = TxStatus::ReceivedResponse;
-                        }
-                    }
+                "src_chain": chain_id,
+            }
+        );
+        let _span = debug_span!("wait_for_block_commits", id = %chain_id).entered();
+
+        let start_time = Instant::now();
+
+        let hashes = tx_sync_results
+            .iter()
+            .map(|res| res.response.hash.to_string())
+            .join(", ");
+
+        debug!("waiting for commit of tx hashes(s) {}", hashes);
+
+        loop {
+            let elapsed = start_time.elapsed();
+
+            if all_tx_results_found(tx_sync_results) {
+                trace!(
+                    "retrieved {} tx results after {} ms",
+                    tx_sync_results.len(),
+                    elapsed.as_millis(),
+                );
+
+                return Ok(());
+            } else if elapsed > self.config().rpc_timeout {
+                debug!("timed out after {} ms", elapsed.as_millis());
+                return Err(Error::tx_no_confirmation());
+            } else {
+                thread::sleep(WAIT_BACKOFF);
+
+                for tx_sync_result in tx_sync_results.iter_mut() {
+                    self.update_tx_sync_result(tx_sync_result)?;
                 }
             }
         }
+    }
+
+    fn update_tx_sync_result(&self, tx_sync_result: &mut TxSyncResult) -> Result<(), Error> {
+        if let TxStatus::Pending { .. } = tx_sync_result.status {
+            // If the transaction failed, query_txs returns the IbcEvent::ChainError,
+            // so that we don't attempt to resolve the transaction later on.
+            if let Ok(events) = self.query_tx_events(&tx_sync_result.response.hash) {
+                // If we get events back, progress was made, so we replace the events
+                // with the new ones. in both cases we will check in the next iteration
+                // whether or not the transaction was fully committed.
+                if !events.is_empty() {
+                    tx_sync_result.events = events;
+                    tx_sync_result.status = TxStatus::ReceivedResponse;
+                }
+            }
+        }
+        Ok(())
     }
 
     async fn submit_reveal_aux(&mut self, args: &TxArgs, address: &Address) -> Result<(), Error> {
