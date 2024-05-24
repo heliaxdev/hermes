@@ -5,11 +5,9 @@ use std::thread;
 use std::time::Instant;
 
 use ibc_proto::google::protobuf::Any;
-use namada_parameters::storage as parameter_storage;
 use namada_sdk::address::{Address, ImplicitAddress};
-use namada_sdk::args;
-use namada_sdk::args::{InputAmount, Tx as TxArgs, TxCustom, TxExpiration};
-use namada_sdk::borsh::BorshDeserialize;
+use namada_sdk::args::{self, TxBuilder};
+use namada_sdk::args::{InputAmount, Tx as TxArgs, TxCustom};
 use namada_sdk::borsh::BorshSerializeExt;
 use namada_sdk::chain::ChainId;
 use namada_sdk::ibc::apps::nft_transfer::types::packet::PacketData as NftPacketData;
@@ -23,7 +21,6 @@ use namada_sdk::ibc::core::host::types::identifiers::{ChannelId, PortId};
 use namada_sdk::ibc::{MsgAcknowledgement, MsgRecvPacket, MsgTimeout};
 use namada_sdk::masp::{PaymentAddress, TransferTarget};
 use namada_sdk::masp_primitives::transaction::Transaction as MaspTransaction;
-use namada_sdk::tx::data::GasLimit;
 use namada_sdk::{signing, tx, Namada};
 use namada_trans_token::Transfer;
 use tendermint_proto::Protobuf;
@@ -32,7 +29,7 @@ use tendermint_rpc::endpoint::broadcast::tx_sync::Response;
 use crate::chain::cosmos;
 use crate::chain::cosmos::types::tx::{TxStatus, TxSyncResult};
 use crate::chain::endpoint::ChainEndpoint;
-use crate::chain::requests::{IncludeProof, QueryHeight, QueryTxHash, QueryTxRequest};
+use crate::chain::requests::{QueryTxHash, QueryTxRequest};
 use crate::error::Error;
 
 use super::error::Error as NamadaError;
@@ -41,45 +38,7 @@ use super::NamadaChain;
 const WAIT_BACKOFF: Duration = Duration::from_millis(300);
 
 impl NamadaChain {
-    pub fn send_tx(&mut self, proto_msg: &Any) -> Result<Response, Error> {
-        let tx_args = self.make_tx_args()?;
-
-        let relayer_addr = self.get_key()?.address;
-        let rt = self.rt.clone();
-        rt.block_on(self.submit_reveal_aux(&tx_args, &relayer_addr))?;
-
-        let args = TxCustom {
-            tx: tx_args.clone(),
-            code_path: Some(PathBuf::from(tx::TX_IBC_WASM)),
-            data_path: None,
-            serialized_tx: None,
-            owner: relayer_addr.clone(),
-        };
-        let (mut tx, signing_data) = rt
-            .block_on(args.build(&self.ctx))
-            .map_err(NamadaError::namada)?;
-        self.set_tx_data(&mut tx, proto_msg)?;
-        rt.block_on(
-            self.ctx
-                .sign(&mut tx, &args.tx, signing_data, signing::default_sign, ()),
-        )
-        .map_err(NamadaError::namada)?;
-        let tx_header_hash = tx.header_hash().to_string();
-        let response = rt
-            .block_on(self.ctx.submit(tx, &args.tx))
-            .map_err(NamadaError::namada)?;
-
-        match response {
-            tx::ProcessTxResponse::Broadcast(mut response) => {
-                // overwrite the tx decrypted hash for the tx query
-                response.hash = tx_header_hash.parse().expect("invalid hash");
-                Ok(response)
-            }
-            _ => unreachable!("The response type was unexpected"),
-        }
-    }
-
-    pub fn batch_txs(&mut self, msgs: &Vec<Any>) -> Result<Response, Error> {
+    pub fn batch_txs(&mut self, msgs: &[Any]) -> Result<Response, Error> {
         let tx_args = self.make_tx_args()?;
 
         let relayer_addr = self.get_key()?.address;
@@ -103,10 +62,13 @@ impl NamadaChain {
             txs.push((tx, signing_data));
         }
         let (mut tx, signing_data) = tx::build_batch(txs).map_err(NamadaError::namada)?;
-        rt.block_on(
-            self.ctx
-                .sign(&mut tx, &args.tx, signing_data.first().unwrap().clone(), signing::default_sign, ()),
-        )
+        rt.block_on(self.ctx.sign(
+            &mut tx,
+            &args.tx,
+            signing_data.first().unwrap().clone(),
+            signing::default_sign,
+            (),
+        ))
         .map_err(NamadaError::namada)?;
         let tx_header_hash = tx.header_hash().to_string();
         let response = rt
@@ -126,17 +88,14 @@ impl NamadaChain {
     fn make_tx_args(&mut self) -> Result<TxArgs, Error> {
         let chain_id = ChainId::from_str(self.config.id.as_str()).expect("invalid chain ID");
 
-        let fee_token = &self.config.gas_price.denom;
-        let fee_token = Address::decode(fee_token)
-            .map_err(|_| NamadaError::address_decode(fee_token.to_string()))?;
-
-        // fee
-        let gas_limit_key = parameter_storage::get_fee_unshielding_gas_limit_key();
-        let (value, _) = self.query(gas_limit_key, QueryHeight::Latest, IncludeProof::No)?;
-        let gas_limit = GasLimit::try_from_slice(&value).map_err(NamadaError::borsh_decode)?;
-
         let namada_key = self.get_key()?;
         let relayer_public_key = namada_key.secret_key.to_public();
+
+        let tx_args = self.ctx.tx_builder();
+        let tx_args = tx_args.chain_id(chain_id);
+        let tx_args = tx_args.signing_keys(vec![relayer_public_key]);
+        // Confirm the transaction later
+        let mut tx_args = tx_args.broadcast_only(true);
 
         let memo = if !self.config().memo_prefix.as_str().is_empty() {
             Some(
@@ -150,31 +109,9 @@ impl NamadaChain {
         } else {
             None
         };
+        tx_args.memo = memo;
 
-        Ok(TxArgs {
-            dry_run: false,
-            dry_run_wrapper: false,
-            dump_tx: false,
-            force: false,
-            output_folder: None,
-            broadcast_only: true,
-            ledger_address: self.config().rpc_addr.clone(),
-            initialized_account_alias: None,
-            wallet_alias_force: false,
-            wrapper_fee_payer: Some(relayer_public_key.clone()),
-            fee_amount: None,
-            fee_token,
-            gas_limit,
-            expiration: TxExpiration::Default,
-            disposable_signing_key: false,
-            chain_id: Some(chain_id),
-            signing_keys: vec![relayer_public_key],
-            signatures: vec![],
-            tx_reveal_code_path: PathBuf::from(tx::TX_REVEAL_PK),
-            password: None,
-            memo,
-            use_device: false,
-        })
+        Ok(tx_args)
     }
 
     fn set_tx_data(&self, tx: &mut tx::Tx, proto_msg: &Any) -> Result<(), Error> {

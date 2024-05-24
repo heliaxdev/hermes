@@ -336,21 +336,32 @@ impl ChainEndpoint for NamadaChain {
         if proto_msgs.is_empty() {
             return Ok(vec![]);
         }
-        let mut tx_sync_results = vec![];
-        let response = self.batch_txs(proto_msgs)?;
         // Note: we don't have any height information in this case. This hack will fix itself
         // once we remove the `ChainError` event (which is not actually an event)
         let height = ICSHeight::new(self.config.id.version(), 1).unwrap();
-        let events_per_tx = vec![IbcEventWithHeight::new(IbcEvent::ChainError(format!(
-            "check_tx (broadcast_tx_sync) on chain {} for Tx hash {} reports error: code={:?}, log={:?}",
-            self.config.id, response.hash, response.code, response.log
-        )), height)];
+        let max_msg_num = if self.config().sequential_batch_tx {
+            1
+        } else {
+            self.config().max_msg_num.to_usize()
+        };
+        let msg_chunks = proto_msgs.chunks(max_msg_num);
+        let mut responses = vec![];
+        for msg_chunk in msg_chunks {
+            responses.push(self.batch_txs(msg_chunk)?);
+        }
 
-        tx_sync_results.push(TxSyncResult {
-            response,
-            events: events_per_tx,
-            status: TxStatus::Pending { message_count: 1 },
-        });
+        let mut tx_sync_results: Vec<TxSyncResult> = responses.into_iter().map(|response| {
+            let events_per_tx = vec![IbcEventWithHeight::new(IbcEvent::ChainError(format!(
+                "check_tx (broadcast_tx_sync) on chain {} for Tx hash {} reports error: code={:?}, log={:?}",
+                self.config.id, response.hash, response.code, response.log
+            )), height)];
+
+            TxSyncResult {
+                response,
+                events: events_per_tx,
+                status: TxStatus::Pending { message_count: 1 },
+            }
+        }).collect();
 
         self.wait_for_block_commits(&mut tx_sync_results)?;
 
@@ -378,9 +389,16 @@ impl ChainEndpoint for NamadaChain {
         if proto_msgs.is_empty() {
             return Ok(vec![]);
         }
+
+        let max_msg_num = if self.config().sequential_batch_tx {
+            1
+        } else {
+            self.config().max_msg_num.to_usize()
+        };
+        let msg_chunks = proto_msgs.chunks(max_msg_num);
         let mut responses = vec![];
-        for msg in proto_msgs.iter() {
-            responses.push(self.send_tx(msg)?);
+        for msg_chunk in msg_chunks {
+            responses.push(self.batch_txs(msg_chunk)?);
         }
 
         Ok(responses)
