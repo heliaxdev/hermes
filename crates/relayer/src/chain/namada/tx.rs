@@ -328,7 +328,9 @@ impl NamadaChain {
                 thread::sleep(WAIT_BACKOFF);
 
                 for tx_sync_result in tx_sync_results.iter_mut() {
-                    self.update_tx_sync_result(tx_sync_result)?;
+                    if let Err(e) = self.update_tx_sync_result(tx_sync_result) {
+                        debug!("update_tx_sync_result failed. It will be retried: {e}");
+                    }
                 }
             }
         }
@@ -338,14 +340,13 @@ impl NamadaChain {
         if let TxStatus::Pending { .. } = tx_sync_result.status {
             // If the transaction failed, query_txs returns the IbcEvent::ChainError,
             // so that we don't attempt to resolve the transaction later on.
-            if let Ok(events) = self.query_tx_events(&tx_sync_result.response.hash) {
-                // If we get events back, progress was made, so we replace the events
-                // with the new ones. in both cases we will check in the next iteration
-                // whether or not the transaction was fully committed.
-                if !events.is_empty() {
-                    tx_sync_result.events = events;
-                    tx_sync_result.status = TxStatus::ReceivedResponse;
-                }
+            let events = self.query_tx_events(&tx_sync_result.response.hash)?;
+            // If we get events back, progress was made, so we replace the events
+            // with the new ones. in both cases we will check in the next iteration
+            // whether or not the transaction was fully committed.
+            if !events.is_empty() {
+                tx_sync_result.events = events;
+                tx_sync_result.status = TxStatus::ReceivedResponse;
             }
         }
         Ok(())
