@@ -11,6 +11,7 @@ use namada_sdk::events::Event as NamadaEvent;
 use namada_sdk::queries::{Client as SdkClient, RPC};
 use namada_sdk::rpc;
 use namada_sdk::storage::{BlockHeight, Epoch, Key, PrefixValue};
+use namada_sdk::token::Denomination;
 use namada_sdk::tx::data::ResultCode;
 use namada_sdk::tx::event::Code as CodeAttr;
 use namada_sdk::Namada;
@@ -292,5 +293,10 @@ impl NamadaChain {
             .ok_or(NamadaError::denom_not_found(raw_addr))?;
 
         String::try_from_slice(&pair.value).map_err(|e| Error::namada(NamadaError::borsh_decode(e)))
+    }
+
+    /// Query the denomination of the given token
+    pub fn query_token_denom(&self, token: &Address) -> Option<Denomination> {
+        self.rt.block_on(rpc::query_denom(self.ctx.client(), token))
     }
 }

@@ -6,6 +6,7 @@ use std::time::Instant;
 
 use ibc_proto::google::protobuf::Any;
 use itertools::Itertools;
+use namada_ibc::{MsgAcknowledgement, MsgRecvPacket, MsgTimeout};
 use namada_sdk::address::{Address, ImplicitAddress};
 use namada_sdk::args::{self, TxBuilder};
 use namada_sdk::args::{InputAmount, Tx as TxArgs, TxCustom};
@@ -19,11 +20,11 @@ use namada_sdk::ibc::core::channel::types::msgs::{
     MsgTimeout as IbcMsgTimeout, ACKNOWLEDGEMENT_TYPE_URL, RECV_PACKET_TYPE_URL, TIMEOUT_TYPE_URL,
 };
 use namada_sdk::ibc::core::host::types::identifiers::{ChannelId, PortId};
-use namada_ibc::{MsgAcknowledgement, MsgRecvPacket, MsgTimeout};
 use namada_sdk::masp::{PaymentAddress, TransferTarget};
 use namada_sdk::masp_primitives::transaction::Transaction as MaspTransaction;
+use namada_sdk::tx::ProcessTxResponse;
 use namada_sdk::{signing, tx, Namada};
-use namada_token::ShieldingTransfer;
+use namada_token::{Amount, DenominatedAmount, ShieldingTransfer};
 use tendermint_proto::Protobuf;
 use tendermint_rpc::endpoint::broadcast::tx_sync::Response;
 use tracing::{debug, debug_span, trace};
@@ -50,7 +51,7 @@ impl NamadaChain {
         let rt = self.rt.clone();
         rt.block_on(self.submit_reveal_aux(&tx_args, &relayer_addr))?;
 
-        let args = TxCustom {
+        let mut args = TxCustom {
             tx: tx_args.clone(),
             code_path: Some(PathBuf::from(tx::TX_IBC_WASM)),
             data_path: None,
@@ -75,6 +76,14 @@ impl NamadaChain {
             (),
         ))
         .map_err(NamadaError::namada)?;
+
+        // Fee
+        let (fee_token, fee_amount) = self.estimate_fee(tx.clone(), &args.tx)?;
+        args.tx = args.tx.fee_token(fee_token);
+        if let Some(amount) = fee_amount {
+            args.tx = args.tx.fee_amount(amount.into());
+        }
+
         let tx_header_hash = tx.header_hash().to_string();
         let response = rt
             .block_on(self.ctx.submit(tx, &args.tx))
@@ -282,6 +291,71 @@ impl NamadaChain {
         } else {
             Ok(None)
         }
+    }
+
+    fn estimate_fee(
+        &self,
+        tx: tx::Tx,
+        args: &TxArgs,
+    ) -> Result<(Address, Option<DenominatedAmount>), Error> {
+        let chain_id = self.config().id.clone();
+
+        let args = args.clone().dry_run_wrapper(true);
+        let response = self
+            .rt
+            .block_on(self.ctx.submit(tx, &args))
+            .map_err(NamadaError::namada)?;
+        debug!("DEBUG: {response:?}");
+        let estimated_gas = {
+            match response {
+                ProcessTxResponse::DryRun(ref result) => result.gas_used.into(),
+                _ => unreachable!("Unexpected response"),
+            }
+        };
+        if let Some(max_gas) = self.config().max_gas {
+            if estimated_gas > max_gas {
+                debug!(
+                    id = %chain_id, estimated = ?estimated_gas, max_gas,
+                    "send_tx: estimated gas is higher than max gas"
+                );
+
+                return Err(Error::tx_simulate_gas_estimate_exceeded(
+                    chain_id,
+                    estimated_gas,
+                    max_gas,
+                ));
+            }
+        }
+
+        let fee_token_str = self.config().gas_price.denom.clone();
+        let fee_token = Address::from_str(&fee_token_str)
+            .map_err(|_| NamadaError::address_decode(fee_token_str.clone()))?;
+        let token_denom = self
+            .query_token_denom(&fee_token)
+            .ok_or_else(|| NamadaError::denom_not_found(fee_token_str))?;
+        let gas_amount = DenominatedAmount::new(Amount::from_u64(estimated_gas), token_denom);
+        let gas_price = DenominatedAmount::from_str(&self.config().gas_price.price.to_string())
+            .expect("Gas price should be parsable");
+        let gas_multiplier = if let Some(gas_multiplier) = self.config().gas_multiplier {
+            DenominatedAmount::from_str(&gas_multiplier.to_f64().to_string())
+                .expect("Gas multiplier should be parsable")
+        } else {
+            let amount =
+                Amount::from_uint(1, token_denom).map_err(NamadaError::amount_parse_error)?;
+            DenominatedAmount::new(amount, token_denom)
+        };
+        let fee_amount = gas_amount
+            .checked_mul(gas_price)
+            .and_then(|a| a.checked_mul(gas_multiplier));
+
+        debug!(
+            id = %chain_id,
+            "send_tx: using {} gas, fee {:?}",
+            estimated_gas,
+            fee_amount.map(|a| a.to_string()).unwrap_or("overflowed".to_string()),
+        );
+
+        Ok((fee_token, fee_amount))
     }
 
     pub fn wait_for_block_commits(

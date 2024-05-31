@@ -6,6 +6,10 @@ define_error! {
             { raw: String }
             |e| { format!("Namada address decoding failed for {}", e.raw) },
 
+        AmountParseError
+            [ TraceError<namada_sdk::token::AmountParseError> ]
+            |_| { "Amount parse error" },
+
         DenomNotFound
             { denom: String }
             |e| { format!("No denom for {}", e.denom) },
