@@ -258,7 +258,7 @@ impl NamadaChain {
 
         if let Some((receiver, token, amount)) = transfer {
             self.rt.block_on(self.shielded_sync())?;
-            let amount = InputAmount::Unvalidated(
+            let amount = InputAmount::Validated(
                 amount
                     .parse()
                     .map_err(|e| Error::send_tx(format!("invalid amount: {e}")))?,
