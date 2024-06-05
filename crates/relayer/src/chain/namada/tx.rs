@@ -51,14 +51,13 @@ impl NamadaChain {
         let rt = self.rt.clone();
         rt.block_on(self.submit_reveal_aux(&tx_args, &relayer_addr))?;
 
-        let mut args = TxCustom {
+        let args = TxCustom {
             tx: tx_args.clone(),
             code_path: Some(PathBuf::from(tx::TX_IBC_WASM)),
             data_path: None,
             serialized_tx: None,
             owner: relayer_addr.clone(),
         };
-
         let mut txs = Vec::new();
         for msg in msgs {
             let (mut tx, signing_data) = rt
@@ -70,7 +69,7 @@ impl NamadaChain {
         let (mut tx, signing_data) = tx::build_batch(txs).map_err(NamadaError::namada)?;
         rt.block_on(self.ctx.sign(
             &mut tx,
-            &args.tx,
+            &tx_args,
             signing_data.first().unwrap().clone(),
             signing::default_sign,
             (),
@@ -78,15 +77,15 @@ impl NamadaChain {
         .map_err(NamadaError::namada)?;
 
         // Fee
-        let (fee_token, fee_amount) = self.estimate_fee(tx.clone(), &args.tx)?;
-        args.tx = args.tx.fee_token(fee_token);
+        let (fee_token, fee_amount) = self.estimate_fee(tx.clone(), &tx_args)?;
+        let mut tx_args = tx_args.fee_token(fee_token);
         if let Some(amount) = fee_amount {
-            args.tx = args.tx.fee_amount(amount.into());
+            tx_args = tx_args.fee_amount(amount.into());
         }
 
         let tx_header_hash = tx.header_hash().to_string();
         let response = rt
-            .block_on(self.ctx.submit(tx, &args.tx))
+            .block_on(self.ctx.submit(tx, &tx_args))
             .map_err(NamadaError::namada)?;
 
         match response {
@@ -305,12 +304,20 @@ impl NamadaChain {
             .rt
             .block_on(self.ctx.submit(tx, &args))
             .map_err(NamadaError::namada)?;
-        debug!("DEBUG: {response:?}");
-        let estimated_gas = {
-            match response {
-                ProcessTxResponse::DryRun(ref result) => result.gas_used.into(),
-                _ => unreachable!("Unexpected response"),
+        let estimated_gas = match response {
+            ProcessTxResponse::DryRun(result) => {
+                if result
+                    .batch_results
+                    .0
+                    .iter()
+                    .all(|(_, r)| matches!(&r, Ok(result) if result.is_accepted()))
+                {
+                    result.gas_used.into()
+                } else {
+                    return Err(Error::namada(NamadaError::dry_run(result)));
+                }
             }
+            _ => unreachable!("Unexpected response"),
         };
         if let Some(max_gas) = self.config().max_gas {
             if estimated_gas > max_gas {
