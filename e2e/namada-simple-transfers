@@ -4,7 +4,7 @@
 # `make build` and `make build-wasm-scripts` on Namada directory in advance
 # Run with `namada-simple-transfers ${namada_dir}`
 
-set -ex
+set -e
 
 NAMADA_DIR=$1
 if [ -z "${NAMADA_DIR}" ]
@@ -59,10 +59,10 @@ function wait_for_relaying() {
     echo ${result}
     if [[ "${result}" =~ "=" ]];
     then
-      echo "Waiting for packet relaying"
+      echo "Waiting for packet relaying..."
       sleep 5
     else
-      echo "All packets have been relayed"
+      echo "All packets have been relayed!"
       break
     fi
   done
