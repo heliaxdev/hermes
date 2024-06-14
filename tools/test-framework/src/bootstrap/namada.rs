@@ -58,9 +58,9 @@ pub fn bootstrap_namada_node(
     simple_exec("namada", "sh", &["-c", &copy_loop])?;
 
     chain_driver.update_chain_config("templates/parameters.toml", |parameters| {
-        config::namada::set_default_mint_limit(parameters, 1000000000)?;
+        config::namada::set_default_mint_limit(parameters, i64::MAX)?;
         config::namada::set_epochs_per_year(parameters, 31536)?;
-        config::namada::set_default_per_epoch_throughput_limit(parameters, 10000000000)?;
+        config::namada::set_default_per_epoch_throughput_limit(parameters, i64::MAX)?;
 
         Ok(())
     })?;
@@ -326,7 +326,7 @@ fn add_namada_key(
         .find_address(address_name)
         .ok_or_else(|| eyre!("error loading the address from Namada wallet"))?;
     let namada_key = NamadaKeyPair {
-        alias: key_name.to_string(),
+        alias: address_name.to_string(),
         address: address.into_owned(),
         secret_key: secret_key.clone(),
     };
