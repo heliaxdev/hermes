@@ -27,7 +27,7 @@ use namada_sdk::{signing, tx, Namada};
 use namada_token::ShieldingTransfer;
 use tendermint_proto::Protobuf;
 use tendermint_rpc::endpoint::broadcast::tx_sync::Response;
-use tracing::{debug, debug_span, trace};
+use tracing::{debug, debug_span, trace, warn};
 
 use crate::chain::cosmos::gas::{adjust_estimated_gas, AdjustGas};
 use crate::chain::cosmos::types::gas::default_gas_from_config;
@@ -47,7 +47,7 @@ impl NamadaChain {
             return Err(Error::send_tx("No message to be batched".to_string()));
         }
 
-        let tx_args = self.make_tx_args()?;
+        let mut tx_args = self.make_tx_args()?;
 
         let relayer_key = self.get_key()?;
         let relayer_addr = relayer_key.address;
@@ -74,28 +74,30 @@ impl NamadaChain {
         let signing_data = signing_data.first().expect("SigningData should exist");
 
         // Estimate the fee with dry-run
-        let (fee_token, gas_limit, fee_amount) =
-            self.estimate_fee(tx.clone(), &tx_args, signing_data)?;
-        // Set the estimated fee
-        let tx_args = tx_args
-            .fee_token(fee_token)
-            .gas_limit(gas_limit.into())
-            .fee_amount(
-                fee_amount
-                    .to_string()
-                    .parse()
-                    .expect("Fee should be parsable"),
-            );
-        let fee_amount = rt
-            .block_on(signing::validate_fee(&self.ctx, &tx_args))
+        if let Some((fee_token, gas_limit, fee_amount)) =
+            self.estimate_fee(tx.clone(), &tx_args, signing_data)?
+        {
+            // Set the estimated fee
+            tx_args = tx_args
+                .fee_token(fee_token)
+                .gas_limit(gas_limit.into())
+                .fee_amount(
+                    fee_amount
+                        .to_string()
+                        .parse()
+                        .expect("Fee should be parsable"),
+                );
+            let fee_amount = rt
+                .block_on(signing::validate_fee(&self.ctx, &tx_args))
+                .map_err(NamadaError::namada)?;
+            rt.block_on(prepare_tx(
+                &tx_args,
+                &mut tx,
+                fee_amount,
+                relayer_key.secret_key.to_public(),
+            ))
             .map_err(NamadaError::namada)?;
-        rt.block_on(prepare_tx(
-            &tx_args,
-            &mut tx,
-            fee_amount,
-            relayer_key.secret_key.to_public(),
-        ))
-        .map_err(NamadaError::namada)?;
+        }
 
         rt.block_on(self.ctx.sign(
             &mut tx,
@@ -320,7 +322,7 @@ impl NamadaChain {
         mut tx: tx::Tx,
         args: &TxArgs,
         signing_data: &signing::SigningTxData,
-    ) -> Result<(Address, u64, f64), Error> {
+    ) -> Result<Option<(Address, u64, f64)>, Error> {
         let chain_id = self.config().id.clone();
 
         let args = args.clone().dry_run_wrapper(true);
@@ -334,10 +336,16 @@ impl NamadaChain {
             ))
             .map_err(NamadaError::namada)?;
 
-        let response = self
-            .rt
-            .block_on(self.ctx.submit(tx, &args))
-            .map_err(NamadaError::namada)?;
+        let response = match self.rt.block_on(self.ctx.submit(tx, &args)) {
+            Ok(resp) => resp,
+            Err(_) => {
+                warn!(
+                    id = %chain_id,
+                    "send_tx: gas estimation failed, using the default gas limit"
+                );
+                return Ok(None);
+            }
+        };
         let estimated_gas = match response {
             ProcessTxResponse::DryRun(result) => {
                 if result
@@ -387,7 +395,7 @@ impl NamadaChain {
             gas_price,
         );
 
-        Ok((fee_token, adjusted_gas, gas_price))
+        Ok(Some((fee_token, adjusted_gas, gas_price)))
     }
 
     pub fn wait_for_block_commits(
