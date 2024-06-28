@@ -1609,9 +1609,9 @@ dependencies = [
 
 [[package]]
 name = "either"
-version = "1.11.0"
+version = "1.13.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "a47c1c47d2f5964e29c61246e81db715514cd532db6b5116a25ea3c03d6780a2"
+checksum = "60b1af1c220855b6ceac025d3f6ecdd2b7c4894bfe9cd9bda4fbb4bc7c0d4cf0"
 
 [[package]]
 name = "elliptic-curve"
@@ -3826,7 +3826,7 @@ checksum = "90ed8c1e510134f979dbc4f070f87d4313098b704861a105fe34231c70a3901c"
 [[package]]
 name = "masp_note_encryption"
 version = "1.0.0"
-source = "git+https://github.com/anoma/masp?rev=4ede1c42d76d6348af8224bc8bfac4404321fe82#4ede1c42d76d6348af8224bc8bfac4404321fe82"
+source = "git+https://github.com/anoma/masp?rev=71b36beba21e35f8611f3ba6910ed5b78ec11af1#71b36beba21e35f8611f3ba6910ed5b78ec11af1"
 dependencies = [
  "borsh 1.5.0",
  "chacha20",
@@ -3839,7 +3839,7 @@ dependencies = [
 [[package]]
 name = "masp_primitives"
 version = "1.0.0"
-source = "git+https://github.com/anoma/masp?rev=4ede1c42d76d6348af8224bc8bfac4404321fe82#4ede1c42d76d6348af8224bc8bfac4404321fe82"
+source = "git+https://github.com/anoma/masp?rev=71b36beba21e35f8611f3ba6910ed5b78ec11af1#71b36beba21e35f8611f3ba6910ed5b78ec11af1"
 dependencies = [
  "aes",
  "bip0039",
@@ -3870,7 +3870,7 @@ dependencies = [
 [[package]]
 name = "masp_proofs"
 version = "1.0.0"
-source = "git+https://github.com/anoma/masp?rev=4ede1c42d76d6348af8224bc8bfac4404321fe82#4ede1c42d76d6348af8224bc8bfac4404321fe82"
+source = "git+https://github.com/anoma/masp?rev=71b36beba21e35f8611f3ba6910ed5b78ec11af1#71b36beba21e35f8611f3ba6910ed5b78ec11af1"
 dependencies = [
  "bellman",
  "blake2b_simd",
@@ -3999,7 +3999,7 @@ checksum = "defc4c55412d89136f966bbb339008b474350e5e6e78d2714439c386b3137a03"
 [[package]]
 name = "namada_account"
 version = "0.39.0"
-source = "git+https://github.com/anoma/namada?branch=murisi/draft-with-masp-ibc-replay-protection#76fab4c6c7b1c12c65aa02cf4f2923429bd4da1d"
+source = "git+https://github.com/anoma/namada?rev=7dd97fa8600b5a467eda2eebaace1b66a0d66231#7dd97fa8600b5a467eda2eebaace1b66a0d66231"
 dependencies = [
  "borsh 1.5.0",
  "linkme",
@@ -4013,7 +4013,7 @@ dependencies = [
 [[package]]
 name = "namada_controller"
 version = "0.39.0"
-source = "git+https://github.com/anoma/namada?branch=murisi/draft-with-masp-ibc-replay-protection#76fab4c6c7b1c12c65aa02cf4f2923429bd4da1d"
+source = "git+https://github.com/anoma/namada?rev=7dd97fa8600b5a467eda2eebaace1b66a0d66231#7dd97fa8600b5a467eda2eebaace1b66a0d66231"
 dependencies = [
  "namada_core",
  "smooth-operator",
@@ -4023,7 +4023,7 @@ dependencies = [
 [[package]]
 name = "namada_core"
 version = "0.39.0"
-source = "git+https://github.com/anoma/namada?branch=murisi/draft-with-masp-ibc-replay-protection#76fab4c6c7b1c12c65aa02cf4f2923429bd4da1d"
+source = "git+https://github.com/anoma/namada?rev=7dd97fa8600b5a467eda2eebaace1b66a0d66231#7dd97fa8600b5a467eda2eebaace1b66a0d66231"
 dependencies = [
  "bech32 0.8.1",
  "borsh 1.5.0",
@@ -4071,7 +4071,7 @@ dependencies = [
 [[package]]
 name = "namada_ethereum_bridge"
 version = "0.39.0"
-source = "git+https://github.com/anoma/namada?branch=murisi/draft-with-masp-ibc-replay-protection#76fab4c6c7b1c12c65aa02cf4f2923429bd4da1d"
+source = "git+https://github.com/anoma/namada?rev=7dd97fa8600b5a467eda2eebaace1b66a0d66231#7dd97fa8600b5a467eda2eebaace1b66a0d66231"
 dependencies = [
  "borsh 1.5.0",
  "ethers",
@@ -4098,7 +4098,7 @@ dependencies = [
 [[package]]
 name = "namada_events"
 version = "0.39.0"
-source = "git+https://github.com/anoma/namada?branch=murisi/draft-with-masp-ibc-replay-protection#76fab4c6c7b1c12c65aa02cf4f2923429bd4da1d"
+source = "git+https://github.com/anoma/namada?rev=7dd97fa8600b5a467eda2eebaace1b66a0d66231#7dd97fa8600b5a467eda2eebaace1b66a0d66231"
 dependencies = [
  "borsh 1.5.0",
  "linkme",
@@ -4114,7 +4114,7 @@ dependencies = [
 [[package]]
 name = "namada_gas"
 version = "0.39.0"
-source = "git+https://github.com/anoma/namada?branch=murisi/draft-with-masp-ibc-replay-protection#76fab4c6c7b1c12c65aa02cf4f2923429bd4da1d"
+source = "git+https://github.com/anoma/namada?rev=7dd97fa8600b5a467eda2eebaace1b66a0d66231#7dd97fa8600b5a467eda2eebaace1b66a0d66231"
 dependencies = [
  "borsh 1.5.0",
  "linkme",
@@ -4129,7 +4129,7 @@ dependencies = [
 [[package]]
 name = "namada_governance"
 version = "0.39.0"
-source = "git+https://github.com/anoma/namada?branch=murisi/draft-with-masp-ibc-replay-protection#76fab4c6c7b1c12c65aa02cf4f2923429bd4da1d"
+source = "git+https://github.com/anoma/namada?rev=7dd97fa8600b5a467eda2eebaace1b66a0d66231#7dd97fa8600b5a467eda2eebaace1b66a0d66231"
 dependencies = [
  "borsh 1.5.0",
  "itertools 0.12.1",
@@ -4152,7 +4152,7 @@ dependencies = [
 [[package]]
 name = "namada_ibc"
 version = "0.39.0"
-source = "git+https://github.com/anoma/namada?branch=murisi/draft-with-masp-ibc-replay-protection#76fab4c6c7b1c12c65aa02cf4f2923429bd4da1d"
+source = "git+https://github.com/anoma/namada?rev=7dd97fa8600b5a467eda2eebaace1b66a0d66231#7dd97fa8600b5a467eda2eebaace1b66a0d66231"
 dependencies = [
  "borsh 1.5.0",
  "ibc",
@@ -4180,7 +4180,7 @@ dependencies = [
 [[package]]
 name = "namada_macros"
 version = "0.39.0"
-source = "git+https://github.com/anoma/namada?branch=murisi/draft-with-masp-ibc-replay-protection#76fab4c6c7b1c12c65aa02cf4f2923429bd4da1d"
+source = "git+https://github.com/anoma/namada?rev=7dd97fa8600b5a467eda2eebaace1b66a0d66231#7dd97fa8600b5a467eda2eebaace1b66a0d66231"
 dependencies = [
  "data-encoding",
  "proc-macro2",
@@ -4192,7 +4192,7 @@ dependencies = [
 [[package]]
 name = "namada_merkle_tree"
 version = "0.39.0"
-source = "git+https://github.com/anoma/namada?branch=murisi/draft-with-masp-ibc-replay-protection#76fab4c6c7b1c12c65aa02cf4f2923429bd4da1d"
+source = "git+https://github.com/anoma/namada?rev=7dd97fa8600b5a467eda2eebaace1b66a0d66231#7dd97fa8600b5a467eda2eebaace1b66a0d66231"
 dependencies = [
  "borsh 1.5.0",
  "eyre",
@@ -4207,7 +4207,7 @@ dependencies = [
 [[package]]
 name = "namada_migrations"
 version = "0.39.0"
-source = "git+https://github.com/anoma/namada?branch=murisi/draft-with-masp-ibc-replay-protection#76fab4c6c7b1c12c65aa02cf4f2923429bd4da1d"
+source = "git+https://github.com/anoma/namada?rev=7dd97fa8600b5a467eda2eebaace1b66a0d66231#7dd97fa8600b5a467eda2eebaace1b66a0d66231"
 dependencies = [
  "lazy_static",
  "linkme",
@@ -4217,7 +4217,7 @@ dependencies = [
 [[package]]
 name = "namada_parameters"
 version = "0.39.0"
-source = "git+https://github.com/anoma/namada?branch=murisi/draft-with-masp-ibc-replay-protection#76fab4c6c7b1c12c65aa02cf4f2923429bd4da1d"
+source = "git+https://github.com/anoma/namada?rev=7dd97fa8600b5a467eda2eebaace1b66a0d66231#7dd97fa8600b5a467eda2eebaace1b66a0d66231"
 dependencies = [
  "namada_core",
  "namada_macros",
@@ -4229,7 +4229,7 @@ dependencies = [
 [[package]]
 name = "namada_proof_of_stake"
 version = "0.39.0"
-source = "git+https://github.com/anoma/namada?branch=murisi/draft-with-masp-ibc-replay-protection#76fab4c6c7b1c12c65aa02cf4f2923429bd4da1d"
+source = "git+https://github.com/anoma/namada?rev=7dd97fa8600b5a467eda2eebaace1b66a0d66231#7dd97fa8600b5a467eda2eebaace1b66a0d66231"
 dependencies = [
  "borsh 1.5.0",
  "konst",
@@ -4254,7 +4254,7 @@ dependencies = [
 [[package]]
 name = "namada_replay_protection"
 version = "0.39.0"
-source = "git+https://github.com/anoma/namada?branch=murisi/draft-with-masp-ibc-replay-protection#76fab4c6c7b1c12c65aa02cf4f2923429bd4da1d"
+source = "git+https://github.com/anoma/namada?rev=7dd97fa8600b5a467eda2eebaace1b66a0d66231#7dd97fa8600b5a467eda2eebaace1b66a0d66231"
 dependencies = [
  "namada_core",
 ]
@@ -4262,7 +4262,7 @@ dependencies = [
 [[package]]
 name = "namada_sdk"
 version = "0.39.0"
-source = "git+https://github.com/anoma/namada?branch=murisi/draft-with-masp-ibc-replay-protection#76fab4c6c7b1c12c65aa02cf4f2923429bd4da1d"
+source = "git+https://github.com/anoma/namada?rev=7dd97fa8600b5a467eda2eebaace1b66a0d66231#7dd97fa8600b5a467eda2eebaace1b66a0d66231"
 dependencies = [
  "async-trait",
  "bimap",
@@ -4273,6 +4273,7 @@ dependencies = [
  "data-encoding",
  "derivation-path",
  "duration-str",
+ "either",
  "ethbridge-bridge-contract",
  "ethers",
  "eyre",
@@ -4328,15 +4329,19 @@ dependencies = [
 [[package]]
 name = "namada_shielded_token"
 version = "0.39.0"
-source = "git+https://github.com/anoma/namada?branch=murisi/draft-with-masp-ibc-replay-protection#76fab4c6c7b1c12c65aa02cf4f2923429bd4da1d"
+source = "git+https://github.com/anoma/namada?rev=7dd97fa8600b5a467eda2eebaace1b66a0d66231#7dd97fa8600b5a467eda2eebaace1b66a0d66231"
 dependencies = [
  "borsh 1.5.0",
+ "lazy_static",
  "masp_primitives",
+ "masp_proofs",
  "namada_controller",
  "namada_core",
+ "namada_gas",
  "namada_parameters",
  "namada_storage",
  "namada_trans_token",
+ "rand_core 0.6.4",
  "serde",
  "smooth-operator",
  "tracing",
@@ -4345,7 +4350,7 @@ dependencies = [
 [[package]]
 name = "namada_state"
 version = "0.39.0"
-source = "git+https://github.com/anoma/namada?branch=murisi/draft-with-masp-ibc-replay-protection#76fab4c6c7b1c12c65aa02cf4f2923429bd4da1d"
+source = "git+https://github.com/anoma/namada?rev=7dd97fa8600b5a467eda2eebaace1b66a0d66231#7dd97fa8600b5a467eda2eebaace1b66a0d66231"
 dependencies = [
  "borsh 1.5.0",
  "itertools 0.12.1",
@@ -4369,7 +4374,7 @@ dependencies = [
 [[package]]
 name = "namada_storage"
 version = "0.39.0"
-source = "git+https://github.com/anoma/namada?branch=murisi/draft-with-masp-ibc-replay-protection#76fab4c6c7b1c12c65aa02cf4f2923429bd4da1d"
+source = "git+https://github.com/anoma/namada?rev=7dd97fa8600b5a467eda2eebaace1b66a0d66231#7dd97fa8600b5a467eda2eebaace1b66a0d66231"
 dependencies = [
  "borsh 1.5.0",
  "itertools 0.12.1",
@@ -4389,7 +4394,7 @@ dependencies = [
 [[package]]
 name = "namada_token"
 version = "0.39.0"
-source = "git+https://github.com/anoma/namada?branch=murisi/draft-with-masp-ibc-replay-protection#76fab4c6c7b1c12c65aa02cf4f2923429bd4da1d"
+source = "git+https://github.com/anoma/namada?rev=7dd97fa8600b5a467eda2eebaace1b66a0d66231#7dd97fa8600b5a467eda2eebaace1b66a0d66231"
 dependencies = [
  "borsh 1.5.0",
  "namada_core",
@@ -4404,7 +4409,7 @@ dependencies = [
 [[package]]
 name = "namada_trans_token"
 version = "0.39.0"
-source = "git+https://github.com/anoma/namada?branch=murisi/draft-with-masp-ibc-replay-protection#76fab4c6c7b1c12c65aa02cf4f2923429bd4da1d"
+source = "git+https://github.com/anoma/namada?rev=7dd97fa8600b5a467eda2eebaace1b66a0d66231#7dd97fa8600b5a467eda2eebaace1b66a0d66231"
 dependencies = [
  "konst",
  "namada_core",
@@ -4415,12 +4420,13 @@ dependencies = [
 [[package]]
 name = "namada_tx"
 version = "0.39.0"
-source = "git+https://github.com/anoma/namada?branch=murisi/draft-with-masp-ibc-replay-protection#76fab4c6c7b1c12c65aa02cf4f2923429bd4da1d"
+source = "git+https://github.com/anoma/namada?rev=7dd97fa8600b5a467eda2eebaace1b66a0d66231#7dd97fa8600b5a467eda2eebaace1b66a0d66231"
 dependencies = [
  "ark-bls12-381",
  "bitflags 2.5.0",
  "borsh 1.5.0",
  "data-encoding",
+ "either",
  "konst",
  "linkme",
  "masp_primitives",
@@ -4433,6 +4439,7 @@ dependencies = [
  "num-traits 0.2.18",
  "prost",
  "prost-types",
+ "rand_core 0.6.4",
  "serde",
  "serde_json",
  "sha2 0.9.9",
@@ -4443,7 +4450,7 @@ dependencies = [
 [[package]]
 name = "namada_vote_ext"
 version = "0.39.0"
-source = "git+https://github.com/anoma/namada?branch=murisi/draft-with-masp-ibc-replay-protection#76fab4c6c7b1c12c65aa02cf4f2923429bd4da1d"
+source = "git+https://github.com/anoma/namada?rev=7dd97fa8600b5a467eda2eebaace1b66a0d66231#7dd97fa8600b5a467eda2eebaace1b66a0d66231"
 dependencies = [
  "borsh 1.5.0",
  "linkme",
