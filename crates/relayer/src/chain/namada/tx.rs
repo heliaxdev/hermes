@@ -23,7 +23,7 @@ use namada_sdk::ibc::core::host::types::identifiers::{ChannelId, PortId};
 use namada_sdk::masp::{PaymentAddress, TransferTarget};
 use namada_sdk::masp_primitives::transaction::Transaction as MaspTransaction;
 use namada_sdk::{signing, tx, Namada};
-use namada_token::ShieldingTransfer;
+use namada_token::Transfer;
 use tendermint_proto::Protobuf;
 use tendermint_rpc::endpoint::broadcast::tx_sync::Response;
 use tracing::{debug, debug_span, trace};
@@ -214,7 +214,7 @@ impl NamadaChain {
         channel_id: &ChannelId,
         packet_data: &[u8],
         is_refund: bool,
-    ) -> Result<Option<(ShieldingTransfer, MaspTransaction)>, Error> {
+    ) -> Result<Option<(Transfer, MaspTransaction)>, Error> {
         let transfer = serde_json::from_slice::<PacketData>(packet_data)
             .ok()
             .and_then(|data| {
