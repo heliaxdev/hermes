@@ -6,10 +6,24 @@
 FROM rust:1-buster AS build-env
 
 ARG TAG
+ARG PROTOC_VERSION=28.1
 
 WORKDIR /root
 
 COPY . .
+
+# Install protoc
+RUN ARCH=$(uname -m) && OS=$(uname -s) && \
+    if [ "$OS" = "Linux" ] && [ "$ARCH" = "x86_64" ]; then \
+        PROTOC_ZIP=protoc-$PROTOC_VERSION-linux-x86_64.zip; \
+    elif [ "$OS" = "Linux" ] && [ "$ARCH" = "aarch64" ]; then \
+        PROTOC_ZIP=protoc-$PROTOC_VERSION-linux-aarch_64.zip; \
+    else \
+        echo "Unsupported OS/architecture: $OS-$ARCH"; exit 1; \
+    fi && \
+    wget https://github.com/protocolbuffers/protobuf/releases/download/v$PROTOC_VERSION/$PROTOC_ZIP -O /tmp/protoc.zip && \
+    unzip /tmp/protoc.zip -d /usr/local && \
+    rm -rf /tmp/protoc.zip
 RUN cargo build --release
 
 FROM ubuntu:latest
