@@ -9,7 +9,7 @@ on:
       - v[0-9]+.*
 
 env:
-  REGISTRY_IMAGE: informalsystems/hermes
+  REGISTRY_IMAGE: heliaxdev/hermes
 
 jobs:
   docker-build:
