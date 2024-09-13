@@ -40,13 +40,13 @@ ENTRYPOINT ["/usr/bin/hermes"]
 
 RUN ARCH=$(uname -m) && \
     if [ "$ARCH" = "x86_64" ]; then \
-        ARCH=amd64; \
+        DEB_URL=http://archive.ubuntu.com/ubuntu/pool/main/o/openssl/libssl1.1_1.1.0g-2ubuntu4_amd64.deb; \
     elif [ "$ARCH" = "aarch64" ]; then \
-        ARCH=arm64; \
+        DEB_URL=http://ports.ubuntu.com/pool/main/o/openssl/libssl1.1_1.1.1f-1ubuntu2_arm64.deb; \
     else \
         echo "Unsupported architecture: $ARCH"; exit 1; \
     fi && \
-    wget http://ports.ubuntu.com/pool/main/o/openssl/libssl1.1_1.1.1f-1ubuntu2_$ARCH.deb -O /tmp/libssl1.1.deb && \
+    wget $DEB_URL -O /tmp/libssl1.1.deb && \
     dpkg -i /tmp/libssl1.1.deb && \
     rm -rf /tmp/libssl1.1.deb
 
