@@ -45,7 +45,6 @@ use namada_sdk::io::{Client, NamadaIo};
 use namada_sdk::masp::fs::FsShieldedUtils;
 use namada_sdk::parameters::{storage as param_storage, EpochDuration};
 use namada_sdk::proof_of_stake::storage_key as pos_storage_key;
-use namada_sdk::proof_of_stake::OwnedPosParams;
 use namada_sdk::state::ics23_specs::ibc_proof_specs;
 use namada_sdk::state::Sha256Hasher;
 use namada_sdk::storage::{Key, KeySeg, PrefixValue};
@@ -141,16 +140,15 @@ impl NamadaChain {
     }
 
     fn get_unbonding_time(&self) -> Result<Duration, Error> {
-        let key = pos_storage_key::params_key();
+        let key = pos_storage_key::param_pipeline_len_key();
         let (value, _) = self.query(key, QueryHeight::Latest, IncludeProof::No)?;
-        let pos_params =
-            OwnedPosParams::try_from_slice(&value[..]).map_err(NamadaError::borsh_decode)?;
+        let pipeline_len = u64::try_from_slice(&value[..]).map_err(NamadaError::borsh_decode)?;
 
         let key = param_storage::get_epoch_duration_storage_key();
         let (value, _) = self.query(key, QueryHeight::Latest, IncludeProof::No)?;
         let epoch_duration =
             EpochDuration::try_from_slice(&value[..]).map_err(NamadaError::borsh_decode)?;
-        let unbonding_period = pos_params.pipeline_len * epoch_duration.min_duration.0;
+        let unbonding_period = pipeline_len * epoch_duration.min_duration.0;
         Ok(Duration::from_secs(unbonding_period))
     }
 
