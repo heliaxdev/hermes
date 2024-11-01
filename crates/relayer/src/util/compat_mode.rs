@@ -3,7 +3,7 @@ use tracing::warn;
 use tendermint::Version;
 use tendermint_rpc::client::CompatMode as TmCompatMode;
 
-use crate::chain::cosmos::version::ConsensusVersion;
+use crate::chain::version::ConsensusVersion;
 use crate::config::compat_mode::CompatMode;
 use crate::error::Error;
 
