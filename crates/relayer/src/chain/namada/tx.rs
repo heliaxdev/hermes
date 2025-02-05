@@ -4,6 +4,10 @@ use std::path::PathBuf;
 use std::thread;
 use std::time::Instant;
 
+// Namada tendermint (Delete them if the version doesn't match)
+use tendermint as namada_tendermint;
+use tendermint_rpc as namada_tendermint_rpc;
+
 use ibc_proto::google::protobuf::Any;
 use itertools::Itertools;
 use namada_sdk::address::{Address, ImplicitAddress};

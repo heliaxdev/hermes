@@ -7642,9 +7642,9 @@ dependencies = [
 
 [[package]]
 name = "tendermint-light-client"
-version = "0.40.0"
+version = "0.40.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "3e88c08a112db05101396a79f71c017d7dbf548dc21614f82251f17ecbe5d5e8"
+checksum = "a803ff14b11827772f696ba3a1873a5f24598121872c924a764011fc58fc22a0"
 dependencies = [
  "contracts",
  "crossbeam-channel",
@@ -7667,9 +7667,9 @@ dependencies = [
 
 [[package]]
 name = "tendermint-light-client-detector"
-version = "0.40.0"
+version = "0.40.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "d48a431ea923182c37ca9f3cc8333490ac6746a64520d1c4a3dd18c08b0806ac"
+checksum = "2f8c799eb7132aa2aebac82dcb3c3858981eca06eb4aa8944e0853d5ae682354"
 dependencies = [
  "crossbeam-channel",
  "derive_more 0.99.18",
@@ -7690,9 +7690,9 @@ dependencies = [
 
 [[package]]
 name = "tendermint-light-client-verifier"
-version = "0.40.0"
+version = "0.40.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "7affc5fffe9df158185e15bce3e47fc3a0c901e6708f3b7d33f0867d7aef8ce1"
+checksum = "f0cda4a449fc70985a95f892a67286f13afa4e048d90b8d04a2bf6341e88d1c2"
 dependencies = [
  "derive_more 0.99.18",
  "flex-error",
@@ -7756,9 +7756,9 @@ dependencies = [
 
 [[package]]
 name = "tendermint-testgen"
-version = "0.40.0"
+version = "0.40.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "7d97c36f54bf8754292166604e0c1a16cdbac3c7a2b59cb866f068b25fb0c811"
+checksum = "3fbbef28bac7b5b68f44416ef16d072ee8ea4af829aaf2fa259eee1c09237c36"
 dependencies = [
  "ed25519-consensus",
  "gumdrop",

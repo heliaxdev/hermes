@@ -6,6 +6,11 @@ use tracing::debug;
 
 use core::time::Duration;
 
+// Namada tendermint (Delete them if the version doesn't match)
+use tendermint as namada_tendermint;
+use tendermint_proto as namada_tendermint_proto;
+use tendermint_rpc as namada_tendermint_rpc;
+
 use ibc_proto::ibc::applications::fee::v1::{
     QueryIncentivizedPacketRequest, QueryIncentivizedPacketResponse,
 };

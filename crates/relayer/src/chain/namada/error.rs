@@ -1,3 +1,8 @@
+// Namada tendermint (Delete them if the version doesn't match)
+use tendermint as namada_tendermint;
+use tendermint_proto as namada_tendermint_proto;
+use tendermint_rpc as namada_tendermint_rpc;
+
 use flex_error::{define_error, DisplayOnly, TraceError};
 use ibc_relayer_types::core::ics24_host::identifier::ChainId;
 use tendermint::Error as TendermintError;

@@ -1,3 +1,7 @@
+// Namada tendermint (Delete them if the version doesn't match)
+use tendermint as namada_tendermint;
+use tendermint_rpc as namada_tendermint_rpc;
+
 use ibc_proto::Protobuf;
 use ibc_relayer::consensus_state::{AnyConsensusState, AnyConsensusStateWithHeight};
 use ibc_relayer_types::core::ics04_channel::packet::Sequence;

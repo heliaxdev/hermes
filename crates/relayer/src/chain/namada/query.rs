@@ -1,3 +1,7 @@
+// Namada tendermint (Delete them if the version doesn't match)
+use tendermint as namada_tendermint;
+use tendermint_proto as namada_tendermint_proto;
+
 use ibc_relayer_types::core::ics04_channel::packet::Sequence;
 use ibc_relayer_types::core::ics23_commitment::merkle::convert_tm_to_ics_merkle_proof;
 use ibc_relayer_types::core::ics23_commitment::merkle::MerkleProof;
