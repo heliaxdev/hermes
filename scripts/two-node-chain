@@ -1,0 +1,83 @@
+#!/bin/bash
+
+set -e
+
+if [ -z "$1" ]; then
+  echo missing DATA_DIR
+	exit 1
+fi
+DATA_DIR=$1
+mkdir -p ${DATA_DIR}
+
+CHAIN_ID="gaia-0"
+MONIKER0="validator0"
+MONIKER1="validator1"
+DENOM="stake"
+STAKE_AMOUNT="100000000000stake"
+USER_COINS="100000000stake,10000samoleans"
+
+BASE_DIR_0="${DATA_DIR}/${CHAIN_ID}/node0"
+BASE_DIR_1="${DATA_DIR}/${CHAIN_ID}/node1"
+
+# 1. Clean up
+rm -rf ${BASE_DIR_0} ${BASE_DIR_1}
+
+# 2. Init both nodes
+gaiad init $MONIKER0 --chain-id $CHAIN_ID --home ${BASE_DIR_0}
+gaiad init $MONIKER1 --chain-id $CHAIN_ID --home ${BASE_DIR_1}
+
+# 3. Add keys
+gaiad keys add $MONIKER0 --keyring-backend test --home ${BASE_DIR_0}
+gaiad keys add $MONIKER1 --keyring-backend test --home ${BASE_DIR_1}
+
+gaiad keys add user --keyring-backend="test" --output json --home ${BASE_DIR_0} > ${DATA_DIR}/${CHAIN_ID}/user_seed.json 2>&1
+
+# 4. Add both accounts to genesis
+ADDR1=$(gaiad keys show $MONIKER0 -a --keyring-backend test --home ${BASE_DIR_0})
+ADDR2=$(gaiad keys show $MONIKER1 -a --keyring-backend test --home ${BASE_DIR_1})
+gaiad genesis add-genesis-account $ADDR1 $STAKE_AMOUNT --home ${BASE_DIR_0}
+gaiad genesis add-genesis-account $ADDR2 $STAKE_AMOUNT --home ${BASE_DIR_0}
+gaiad genesis add-genesis-account $ADDR2 $STAKE_AMOUNT --home ${BASE_DIR_1}
+
+USER=$(gaiad --home ${BASE_DIR_0} keys --keyring-backend="test" show user -a)
+gaiad genesis add-genesis-account $USER $USER_COINS --home ${BASE_DIR_0}
+
+# 5. Create gentx for both
+mkdir -p ${BASE_DIR_1}/config/gentx
+gaiad genesis gentx $MONIKER0 --keyring-backend test --home ${BASE_DIR_0} --chain-id $CHAIN_ID $STAKE_AMOUNT
+cp ${BASE_DIR_0}/config/gentx/* ${BASE_DIR_1}/config/gentx/
+gaiad genesis gentx $MONIKER1 --keyring-backend test --home ${BASE_DIR_1} --chain-id $CHAIN_ID $STAKE_AMOUNT
+cp ${BASE_DIR_1}/config/gentx/* ${BASE_DIR_0}/config/gentx/
+
+# 6. Collect gentx (only from node0)
+gaiad genesis collect-gentxs --home ${BASE_DIR_0}
+
+# 7. Copy genesis and addrbook to node2
+cp ${BASE_DIR_0}/config/genesis.json ${BASE_DIR_1}/config/
+#cp ${BASE_DIR_0}/config/addrbook.json ${BASE_DIR_1}/config/
+
+# 8. Set persistent_peers (get node ID of node0)
+NODE0_ID=$(gaiad tendermint show-node-id --home ${BASE_DIR_0})
+sed -i "" "s/^persistent_peers =.*/persistent_peers = \"$NODE0_ID@127.0.0.1:26656\"/" ${BASE_DIR_1}/config/config.toml
+
+# 9. Change ports of node1 to avoid conflicts
+sed -i "" 's/0.0.0.0:26656/0.0.0.0:26666/g; s/26657/26667/g; s/1317/1318/g; s/9090/9091/g; s/9091/9092/g' ${BASE_DIR_1}/config/config.toml
+sed -i "" 's/6060/6061/g' ${BASE_DIR_1}/config/app.toml
+
+for base_dir in ${BASE_DIR_0} ${BASE_DIR_1}
+do
+    sed -i '' 's#"172800s"#"200s"#g' ${base_dir}/config/genesis.json
+    sed -i '' 's/timeout_commit = "5s"/timeout_commit = "1s"/g' ${base_dir}/config/config.toml
+    sed -i '' 's/timeout_propose = "3s"/timeout_propose = "1s"/g' ${base_dir}/config/config.toml
+    sed -i '' 's/index_all_keys = false/index_all_keys = true/g' ${base_dir}/config/config.toml
+    sed -i '' '/^\[grpc-web\]/,/^\[/s/^enable = true/enable = false/' ${base_dir}/config/app.toml
+    sed -i '' 's/minimum-gas-prices = ""/minimum-gas-prices = "0stake"/g' ${base_dir}/config/app.toml
+done
+
+echo "✅ Setup complete."
+echo ""
+echo "Start node0:"
+gaiad start --home ${BASE_DIR_0} --log_level info > ${BASE_DIR_0}/node0.log 2>&1 &
+echo ""
+echo "Start node1:"
+gaiad start --home ${BASE_DIR_1} --log_level info > ${BASE_DIR_1}/node1.log 2>&1 &

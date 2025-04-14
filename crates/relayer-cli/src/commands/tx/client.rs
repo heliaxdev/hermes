@@ -164,6 +164,9 @@ pub struct TxUpdateClientCmd {
         help = "The height that the chain underwent a genesis restart at. Requires --archive-address if used."
     )]
     restart_height: Option<BlockHeight>,
+
+    #[clap(long = "exploit-header", help = "for testing")]
+    exploit_header: bool,
 }
 
 impl TxUpdateClientCmd {
@@ -244,7 +247,7 @@ impl Runnable for TxUpdateClientCmd {
             .unwrap_or_else(exit_with_unrecoverable_error);
 
         let res = client
-            .build_update_client_and_send(target_height, trusted_height)
+            .build_update_client_and_send(target_height, trusted_height, self.exploit_header)
             .map_err(Error::foreign_client);
 
         match res {
