@@ -1213,17 +1213,13 @@ impl<DstChain: ChainHandle, SrcChain: ChainHandle> ForeignClient<DstChain, SrcCh
                     tm_header.signed_header.commit.signatures[len - 1] =
                         tendermint::block::CommitSig::BlockIdFlagAbsent;
 
-                    validators.pop();
-                    validators.push(validators[0].clone());
-                    let tmp_validator_set = tendermint::validator::Set::new(
+                    let mut changed = validators.pop().unwrap();
+                    changed.address = validators.last().unwrap().address;
+                    validators.push(changed);
+                    let validator_set = tendermint::validator::Set::new(
                         validators,
                         tm_header.validator_set.proposer().clone(),
                     );
-                    // use proto not to change the total_voting_power
-                    let mut validator_set: tendermint_proto::types::ValidatorSet =
-                        tmp_validator_set.into();
-                    validator_set.total_voting_power =
-                        tm_header.validator_set.total_voting_power().into();
                     tm_header.validator_set = validator_set.try_into().unwrap();
                     info!("DEBUG: new header {tm_header}");
                 }

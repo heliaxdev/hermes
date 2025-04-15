@@ -13,7 +13,8 @@ CHAIN_ID="gaia-0"
 MONIKER0="validator0"
 MONIKER1="validator1"
 DENOM="stake"
-STAKE_AMOUNT="100000000000stake"
+STAKE_AMOUNT="110000000000stake"
+STAKE_AMOUNT_1="50000000000stake"
 USER_COINS="100000000stake,10000samoleans"
 
 BASE_DIR_0="${DATA_DIR}/${CHAIN_ID}/node0"
@@ -46,7 +47,7 @@ gaiad genesis add-genesis-account $USER $USER_COINS --home ${BASE_DIR_0}
 mkdir -p ${BASE_DIR_1}/config/gentx
 gaiad genesis gentx $MONIKER0 --keyring-backend test --home ${BASE_DIR_0} --chain-id $CHAIN_ID $STAKE_AMOUNT
 cp ${BASE_DIR_0}/config/gentx/* ${BASE_DIR_1}/config/gentx/
-gaiad genesis gentx $MONIKER1 --keyring-backend test --home ${BASE_DIR_1} --chain-id $CHAIN_ID $STAKE_AMOUNT
+gaiad genesis gentx $MONIKER1 --keyring-backend test --home ${BASE_DIR_1} --chain-id $CHAIN_ID $STAKE_AMOUNT_1
 cp ${BASE_DIR_1}/config/gentx/* ${BASE_DIR_0}/config/gentx/
 
 # 6. Collect gentx (only from node0)
