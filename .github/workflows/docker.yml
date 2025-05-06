@@ -30,7 +30,7 @@ jobs:
         id: meta
         uses: docker/metadata-action@v5
         with:
-          images: ${{ env.REGISTRY_IMAGE }}
+          images: ghcr.io/${{ env.REGISTRY_IMAGE }}
           tags: |
             type=ref,event=tag
             type=ref,event=branch
