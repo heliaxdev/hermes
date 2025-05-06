@@ -30,7 +30,7 @@ jobs:
         id: meta
         uses: docker/metadata-action@v5
         with:
-          images: ghcr.io/${{ env.REGISTRY_IMAGE }}
+          images: ghcr.io/${{ github.repository_owner }}/hermes
           tags: |
             type=ref,event=tag
             type=ref,event=branch
@@ -59,6 +59,6 @@ jobs:
           platforms: ${{ matrix.platform.id }}
           push: true
           labels: ${{ steps.meta.outputs.labels }}
-          tags: v1.13.0
+          tags: 1.13.0
           cache-from: type=gha
           cache-to: type=gha,mode=max
