@@ -20,8 +20,8 @@ jobs:
         platform:
           - id: linux/amd64
             name: amd64
-          - id: linux/arm64
-            name: arm64
+          #- id: linux/arm64
+          #  name: arm64
     steps:
       - name: Checkout
         uses: actions/checkout@v4
