@@ -23,11 +23,15 @@ RUN ARCH=$(uname -m) && \
     unzip /tmp/protoc.zip -d /usr/local && \
     rm -rf /tmp/protoc.zip
 
-RUN apt update && apt install -y clang libssl-dev pkg-config
+RUN apt update && apt install -y clang libssl-dev pkg-config curl
 
 COPY . .
 
 RUN cargo build --release
+
+RUN curl -o /root/masp-spend.params -L https://github.com/anoma/masp-mpc/releases/download/namada-trusted-setup/masp-spend.params?raw=true \
+    && curl -o /root/masp-output.params -L https://github.com/anoma/masp-mpc/releases/download/namada-trusted-setup/masp-output.params?raw=true \
+    && curl -o /root/masp-convert.params -L https://github.com/anoma/masp-mpc/releases/download/namada-trusted-setup/masp-convert.params?raw=true
 
 FROM ubuntu:latest
 LABEL maintainer="hello@informal.systems"
@@ -51,6 +55,10 @@ RUN ARCH=$(uname -m) && \
     wget $DEB_URL -O /tmp/libssl1.1.deb && \
     dpkg -i /tmp/libssl1.1.deb && \
     rm -rf /tmp/libssl1.1.deb
+
+RUN mkdir -p /home/hermes/.masp-params
+COPY --chown=hermes:hermes --from=build-env /root/masp-*.params /home/hermes/.masp-params
+ENV NAMADA_MASP_PARAMS_DIR=/home/hermes/.masp-params
 
 USER hermes:hermes
 ENTRYPOINT ["/usr/bin/hermes"]
