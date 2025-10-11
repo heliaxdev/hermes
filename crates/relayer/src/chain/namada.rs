@@ -211,7 +211,7 @@ impl ChainEndpoint for NamadaChain {
                         .expect("compatMode should be parsable")
                 })
             })
-            .unwrap_or(CompatMode::V0_37);
+            .unwrap_or(CompatMode::V0_38);
         rpc_client.set_compat_mode(compat_mode);
 
         let node_info = rt.block_on(fetch_node_info(&rpc_client, &config))?;
@@ -1207,9 +1207,9 @@ impl ChainEndpoint for NamadaChain {
             .rt
             .block_on(rpc_call)
             .map_err(|e| NamadaError::rpc(self.config.rpc_addr.clone(), e))?;
-        let raw_header = tendermint_proto::v0_37::types::Header::from(response.block.header);
+        let raw_header = tendermint_proto::v0_38::types::Header::from(response.block.header);
         let encoded_header = raw_header.encode_to_vec();
-        let raw_header: tendermint_proto::v0_37::types::Header =
+        let raw_header: tendermint_proto::v0_38::types::Header =
             prost::Message::decode(&encoded_header[..])
                 .map_err(|e| Error::protobuf_decode("TmBlockHeader".to_string(), e))?;
         let header: tendermint::block::Header =
