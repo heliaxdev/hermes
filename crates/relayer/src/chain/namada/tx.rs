@@ -11,7 +11,7 @@ use namada_sdk::args::{self, TxBuilder};
 use namada_sdk::args::{Tx as TxArgs, TxCustom};
 use namada_sdk::chain::ChainId;
 use namada_sdk::io::NamadaIo;
-use namada_sdk::tx::ProcessTxResponse;
+use namada_sdk::tx::{ProcessTxResponse, Tx};
 use namada_sdk::{rpc, signing, tx, Namada};
 use tendermint_rpc::endpoint::broadcast::tx_sync::Response;
 use tracing::{debug, debug_span, trace, warn};
@@ -34,7 +34,7 @@ impl NamadaChain {
             return Err(Error::send_tx("No message to be batched".to_string()));
         }
 
-        let tx_args = self.make_tx_args()?;
+        let mut tx_args = self.make_tx_args()?;
 
         let relayer_key = self.get_key()?;
         let relayer_addr = relayer_key.address;
@@ -51,26 +51,39 @@ impl NamadaChain {
             signatures: vec![],
             wrapper_signature: None,
         };
-        let mut txs = Vec::new();
+        // let mut txs = Vec::new();
+        let mut tx: Option<Tx> = None;
+        let mut signing_data = None;
         for msg in msgs {
-            let (mut tx, signing_data) = rt
+            let (mut inner_tx, inner_signing_data) = rt
                 .block_on(args.build(&self.ctx))
                 .map_err(NamadaError::namada)?;
-            self.set_tx_data(&mut tx, msg)?;
-            txs.push((tx, signing_data));
+            self.set_tx_data(&mut inner_tx, msg)?;
+            // txs.push((tx, signing_data));
+
+            if let Some(batched_tx) = tx.take() {
+                tx = Some(Tx::merge_transactions(batched_tx, inner_tx).unwrap())
+            } else {
+                tx = Some(inner_tx);
+            }
+            if signing_data.is_none() {
+                // This is fine, as only the relayers is signing the transactions
+                signing_data = Some(inner_signing_data);
+            }
         }
-        let (mut tx, signing_data) = tx::build_batch(txs).map_err(NamadaError::namada)?;
-        // This is fine, as only the relayers is signing the transactions
-        let signing_tx_data = signing_data
-            .signing_data
-            .first()
-            .expect("SigningData should exist");
+
+        let mut tx = tx.unwrap();
+        let signing_data = signing_data.unwrap();
+        let signing_tx_data = signing_data.signing_tx_data();
+        let signing_tx_data = signing_tx_data.first().expect("SigningData should exist");
 
         // Estimate the fee with dry-run
         match self.estimate_fee(tx.clone(), &tx_args, signing_tx_data) {
             // Set the estimated fee
             Ok(Some((fee_token, gas_limit, fee_amount))) => {
-                self.prepare_tx_with_gas(&mut tx, &fee_token, gas_limit, fee_amount)?
+                let wrap_tx =
+                    self.prepare_tx_with_gas(&mut tx, &fee_token, gas_limit, fee_amount)?;
+                tx_args.wrap_tx = Some(wrap_tx);
             }
             Ok(None) => {
                 // the default gas limit will be used
@@ -99,15 +112,6 @@ impl NamadaChain {
                 _ => return Err(err),
             },
         }
-
-        rt.block_on(self.ctx.sign(
-            &mut tx,
-            &tx_args,
-            signing::SigningData::Wrapper(signing_data.clone()),
-            signing::default_sign,
-            (),
-        ))
-        .map_err(NamadaError::namada)?;
 
         let tx_header_hash = tx.header_hash().to_string();
         let response = rt
@@ -258,7 +262,7 @@ impl NamadaChain {
         fee_token: &Address,
         gas_limit: u64,
         fee_amount: f64,
-    ) -> Result<(), Error> {
+    ) -> Result<args::Wrapper, Error> {
         let relayer_key = self.get_key()?;
         let relayer_public_key = relayer_key.secret_key.to_public();
 
@@ -266,19 +270,17 @@ impl NamadaChain {
             .to_string()
             .parse()
             .expect("Fee should be parsable");
+
+        let wrap_tx = args::Wrapper {
+            broadcast_only: true,
+            fee_amount: Some(fee_amount),
+            wrapper_fee_payer: Some(relayer_public_key.clone()),
+            fee_token: fee_token.clone(),
+            gas_limit: gas_limit.into(),
+        };
         let fee_amount = self
             .rt
-            .block_on(signing::validate_fee(
-                &self.ctx,
-                &args::Wrapper {
-                    broadcast_only: true,
-                    fee_amount: Some(fee_amount),
-                    wrapper_fee_payer: Some(relayer_public_key.clone()),
-                    fee_token: fee_token.clone(),
-                    gas_limit: gas_limit.into(),
-                },
-                false,
-            ))
+            .block_on(signing::validate_fee(&self.ctx, &wrap_tx, false))
             .map_err(NamadaError::namada)?;
 
         tx.add_wrapper(
@@ -290,7 +292,9 @@ impl NamadaChain {
             gas_limit.into(),
         );
 
-        Ok(())
+        tx.sign_wrapper(relayer_key.secret_key);
+
+        Ok(wrap_tx)
     }
 
     pub fn wait_for_block_commits(
