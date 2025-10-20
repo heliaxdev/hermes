@@ -6116,7 +6116,7 @@ dependencies = [
 [[package]]
 name = "namada_account"
 version = "0.251.0"
-source = "git+https://github.com/namada-net/namada?rev=3b4d65df20eca3cde11e904bc6b0392f765d341a#3b4d65df20eca3cde11e904bc6b0392f765d341a"
+source = "git+https://github.com/namada-net/namada?rev=a7cb7e33989acbee7326a30712e655186df5c837#a7cb7e33989acbee7326a30712e655186df5c837"
 dependencies = [
  "borsh",
  "namada_core",
@@ -6128,7 +6128,7 @@ dependencies = [
 [[package]]
 name = "namada_controller"
 version = "0.251.0"
-source = "git+https://github.com/namada-net/namada?rev=3b4d65df20eca3cde11e904bc6b0392f765d341a#3b4d65df20eca3cde11e904bc6b0392f765d341a"
+source = "git+https://github.com/namada-net/namada?rev=a7cb7e33989acbee7326a30712e655186df5c837#a7cb7e33989acbee7326a30712e655186df5c837"
 dependencies = [
  "namada_core",
  "smooth-operator",
@@ -6138,7 +6138,7 @@ dependencies = [
 [[package]]
 name = "namada_core"
 version = "0.251.0"
-source = "git+https://github.com/namada-net/namada?rev=3b4d65df20eca3cde11e904bc6b0392f765d341a#3b4d65df20eca3cde11e904bc6b0392f765d341a"
+source = "git+https://github.com/namada-net/namada?rev=a7cb7e33989acbee7326a30712e655186df5c837#a7cb7e33989acbee7326a30712e655186df5c837"
 dependencies = [
  "bech32 0.11.0",
  "borsh",
@@ -6187,7 +6187,7 @@ dependencies = [
 [[package]]
 name = "namada_ethereum_bridge"
 version = "0.251.0"
-source = "git+https://github.com/namada-net/namada?rev=3b4d65df20eca3cde11e904bc6b0392f765d341a#3b4d65df20eca3cde11e904bc6b0392f765d341a"
+source = "git+https://github.com/namada-net/namada?rev=a7cb7e33989acbee7326a30712e655186df5c837#a7cb7e33989acbee7326a30712e655186df5c837"
 dependencies = [
  "borsh",
  "ethers",
@@ -6215,7 +6215,7 @@ dependencies = [
 [[package]]
 name = "namada_events"
 version = "0.251.0"
-source = "git+https://github.com/namada-net/namada?rev=3b4d65df20eca3cde11e904bc6b0392f765d341a#3b4d65df20eca3cde11e904bc6b0392f765d341a"
+source = "git+https://github.com/namada-net/namada?rev=a7cb7e33989acbee7326a30712e655186df5c837#a7cb7e33989acbee7326a30712e655186df5c837"
 dependencies = [
  "borsh",
  "namada_core",
@@ -6229,7 +6229,7 @@ dependencies = [
 [[package]]
 name = "namada_gas"
 version = "0.251.0"
-source = "git+https://github.com/namada-net/namada?rev=3b4d65df20eca3cde11e904bc6b0392f765d341a#3b4d65df20eca3cde11e904bc6b0392f765d341a"
+source = "git+https://github.com/namada-net/namada?rev=a7cb7e33989acbee7326a30712e655186df5c837#a7cb7e33989acbee7326a30712e655186df5c837"
 dependencies = [
  "borsh",
  "namada_core",
@@ -6242,7 +6242,7 @@ dependencies = [
 [[package]]
 name = "namada_governance"
 version = "0.251.0"
-source = "git+https://github.com/namada-net/namada?rev=3b4d65df20eca3cde11e904bc6b0392f765d341a#3b4d65df20eca3cde11e904bc6b0392f765d341a"
+source = "git+https://github.com/namada-net/namada?rev=a7cb7e33989acbee7326a30712e655186df5c837#a7cb7e33989acbee7326a30712e655186df5c837"
 dependencies = [
  "borsh",
  "itertools 0.14.0",
@@ -6265,7 +6265,7 @@ dependencies = [
 [[package]]
 name = "namada_ibc"
 version = "0.251.0"
-source = "git+https://github.com/namada-net/namada?rev=3b4d65df20eca3cde11e904bc6b0392f765d341a#3b4d65df20eca3cde11e904bc6b0392f765d341a"
+source = "git+https://github.com/namada-net/namada?rev=a7cb7e33989acbee7326a30712e655186df5c837#a7cb7e33989acbee7326a30712e655186df5c837"
 dependencies = [
  "borsh",
  "data-encoding",
@@ -6300,7 +6300,7 @@ dependencies = [
 [[package]]
 name = "namada_io"
 version = "0.251.0"
-source = "git+https://github.com/namada-net/namada?rev=3b4d65df20eca3cde11e904bc6b0392f765d341a#3b4d65df20eca3cde11e904bc6b0392f765d341a"
+source = "git+https://github.com/namada-net/namada?rev=a7cb7e33989acbee7326a30712e655186df5c837#a7cb7e33989acbee7326a30712e655186df5c837"
 dependencies = [
  "async-trait",
  "kdam",
@@ -6313,7 +6313,7 @@ dependencies = [
 [[package]]
 name = "namada_macros"
 version = "0.251.0"
-source = "git+https://github.com/namada-net/namada?rev=3b4d65df20eca3cde11e904bc6b0392f765d341a#3b4d65df20eca3cde11e904bc6b0392f765d341a"
+source = "git+https://github.com/namada-net/namada?rev=a7cb7e33989acbee7326a30712e655186df5c837#a7cb7e33989acbee7326a30712e655186df5c837"
 dependencies = [
  "data-encoding",
  "proc-macro2 1.0.101",
@@ -6325,7 +6325,7 @@ dependencies = [
 [[package]]
 name = "namada_merkle_tree"
 version = "0.251.0"
-source = "git+https://github.com/namada-net/namada?rev=3b4d65df20eca3cde11e904bc6b0392f765d341a#3b4d65df20eca3cde11e904bc6b0392f765d341a"
+source = "git+https://github.com/namada-net/namada?rev=a7cb7e33989acbee7326a30712e655186df5c837#a7cb7e33989acbee7326a30712e655186df5c837"
 dependencies = [
  "borsh",
  "derivative",
@@ -6341,7 +6341,7 @@ dependencies = [
 [[package]]
 name = "namada_parameters"
 version = "0.251.0"
-source = "git+https://github.com/namada-net/namada?rev=3b4d65df20eca3cde11e904bc6b0392f765d341a#3b4d65df20eca3cde11e904bc6b0392f765d341a"
+source = "git+https://github.com/namada-net/namada?rev=a7cb7e33989acbee7326a30712e655186df5c837#a7cb7e33989acbee7326a30712e655186df5c837"
 dependencies = [
  "namada_core",
  "namada_macros",
@@ -6356,7 +6356,7 @@ dependencies = [
 [[package]]
 name = "namada_proof_of_stake"
 version = "0.251.0"
-source = "git+https://github.com/namada-net/namada?rev=3b4d65df20eca3cde11e904bc6b0392f765d341a#3b4d65df20eca3cde11e904bc6b0392f765d341a"
+source = "git+https://github.com/namada-net/namada?rev=a7cb7e33989acbee7326a30712e655186df5c837#a7cb7e33989acbee7326a30712e655186df5c837"
 dependencies = [
  "borsh",
  "itertools 0.14.0",
@@ -6380,7 +6380,7 @@ dependencies = [
 [[package]]
 name = "namada_replay_protection"
 version = "0.251.0"
-source = "git+https://github.com/namada-net/namada?rev=3b4d65df20eca3cde11e904bc6b0392f765d341a#3b4d65df20eca3cde11e904bc6b0392f765d341a"
+source = "git+https://github.com/namada-net/namada?rev=a7cb7e33989acbee7326a30712e655186df5c837#a7cb7e33989acbee7326a30712e655186df5c837"
 dependencies = [
  "namada_core",
 ]
@@ -6388,7 +6388,7 @@ dependencies = [
 [[package]]
 name = "namada_sdk"
 version = "0.251.0"
-source = "git+https://github.com/namada-net/namada?rev=3b4d65df20eca3cde11e904bc6b0392f765d341a#3b4d65df20eca3cde11e904bc6b0392f765d341a"
+source = "git+https://github.com/namada-net/namada?rev=a7cb7e33989acbee7326a30712e655186df5c837#a7cb7e33989acbee7326a30712e655186df5c837"
 dependencies = [
  "async-trait",
  "bech32 0.11.0",
@@ -6458,7 +6458,7 @@ dependencies = [
 [[package]]
 name = "namada_shielded_token"
 version = "0.251.0"
-source = "git+https://github.com/namada-net/namada?rev=3b4d65df20eca3cde11e904bc6b0392f765d341a#3b4d65df20eca3cde11e904bc6b0392f765d341a"
+source = "git+https://github.com/namada-net/namada?rev=a7cb7e33989acbee7326a30712e655186df5c837#a7cb7e33989acbee7326a30712e655186df5c837"
 dependencies = [
  "async-trait",
  "borsh",
@@ -6501,7 +6501,7 @@ dependencies = [
 [[package]]
 name = "namada_state"
 version = "0.251.0"
-source = "git+https://github.com/namada-net/namada?rev=3b4d65df20eca3cde11e904bc6b0392f765d341a#3b4d65df20eca3cde11e904bc6b0392f765d341a"
+source = "git+https://github.com/namada-net/namada?rev=a7cb7e33989acbee7326a30712e655186df5c837#a7cb7e33989acbee7326a30712e655186df5c837"
 dependencies = [
  "borsh",
  "clru",
@@ -6524,7 +6524,7 @@ dependencies = [
 [[package]]
 name = "namada_storage"
 version = "0.251.0"
-source = "git+https://github.com/namada-net/namada?rev=3b4d65df20eca3cde11e904bc6b0392f765d341a#3b4d65df20eca3cde11e904bc6b0392f765d341a"
+source = "git+https://github.com/namada-net/namada?rev=a7cb7e33989acbee7326a30712e655186df5c837#a7cb7e33989acbee7326a30712e655186df5c837"
 dependencies = [
  "borsh",
  "itertools 0.14.0",
@@ -6543,7 +6543,7 @@ dependencies = [
 [[package]]
 name = "namada_systems"
 version = "0.251.0"
-source = "git+https://github.com/namada-net/namada?rev=3b4d65df20eca3cde11e904bc6b0392f765d341a#3b4d65df20eca3cde11e904bc6b0392f765d341a"
+source = "git+https://github.com/namada-net/namada?rev=a7cb7e33989acbee7326a30712e655186df5c837#a7cb7e33989acbee7326a30712e655186df5c837"
 dependencies = [
  "namada_core",
  "namada_events",
@@ -6553,7 +6553,7 @@ dependencies = [
 [[package]]
 name = "namada_token"
 version = "0.251.0"
-source = "git+https://github.com/namada-net/namada?rev=3b4d65df20eca3cde11e904bc6b0392f765d341a#3b4d65df20eca3cde11e904bc6b0392f765d341a"
+source = "git+https://github.com/namada-net/namada?rev=a7cb7e33989acbee7326a30712e655186df5c837#a7cb7e33989acbee7326a30712e655186df5c837"
 dependencies = [
  "borsh",
  "namada_core",
@@ -6571,7 +6571,7 @@ dependencies = [
 [[package]]
 name = "namada_trans_token"
 version = "0.251.0"
-source = "git+https://github.com/namada-net/namada?rev=3b4d65df20eca3cde11e904bc6b0392f765d341a#3b4d65df20eca3cde11e904bc6b0392f765d341a"
+source = "git+https://github.com/namada-net/namada?rev=a7cb7e33989acbee7326a30712e655186df5c837#a7cb7e33989acbee7326a30712e655186df5c837"
 dependencies = [
  "konst",
  "namada_core",
@@ -6588,7 +6588,7 @@ dependencies = [
 [[package]]
 name = "namada_tx"
 version = "0.251.0"
-source = "git+https://github.com/namada-net/namada?rev=3b4d65df20eca3cde11e904bc6b0392f765d341a#3b4d65df20eca3cde11e904bc6b0392f765d341a"
+source = "git+https://github.com/namada-net/namada?rev=a7cb7e33989acbee7326a30712e655186df5c837#a7cb7e33989acbee7326a30712e655186df5c837"
 dependencies = [
  "ark-bls12-381",
  "bitflags 2.9.4",
@@ -6617,7 +6617,7 @@ dependencies = [
 [[package]]
 name = "namada_tx_env"
 version = "0.251.0"
-source = "git+https://github.com/namada-net/namada?rev=3b4d65df20eca3cde11e904bc6b0392f765d341a#3b4d65df20eca3cde11e904bc6b0392f765d341a"
+source = "git+https://github.com/namada-net/namada?rev=a7cb7e33989acbee7326a30712e655186df5c837#a7cb7e33989acbee7326a30712e655186df5c837"
 dependencies = [
  "namada_core",
  "namada_events",
@@ -6627,7 +6627,7 @@ dependencies = [
 [[package]]
 name = "namada_vm"
 version = "0.251.0"
-source = "git+https://github.com/namada-net/namada?rev=3b4d65df20eca3cde11e904bc6b0392f765d341a#3b4d65df20eca3cde11e904bc6b0392f765d341a"
+source = "git+https://github.com/namada-net/namada?rev=a7cb7e33989acbee7326a30712e655186df5c837#a7cb7e33989acbee7326a30712e655186df5c837"
 dependencies = [
  "borsh",
  "clru",
@@ -6651,7 +6651,7 @@ dependencies = [
 [[package]]
 name = "namada_vote_ext"
 version = "0.251.0"
-source = "git+https://github.com/namada-net/namada?rev=3b4d65df20eca3cde11e904bc6b0392f765d341a#3b4d65df20eca3cde11e904bc6b0392f765d341a"
+source = "git+https://github.com/namada-net/namada?rev=a7cb7e33989acbee7326a30712e655186df5c837#a7cb7e33989acbee7326a30712e655186df5c837"
 dependencies = [
  "borsh",
  "namada_core",
@@ -6663,7 +6663,7 @@ dependencies = [
 [[package]]
 name = "namada_vp"
 version = "0.251.0"
-source = "git+https://github.com/namada-net/namada?rev=3b4d65df20eca3cde11e904bc6b0392f765d341a#3b4d65df20eca3cde11e904bc6b0392f765d341a"
+source = "git+https://github.com/namada-net/namada?rev=a7cb7e33989acbee7326a30712e655186df5c837#a7cb7e33989acbee7326a30712e655186df5c837"
 dependencies = [
  "namada_core",
  "namada_events",
@@ -6679,7 +6679,7 @@ dependencies = [
 [[package]]
 name = "namada_vp_env"
 version = "0.251.0"
-source = "git+https://github.com/namada-net/namada?rev=3b4d65df20eca3cde11e904bc6b0392f765d341a#3b4d65df20eca3cde11e904bc6b0392f765d341a"
+source = "git+https://github.com/namada-net/namada?rev=a7cb7e33989acbee7326a30712e655186df5c837#a7cb7e33989acbee7326a30712e655186df5c837"
 dependencies = [
  "derivative",
  "masp_primitives",
@@ -6694,7 +6694,7 @@ dependencies = [
 [[package]]
 name = "namada_wallet"
 version = "0.251.0"
-source = "git+https://github.com/namada-net/namada?rev=3b4d65df20eca3cde11e904bc6b0392f765d341a#3b4d65df20eca3cde11e904bc6b0392f765d341a"
+source = "git+https://github.com/namada-net/namada?rev=a7cb7e33989acbee7326a30712e655186df5c837#a7cb7e33989acbee7326a30712e655186df5c837"
 dependencies = [
  "bimap",
  "borsh",

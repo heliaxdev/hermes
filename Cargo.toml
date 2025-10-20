@@ -44,7 +44,7 @@ tendermint-testgen               = { version = "0.40.0" }
 
 # Namada dependencies
 # namada_sdk              = "0.149.1"
-namada_sdk              = { git = "https://github.com/namada-net/namada", rev = "3b4d65df20eca3cde11e904bc6b0392f765d341a" }
+namada_sdk              = { git = "https://github.com/namada-net/namada", rev = "a7cb7e33989acbee7326a30712e655186df5c837" }
 
 # Other dependencies
 abscissa_core            = "=0.6.0"

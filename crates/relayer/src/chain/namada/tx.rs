@@ -5,13 +5,13 @@ use std::thread;
 use std::time::Instant;
 
 use ibc_proto::google::protobuf::Any;
-use itertools::Itertools;
+use itertools::{Either, Itertools};
 use namada_sdk::address::{Address, ImplicitAddress};
 use namada_sdk::args::{self, TxBuilder};
 use namada_sdk::args::{Tx as TxArgs, TxCustom};
 use namada_sdk::chain::ChainId;
 use namada_sdk::io::NamadaIo;
-use namada_sdk::tx::{ProcessTxResponse, Tx};
+use namada_sdk::tx::ProcessTxResponse;
 use namada_sdk::{rpc, signing, tx, Namada};
 use tendermint_rpc::endpoint::broadcast::tx_sync::Response;
 use tracing::{debug, debug_span, trace, warn};
@@ -51,31 +51,20 @@ impl NamadaChain {
             signatures: vec![],
             wrapper_signature: None,
         };
-        // let mut txs = Vec::new();
-        let mut tx: Option<Tx> = None;
-        let mut signing_data = None;
+        let mut txs = Vec::with_capacity(msgs.len());
         for msg in msgs {
-            let (mut inner_tx, inner_signing_data) = rt
+            let (mut tx, signing_data) = rt
                 .block_on(args.build(&self.ctx))
                 .map_err(NamadaError::namada)?;
-            self.set_tx_data(&mut inner_tx, msg)?;
-            // txs.push((tx, signing_data));
-
-            if let Some(batched_tx) = tx.take() {
-                tx = Some(Tx::merge_transactions(batched_tx, inner_tx).unwrap())
-            } else {
-                tx = Some(inner_tx);
-            }
-            if signing_data.is_none() {
-                // This is fine, as only the relayers is signing the transactions
-                signing_data = Some(inner_signing_data);
-            }
+            self.set_tx_data(&mut tx, msg)?;
+            txs.push((tx, signing_data));
         }
-
-        let mut tx = tx.unwrap();
-        let signing_data = signing_data.unwrap();
-        let signing_tx_data = signing_data.signing_tx_data();
-        let signing_tx_data = signing_tx_data.first().expect("SigningData should exist");
+        let (mut tx, signing_data) = tx::build_batch(txs).map_err(NamadaError::namada)?;
+        // This is fine, as only the relayers is signing the transactions
+        let signing_tx_data = match &signing_data {
+            Either::Right(signing_data) => signing_data.first().expect("SigningData should exist"),
+            Either::Left(_signing_wrapper_data) => unreachable!(),
+        };
 
         // Estimate the fee with dry-run
         match self.estimate_fee(tx.clone(), &tx_args, signing_tx_data) {
