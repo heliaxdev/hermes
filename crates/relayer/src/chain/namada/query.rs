@@ -17,7 +17,7 @@ use namada_sdk::tx::data::ResultCode;
 use tendermint::block::Height as TmHeight;
 use tendermint::merkle::proof::ProofOps;
 use tendermint::Hash as TmHash;
-use tendermint_proto::v0_37::abci::Event as TmEvent;
+use tendermint_proto::v0_38::abci::Event as TmEvent;
 
 use crate::chain::endpoint::ChainEndpoint;
 use crate::chain::requests::{
@@ -283,7 +283,9 @@ impl NamadaChain {
 
         let events = response
             .end_block_events
-            .ok_or_else(|| Error::query("No transaction result was found".to_string()))?;
+            .unwrap_or_default()
+            .into_iter()
+            .chain(response.finalize_block_events.into_iter());
         let mut ibc_events = vec![];
         for event in events {
             let pb_abci_event = TmEvent::from(event);
